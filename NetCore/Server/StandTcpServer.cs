@@ -18,7 +18,10 @@ namespace NetCore.Server
     public class StandTcpServer : AsyncSocketServerBase
     {
         [Dependency]
-        public IProtocolHandler protocolHandler { get; set; }
+        public IProtocolHandler Handler { get; set; }
+        [Dependency]
+        public IActionExecuter ActionExecuter { get; set; }
+
 
         public override string ServerName => "StandTcpServer";
 
@@ -57,9 +60,7 @@ namespace NetCore.Server
                 while(token.Pakcage.OutPutPackage(out byte[] data))
                 {
                     //处理数据
-                    protocolHandler.Deserialize(data);
-
-
+                    Handler.DataHandle(data,ActionExecuter);
 
                     Notify(NotifyType.RequsetLog, Encoding.UTF8.GetString(data), this);
                 }
