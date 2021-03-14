@@ -25,16 +25,15 @@ namespace ProtobufProto.Model {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg1SZXF1ZXN0LnByb3RvEhNQcm90b2J1ZlByb3RvLk1vZGVsGhlnb29nbGUv",
-            "cHJvdG9idWYvQW55LnByb3RvImgKB1JlcXVlc3QSEgoKQ29udHJvbGxlchgB",
-            "IAEoCRIOCgZBY3Rpb24YAiABKAkSDwoHU3ViTmFtZRgDIAEoCRIoCgpTdWJS",
-            "ZXF1ZXN0GAQgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueSIzCg5SZWdpc3Ry",
-            "UmVxdWVzdBIPCgdBY2NvdW50GAEgASgJEhAKCFBhc3N3b3JkGAIgASgJIjEK",
-            "DExvZ2luUmVxdWVzdBIPCgdBY2NvdW50GAEgASgJEhAKCFBhc3N3b3JkGAIg",
-            "ASgJYgZwcm90bzM="));
+            "cHJvdG9idWYvQW55LnByb3RvIlcKB1JlcXVlc3QSEgoKQ29udHJvbGxlchgB",
+            "IAEoCRIOCgZBY3Rpb24YAiABKAkSKAoKU3ViUmVxdWVzdBgDIAEoCzIULmdv",
+            "b2dsZS5wcm90b2J1Zi5BbnkiMwoOUmVnaXN0clJlcXVlc3QSDwoHQWNjb3Vu",
+            "dBgBIAEoCRIQCghQYXNzd29yZBgCIAEoCSIxCgxMb2dpblJlcXVlc3QSDwoH",
+            "QWNjb3VudBgBIAEoCRIQCghQYXNzd29yZBgCIAEoCWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.AnyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Request), global::ProtobufProto.Model.Request.Parser, new[]{ "Controller", "Action", "SubName", "SubRequest" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Request), global::ProtobufProto.Model.Request.Parser, new[]{ "Controller", "Action", "SubRequest" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.RegistrRequest), global::ProtobufProto.Model.RegistrRequest.Parser, new[]{ "Account", "Password" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.LoginRequest), global::ProtobufProto.Model.LoginRequest.Parser, new[]{ "Account", "Password" }, null, null, null, null)
           }));
@@ -77,7 +76,6 @@ namespace ProtobufProto.Model {
     public Request(Request other) : this() {
       controller_ = other.controller_;
       action_ = other.action_;
-      subName_ = other.subName_;
       subRequest_ = other.subRequest_ != null ? other.subRequest_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -109,19 +107,8 @@ namespace ProtobufProto.Model {
       }
     }
 
-    /// <summary>Field number for the "SubName" field.</summary>
-    public const int SubNameFieldNumber = 3;
-    private string subName_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string SubName {
-      get { return subName_; }
-      set {
-        subName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
     /// <summary>Field number for the "SubRequest" field.</summary>
-    public const int SubRequestFieldNumber = 4;
+    public const int SubRequestFieldNumber = 3;
     private global::Google.Protobuf.WellKnownTypes.Any subRequest_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Google.Protobuf.WellKnownTypes.Any SubRequest {
@@ -146,7 +133,6 @@ namespace ProtobufProto.Model {
       }
       if (Controller != other.Controller) return false;
       if (Action != other.Action) return false;
-      if (SubName != other.SubName) return false;
       if (!object.Equals(SubRequest, other.SubRequest)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -156,7 +142,6 @@ namespace ProtobufProto.Model {
       int hash = 1;
       if (Controller.Length != 0) hash ^= Controller.GetHashCode();
       if (Action.Length != 0) hash ^= Action.GetHashCode();
-      if (SubName.Length != 0) hash ^= SubName.GetHashCode();
       if (subRequest_ != null) hash ^= SubRequest.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -182,12 +167,8 @@ namespace ProtobufProto.Model {
         output.WriteRawTag(18);
         output.WriteString(Action);
       }
-      if (SubName.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteString(SubName);
-      }
       if (subRequest_ != null) {
-        output.WriteRawTag(34);
+        output.WriteRawTag(26);
         output.WriteMessage(SubRequest);
       }
       if (_unknownFields != null) {
@@ -207,12 +188,8 @@ namespace ProtobufProto.Model {
         output.WriteRawTag(18);
         output.WriteString(Action);
       }
-      if (SubName.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteString(SubName);
-      }
       if (subRequest_ != null) {
-        output.WriteRawTag(34);
+        output.WriteRawTag(26);
         output.WriteMessage(SubRequest);
       }
       if (_unknownFields != null) {
@@ -229,9 +206,6 @@ namespace ProtobufProto.Model {
       }
       if (Action.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Action);
-      }
-      if (SubName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(SubName);
       }
       if (subRequest_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(SubRequest);
@@ -252,9 +226,6 @@ namespace ProtobufProto.Model {
       }
       if (other.Action.Length != 0) {
         Action = other.Action;
-      }
-      if (other.SubName.Length != 0) {
-        SubName = other.SubName;
       }
       if (other.subRequest_ != null) {
         if (subRequest_ == null) {
@@ -285,10 +256,6 @@ namespace ProtobufProto.Model {
             break;
           }
           case 26: {
-            SubName = input.ReadString();
-            break;
-          }
-          case 34: {
             if (subRequest_ == null) {
               SubRequest = new global::Google.Protobuf.WellKnownTypes.Any();
             }
@@ -318,10 +285,6 @@ namespace ProtobufProto.Model {
             break;
           }
           case 26: {
-            SubName = input.ReadString();
-            break;
-          }
-          case 34: {
             if (subRequest_ == null) {
               SubRequest = new global::Google.Protobuf.WellKnownTypes.Any();
             }

@@ -11,23 +11,25 @@ using ServerCommon;
 using DBCore;
 using NetCore.Server;
 using System.Net;
+using Unity;
+using ServerCommon.NetServer;
+using ProtobufProto;
+using ServerCommon.Protocol;
+using TankSever.BLL;
+using Unity.Resolution;
 
 namespace TankSever
 {
     public partial class MainForm : Form,INotifier
     {
-        StandTcpServer NetServer;
-
         public MainForm()
         {
-            InitializeComponent();
-            NetServer = new StandTcpServer(100, this);
-            NetServer.Init();
+            InitializeComponent();          
         }
 
         private void btn_start_Click(object sender, EventArgs e)
         {
-            NetServer.Start(new IPEndPoint(IPAddress.Parse(txt_ip.Text),int.Parse(txt_port.Text)));
+            Program.NetServer.Start(new IPEndPoint(IPAddress.Parse(txt_ip.Text),int.Parse(txt_port.Text)));
             lbx_log.Items.Add("[服务已启动]");
         }
 

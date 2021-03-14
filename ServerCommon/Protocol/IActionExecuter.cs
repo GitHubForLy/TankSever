@@ -16,6 +16,6 @@ namespace ServerCommon.Protocol
         /// </summary>
         /// <param name="ControllerName">控制器名称</param>
         /// <param name="ActionName">行为名称</param>
-        void ExecuteAction(ExecuteContext executeContext);
+        object ExecuteAction(ExecuteContext executeContext);
     }
 }

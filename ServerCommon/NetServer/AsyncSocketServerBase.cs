@@ -30,6 +30,9 @@ namespace ServerCommon.NetServer
 
         protected int NumMaxConnctions;
 
+        /// <summary>
+        /// 已连接的所有客户
+        /// </summary>
         public AsyncUserTokenList AsyncSocketUserTokenList { get { return m_asyncUserTokenList; } }
 
         /// <summary>

@@ -10,6 +10,7 @@ using DBCore.Common;
 using System.Data.Common;
 using Unity;
 using ServerCommon.DB;
+using ServerCommon.Protocol;
 
 namespace DBCore
 {
@@ -27,25 +28,29 @@ namespace DBCore
 
     public sealed class DBServer:IServer
     {
-        private DbConnectionStringBuilder connectionStringBuilder;
+        //private DbConnectionStringBuilder connectionStringBuilder;
 
-        [Dependency]
-        public IDBExecuterFactory DBExecuterFactory { get; set; }
+        public IDBExecuterFactory DBExecuterFactory { get; private set; }
 
         /// <summary>
         /// 服务名称
         /// </summary>
         public string ServerName { get => "MySqlDBServer"; } 
 
-
-        public DBServer(string connectionString):this(new DbConnectionStringBuilder() { ConnectionString =connectionString })
+        [InjectionConstructor]
+        public DBServer(IDBExecuterFactory dBExecuterFactory)
         {
+            this.DBExecuterFactory = dBExecuterFactory;
         }
 
-        public DBServer(DbConnectionStringBuilder connectionStringBuilder)
-        {
-            this.connectionStringBuilder = connectionStringBuilder;
-        }
+        //public DBServer(string connectionString):this(new DbConnectionStringBuilder() { ConnectionString =connectionString })
+        //{
+        //}
+
+        //public DBServer(DbConnectionStringBuilder connectionStringBuilder)
+        //{
+        //    this.connectionStringBuilder = connectionStringBuilder;
+        //}
 
 
         /// <summary>
@@ -65,10 +70,10 @@ namespace DBCore
         ///     </code>
         /// </example>
 
-        public DBResult Regeister(string userAccount,string password,string salt)
+        public StandRespone Regeister(string userAccount,string password,string salt)
         {
             if (!userAccount.IsDBSafe() || !password.IsDBSafe())
-                return DBResult.UnSafeResult();
+                return StandRespone.UnSafeResult();
 
             var executer=DBExecuterFactory.CreateDBExecuter();
 
@@ -76,7 +81,7 @@ namespace DBCore
             {
                 var queryExitUser = $"select* from userinfo where account = '{userAccount}'";
                 if (executer.ExecuteNonQuery(queryExitUser) > 0)
-                    return new DBResult(false, "用户已存在!");
+                    return new StandRespone(false, "用户已存在!");
                 
                 var trans= executer.Connection.BeginTransaction();
                 var insertUser = $"insert into userinfo (account,create_date,status) " +
@@ -86,12 +91,12 @@ namespace DBCore
                 executer.ExecuteNonQuery(insertUser);
                 trans.Commit();
 
-                return DBResult.SuccessResult("注册成功");
+                return StandRespone.SuccessResult("注册成功");
             }
             catch(Exception e)
             {
                 executer.Close();
-                return DBResult.FailResult("发生异常:" + e.Message);
+                return StandRespone.FailResult("发生异常:" + e.Message);
             }
             finally
             {
@@ -105,10 +110,10 @@ namespace DBCore
         /// </summary>
         /// <param name="userAccount"></param>
         /// <param name="password"></param>
-        public DBResult GetPassword(string userAccount)
+        public StandRespone GetPassword(string userAccount)
         {
             if (!userAccount.IsDBSafe())
-                return DBResult.UnSafeResult();
+                return StandRespone.UnSafeResult();
 
             var executer = DBExecuterFactory.CreateDBExecuter();
             try
@@ -117,12 +122,12 @@ namespace DBCore
                     $"inner join userinfo b on a.user_id=b.user_id " +
                     $"where b.account='{userAccount}'";
                 var data=executer.ExecuteToTable(cmd);
-                return new DBResult() { IsSuccess = true, Message = "查询成功", Data = data };
+                return new StandRespone(true, "查询成功") { Data = data };
             }
             catch(Exception e)
             {
                 executer.Close();
-                return DBResult.FailResult("发生异常:" + e.Message);
+                return StandRespone.FailResult("发生异常:" + e.Message);
             }
             finally
             {

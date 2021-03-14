@@ -15,7 +15,7 @@ namespace DBCore.Common
         {
             if (string.IsNullOrEmpty(text))
                 return true;
-            return Regex.IsMatch(text, @"\w*((\％27)|(\'))((\％6F)|o|(\％4F))((\％72)|r|(\％52))");            
+            return !Regex.IsMatch(text, @"\w*((\％27)|(\'))((\％6F)|o|(\％4F))((\％72)|r|(\％52))");            
         }
     }
 }

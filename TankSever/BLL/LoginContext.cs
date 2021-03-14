@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerCommon.Protocol
+namespace TankSever.BLL
 {
-    public interface IController
+    public class LoginContext
     {
     }
 }

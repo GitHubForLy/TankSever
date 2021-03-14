@@ -17,7 +17,7 @@ namespace DBCore.MySql
     {
         private MySqlConnectionStringBuilder connectionStringBuilder;
 
-        public DbConnection Connection { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DbConnection Connection { get; set ; }
 
         public MySqlDBExecuter(string connectionString) : this(new MySqlConnectionStringBuilder(connectionString))
         {

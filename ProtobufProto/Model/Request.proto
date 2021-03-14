@@ -20,8 +20,7 @@ import "google/protobuf/Any.proto";
 message Request{
     string Controller=1;
     string Action=2;
-    string SubName=3;
-    google.protobuf.Any SubRequest=4;
+    google.protobuf.Any SubRequest=3;
 }
 
 //注册请求

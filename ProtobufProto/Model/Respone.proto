@@ -1,0 +1,51 @@
+﻿syntax="proto3";
+
+package ProtobufProto.Model;
+
+//import "google/protobuf/Any.proto";
+
+//数据响应
+message Respone{  
+    string Controller=1;
+    string Action=2;
+    bool   IsSuccess=3;
+    string  Message=4;
+
+    //数据表
+    Table Data=5;
+}
+
+/*  只有值的行
+message Row{
+    repeated string Values=1;
+}
+*/
+
+
+//有列名的行
+message Row{
+
+    //表单元格
+    message Cell{
+        //对应的列名
+        string Name=1;
+        //值
+        string Value=2;
+    }
+
+    //数据行
+    //map<string,string> RowValue=1;
+
+    //数据行
+    repeated Cell Cells=1;
+}
+
+//数据表
+message Table{
+    repeated string columns=1;
+    repeated Row Rows=2;
+}
+
+
+
+

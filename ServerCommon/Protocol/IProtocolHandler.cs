@@ -17,7 +17,7 @@ namespace ServerCommon.Protocol
         /// </summary>
         /// <param name="data">请求数据</param>
         /// <param name="actionExecuter"></param>
-        void DataHandle(byte[] data,IActionExecuter actionExecuter);
+        byte[] DataHandle(byte[] data,IActionExecuter actionExecuter);
     }
 
     
