@@ -14,22 +14,48 @@ namespace TankSever.BLL
         public void ExecuteAction(ExecuteContext executeContext)
         {
             var assmbly= Assembly.GetExecutingAssembly();
+            MethodInfo methodInfo;
             foreach(var type in assmbly.GetTypes())
             {
-                if (CheckController(type)) 
+                if (typeof(IController).IsAssignableFrom(type) && type.Name == executeContext.ControllerName + "Controller")
+                {
+                    if((methodInfo = type.GetMethod(executeContext.ActionName) )!= null)
+                    {
+                        InvokeMethod(type, executeContext, methodInfo);
+                    }
+                    break;
+                }
+                    
+            }
+        }
 
+
+
+        protected void InvokeMethod(Type controller,ExecuteContext executeContext,MethodInfo method)
+        {
+            List<object> parms = new List<object>();
+            var s= method.GetParameters();
+            bool hasP;
+            foreach(var par in s)
+            {
+                hasP = false;
+                foreach(var dpar in executeContext.Paramters)
+                {
+                    if (par.Name == dpar.Key)
+                    {
+                        hasP = true;
+                        parms.Add(dpar.Value);
+                        break;
+                    }
+                }
+                if (!hasP)//不存在该参数 传递null
+                    parms.Add(null);
             }
 
+            var instance= controller.GetConstructor(Type.EmptyTypes).Invoke(new object[0]);
+            method.Invoke(instance, parms.ToArray());
         }
-    
-
-        protected virtual bool CheckController(Type type)
-        {
-            if (type.BaseType == typeof(IController) && type.i)
-                return true;
-            return false;
-        }
-    
+        
     }
 
 }

@@ -11,22 +11,40 @@ using ServerCommon;
 using DBCore;
 using NetCore.Server;
 using System.Net;
+using Unity;
+using ServerCommon.NetServer;
+using ProtobufProto;
+using ServerCommon.Protocol;
+using TankSever.BLL;
+using Unity.Resolution;
 
 namespace TankSever
 {
     public partial class MainForm : Form,INotifier
     {
-        StandTcpServer NetServer;
+        AsyncSocketServerBase NetServer;
 
         public MainForm()
         {
             InitializeComponent();
-            NetServer = new StandTcpServer(100, this);
+            UnityContainer unityContainer = new UnityContainer();
+            unityContainer.RegisterType<IProtocolHandler, ProtobufHandler>();
+            unityContainer.RegisterType<IActionExecuter, ActionExecuter>();
+            unityContainer.RegisterType<AsyncSocketServerBase, StandTcpServer>();
+
+
+
+            ParameterOverride maxConnections = new ParameterOverride("MaxConnections", 100);
+            ParameterOverride notifier = new ParameterOverride("notifier", this);
+
+
+            NetServer = unityContainer.Resolve<AsyncSocketServerBase>(maxConnections,notifier);
             NetServer.Init();
         }
 
         private void btn_start_Click(object sender, EventArgs e)
         {
+
             NetServer.Start(new IPEndPoint(IPAddress.Parse(txt_ip.Text),int.Parse(txt_port.Text)));
             lbx_log.Items.Add("[服务已启动]");
         }

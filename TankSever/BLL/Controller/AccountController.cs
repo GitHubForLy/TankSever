@@ -11,7 +11,7 @@ namespace TankSever.BLL.Controller
     {
         public string ControllerName => "Account";
 
-        public void Register()
+        public void Register(string Account,string Password)
         {
 
         }
