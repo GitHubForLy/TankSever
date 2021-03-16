@@ -8,9 +8,11 @@ using System.Reflection;
 using ServerCommon.Protocol;
 using ProtobufProto.Model;
 using System.Data;
+using ServerCommon.NetServer;
 
 namespace ProtobufProto
 {
+
     /// <summary>
     /// protobuf数据协议处理类
     /// </summary>
@@ -19,16 +21,18 @@ namespace ProtobufProto
         /// <summary>
         /// 请求的数据处理
         /// </summary>
-        /// <param name="data">请求数据</param>
+        /// <param name="userToken">用户连接对象</param>
+        /// <param name="data">请求数据及响应数据</param>
         /// <param name="actionExecuter"></param>
-        /// <returns>返回相应数据</returns>
-        public byte[] DataHandle(byte[] data, IActionExecuter actionExecuter)
+        /// <returns>是否有数据响应 true代表有相应数据并由data传出 false代表没有相应</returns>
+        public bool DataHandle(AsyncUserToken userToken,ref byte[] data, IActionExecuter actionExecuter)
         {
             Request request = Request.Parser.ParseFrom(data);
 
             ExecuteContext executeContext = new ExecuteContext();
             executeContext.ControllerName = request.Controller;
             executeContext.ActionName = request.Action;
+            executeContext.UserToken = userToken;
 
             #region 子参数解析
             if (request.SubRequest != null)
@@ -53,11 +57,13 @@ namespace ProtobufProto
             #endregion
 
             var obj=actionExecuter.ExecuteAction(executeContext);
+            if (obj == null)
+                return false;
+
             var respone = MakeRespone(request,obj);
-
-            return respone.ToByteArray();
+            data = respone.ToByteArray();
+            return true;
         }
-
 
         /// <summary>
         /// 构造返回消息

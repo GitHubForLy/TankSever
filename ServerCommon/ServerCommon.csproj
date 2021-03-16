@@ -50,8 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UserCenter.cs" />
+    <Compile Include="UserConnection.cs" />
     <Compile Include="DB\IDBExecuterFactory.cs" />
-    <Compile Include="DI.cs" />
     <Compile Include="DB\IDBExecuter.cs" />
     <Compile Include="IServer.cs" />
     <Compile Include="NetServer\AsyncUserToken.cs" />

@@ -16,12 +16,9 @@ namespace ServerCommon.Protocol
         public string Message { get; set; }
         public DataTable Data { get; set; }
 
-        public StandRespone(bool isSuccess, string message)
-        {
-            IsSuccess = isSuccess;
-            Message = message;
-            Data = new DataTable();
-        }
+        public StandRespone(bool isSuccess) : this(isSuccess, "") { }
+
+        public StandRespone(bool isSuccess, string message) => (IsSuccess, Message, Data) = (isSuccess, message, new DataTable());
 
 
         /// <summary>

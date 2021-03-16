@@ -106,7 +106,7 @@ namespace ServerCommon.NetServer
         /// <returns></returns>
         protected virtual AsyncUserToken CreateUserToken()
         {
-            return new AsyncUserToken(ReceiveBufferSize);
+            return new AsyncUserToken(this,ReceiveBufferSize);
         }
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace ServerCommon.NetServer
         /// <summary>
         /// 关闭并释放用户连接
         /// </summary>
-        protected virtual void CloseClientSocket(AsyncUserToken userToken)
+        public virtual void CloseClientSocket(AsyncUserToken userToken)
         {
             if (null == userToken.ConnectSocket) return;
 

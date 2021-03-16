@@ -31,19 +31,14 @@ namespace NetCore.Server
         public event OnRequestEventHandle OnRequest;
 
 
-        public StandTcpServer(int MaxConnections, /*NetDBServer dBServer, */INotifier notifier) : base(MaxConnections, notifier)
+        public StandTcpServer(int MaxConnections, INotifier notifier) : base(MaxConnections, notifier)
         {
-            //protocolHandler = new TcpProtocolHandler(dBServer, this);
         }
 
         /// <summary>
         /// 构造UserToken
         /// </summary>
-        /// <returns></returns>
-        protected override AsyncUserToken CreateUserToken()
-        {
-            return new PackageUserToken(ReceiveBufferSize);
-        }
+        protected override AsyncUserToken CreateUserToken()=> new PackageUserToken(this, ReceiveBufferSize);
 
 
         /// <summary>
@@ -51,25 +46,19 @@ namespace NetCore.Server
         /// </summary>
         protected override bool HandleReceive(SocketAsyncEventArgs receivearg)
         {
-            //byte[] resbuf;
             PackageUserToken token = receivearg.UserToken as PackageUserToken;
 
             try
             {
                 token.Pakcage.IncommingData(receivearg.Buffer, receivearg.Offset, receivearg.BytesTransferred);
-                while(token.Pakcage.OutPutPackage(out byte[] data))
+                while(token.Pakcage.OutgoingPackage(out byte[] data))
                 {
                     //处理数据
-                    Handler.DataHandle(data,ActionExecuter);
+                    if(Handler.DataHandle(token,ref data,ActionExecuter))
+                        SendData(token, data);    //发送数据
 
                     Notify(NotifyType.RequsetLog, Encoding.UTF8.GetString(data), this);
                 }
-
-                //TxRequest request = ResolveRequest(userToken.ReceiveEventArgs.Buffer, userToken.ReceiveEventArgs.Offset, userToken.ReceiveEventArgs.BytesTransferred);
-                //OnRequest?.Invoke(request.UserCode.ToString(), request.Opcode);
-
-                //FuyooRespone respone = protocolHandler.HandleRequest(request);
-                //resbuf = SerializeRespone(respone);
             }
             catch (Exception err)
             {
@@ -78,45 +67,14 @@ namespace NetCore.Server
                 throw new Exception(err.Message, err);
             }
 
-            //SendData(userToken, resbuf);    //发送数据
 
             return true;  //断开连接
         }
 
         /// <summary>
-        /// 解析参数
+        /// 关闭并回收连接对象
         /// </summary>
-        //protected virtual TxRequest ResolveRequest(byte[] buffer, int offset, int count)
-        //{
-        //    TxRequest rt = new TxRequest(TxRequsetType.Tcp);
-        //    string Request = Encoding.Default.GetString(buffer, offset, count);
-        //    try
-        //    {
-        //        var Dics = JsonConvert.DeserializeObject<Dictionary<string, string>>(Request);
-        //        rt.Opcode = (OpCode)int.Parse(Dics[BLLParamConst.PM_OpCode]);
-        //        rt.UserCode = int.Parse(Dics[BLLParamConst.PM_ClientNO]);
-        //        rt.Password = Dics[BLLParamConst.PM_Password];
-        //        rt.Params = Dics;
-        //    }
-        //    catch
-        //    {
-        //        //无效的参数类型
-        //    }
-        //    return rt;
-        //}
-
-
-        /// <summary>
-        /// 反序列化响应结果
-        /// </summary>
-        //protected virtual byte[] SerializeRespone(FuyooRespone respone)
-        //{
-        //    string json = JsonConvert.SerializeObject(respone);
-        //    return Encoding.Default.GetBytes(json);
-        //}
-
-
-        protected override void CloseClientSocket(AsyncUserToken userToken)
+        public override void CloseClientSocket(AsyncUserToken userToken)
         {
             (userToken as PackageUserToken).Pakcage.Clear();
 

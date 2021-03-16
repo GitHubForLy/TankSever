@@ -106,8 +106,6 @@
   <ItemGroup>
     <Compile Include="BLL\ActionExecuter.cs" />
     <Compile Include="BLL\Controller\AccountController.cs" />
-    <Compile Include="BLL\LoginContext.cs" />
-    <Compile Include="BLL\UserManager.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

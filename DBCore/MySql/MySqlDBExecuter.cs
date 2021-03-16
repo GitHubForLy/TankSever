@@ -73,6 +73,11 @@ namespace DBCore.MySql
         }
 
 
+        ~MySqlDBExecuter()
+        {
+            Close();
+        }
+
         /// <summary>
         /// 关闭并释放资源
         /// </summary>

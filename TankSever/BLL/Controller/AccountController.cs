@@ -32,8 +32,34 @@ namespace TankSever.BLL.Controller
             if (!ModelState.IsValid)
                 return FailMessage(ModelState.ErrorMessage);
 
-            UserCenter.Instance.
+            var res= Program.DbServer.GetPassword(Account);
+            if(res.IsSuccess)
+            {
+                var oldPass = res.Data.Rows[0]["password"].ToString();
+                var salt = Convert.FromBase64String(res.Data.Rows[0]["salt"].ToString());
+                var saltpass = Encoding.UTF8.GetBytes(Password).Concat(salt).ToArray();
+                MD5Cng md5 = new MD5Cng();
+                var crpPass =Convert.ToBase64String(md5.ComputeHash(saltpass));
+             
+                if(oldPass==crpPass)
+                {
+                    UserConnect.Login(Account);
+                    return StandRespone.SuccessResult("登录成功");
+                }
+                else
+                {
+                    return StandRespone.FailResult("登录失败,密码错误");
+                }
+            }
+            else
+                return res;
         }
+
+        public void LoginOut([Required] string Account)
+        {
+            UserConnect.LoginOut();
+        }
+
 
     }
 }

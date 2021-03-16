@@ -15,7 +15,7 @@ namespace TankSever.BLL
         /// <summary>
         /// 调用行为
         /// </summary>
-        /// <param name="executeContext"></param>
+        /// <param name="executeContext">调用上下文</param>
         public object ExecuteAction(ExecuteContext executeContext)
         {
             var assmbly= Assembly.GetExecutingAssembly();
@@ -31,7 +31,7 @@ namespace TankSever.BLL
                 }                    
             }
 
-            return null;
+            return "无效的请求";
         }
 
         
@@ -78,8 +78,11 @@ namespace TankSever.BLL
             }
 
             var instance= controller.GetConstructor(Type.EmptyTypes).Invoke(new object[0]);
-            if(instance is ControllerBase)
-                (instance as ControllerBase).ModelState = modelStates;
+            if(instance is ControllerBase controllerBase)
+            {
+                controllerBase.ModelState = modelStates;
+                controllerBase.UserConnect = new ServerCommon.UserConnection(executeContext.UserToken);
+            }
 
             return method.Invoke(instance, parms.ToArray());
         }

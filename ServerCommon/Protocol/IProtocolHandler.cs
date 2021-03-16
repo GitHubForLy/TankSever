@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerCommon.NetServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace ServerCommon.Protocol
         /// </summary>
         /// <param name="data">请求数据</param>
         /// <param name="actionExecuter"></param>
-        byte[] DataHandle(byte[] data,IActionExecuter actionExecuter);
+       bool DataHandle(AsyncUserToken userToken, ref byte[] data, IActionExecuter actionExecuter);
     }
 
     

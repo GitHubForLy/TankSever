@@ -70,9 +70,9 @@ namespace NetCore.Server
         }
 
         /// <summary>
-        /// 输出数据包 若不能输出包则返回null
+        /// 传出数据包 若不能输出包则返回null
         /// </summary>
-        public byte[] OutPutPackage()
+        public byte[] OutgoingPackage()
         {
             if (!CanOutPackage())
                 return null;
@@ -91,11 +91,11 @@ namespace NetCore.Server
         }
 
         /// <summary>
-        /// 输出数据包
+        /// 传出数据包
         /// </summary>
-        public bool OutPutPackage(out byte[] package)
+        public bool OutgoingPackage(out byte[] package)
         {
-            package = OutPutPackage();
+            package = OutgoingPackage();
             return package != null;        
         }
 

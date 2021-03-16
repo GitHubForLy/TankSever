@@ -36,22 +36,23 @@ namespace ServerCommon.NetServer
         /// <summary>
         /// 表示接收的SocketAsyncEventArgs
         /// </summary>
-        public SocketAsyncEventArgs ReceiveEventArgs { get; set; }
+        public SocketAsyncEventArgs ReceiveEventArgs { get;}
 
         /// <summary>
         /// 表示发送的SocketAsyncEventArgs
         /// </summary>
-        public SocketAsyncEventArgs SendEventArgs { set; get; }
+        public SocketAsyncEventArgs SendEventArgs { get; }
 
         /// <summary>
-        /// 自定义内容
+        /// 所属net服务
         /// </summary>
-        public object Tag { get; set; }
+        public AsyncSocketServerBase Server { get;}
 
 
 
-        public AsyncUserToken(int asyncReceiveBufferSize)
+        public AsyncUserToken(AsyncSocketServerBase server,int asyncReceiveBufferSize)
         {
+            Server = server;
             m_connectSocket = null;
 
             m_asyncReceiveBuffer = new byte[asyncReceiveBufferSize];
@@ -77,7 +78,7 @@ namespace ServerCommon.NetServer
         }
 
         protected virtual void Dispose(bool disposing)
-        {
+        {           
             if (m_disposed) return;
             if (disposing)
             {

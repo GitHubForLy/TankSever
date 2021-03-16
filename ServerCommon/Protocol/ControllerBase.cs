@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Reflection;
+using ServerCommon.NetServer;
 
 namespace ServerCommon.Protocol
 {
@@ -16,11 +17,18 @@ namespace ServerCommon.Protocol
         public  bool IsValid { get; set; }
     }
 
+    
+
     /// <summary>
     /// 基本的控制器 控制器的基类
     /// </summary>
-    public class ControllerBase:IController
+    public abstract class ControllerBase:IController
     {
+        /// <summary>
+        /// 用户连接对象
+        /// </summary>
+        public UserConnection UserConnect { get; set; }
+
         public ModelStates ModelState { get; set; }
 
         /// <summary>

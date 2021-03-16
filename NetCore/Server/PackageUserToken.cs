@@ -17,7 +17,7 @@ namespace NetCore.Server
         /// </summary>
         public DataPackage Pakcage { get; set; }
 
-        public PackageUserToken(int receiveBufferSize):base(receiveBufferSize)
+        public PackageUserToken(AsyncSocketServerBase Server,int receiveBufferSize):base(Server, receiveBufferSize)
         {
             Pakcage = new DataPackage();
         }
