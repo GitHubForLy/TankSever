@@ -55,7 +55,7 @@ namespace NetCore.Server
                 {
                     //处理数据
                     if(Handler.DataHandle(token,ref data,ActionExecuter))
-                        SendData(token, data);    //发送数据
+                        SendData(token, DataPackage.PackData(data));    //发送数据
 
                     Notify(NotifyType.RequsetLog, Encoding.UTF8.GetString(data), this);
                 }

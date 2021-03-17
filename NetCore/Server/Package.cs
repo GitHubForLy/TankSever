@@ -22,6 +22,17 @@ namespace NetCore.Server
         }
 
         /// <summary>
+        /// 打包数据 （在数据包前面加四个字节长度）
+        /// </summary>
+        /// <returns>返回打包后的数据</returns>
+        public static byte[] PackData(byte[] data)
+        {
+            byte[] lenbyte = BitConverter.GetBytes(data.Length + packageHeaderLength);
+            return lenbyte.Concat(data).ToArray();
+        }
+
+
+        /// <summary>
         /// 清除数据包
         /// </summary>
         public void Clear()

@@ -17,6 +17,7 @@ using ProtobufProto;
 using ServerCommon.Protocol;
 using TankSever.BLL;
 using Unity.Resolution;
+using static System.Net.Dns;
 
 namespace TankSever
 {
@@ -28,8 +29,8 @@ namespace TankSever
         }
 
         private void btn_start_Click(object sender, EventArgs e)
-        {
-            Program.NetServer.Start(new IPEndPoint(IPAddress.Parse(txt_ip.Text),int.Parse(txt_port.Text)));
+        {          
+            Program.NetServer.Start(new IPEndPoint(GetHostAddresses(txt_ip.Text)[0],int.Parse(txt_port.Text)));
             lbx_log.Items.Add("[服务已启动]");
         }
 
@@ -40,6 +41,11 @@ namespace TankSever
             {
                 lbx_log.Items.Add("[" + sender.ServerName + "]:" + logInfo);
             }));        
+        }
+
+        private void txt_ip_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

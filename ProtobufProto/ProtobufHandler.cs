@@ -43,13 +43,12 @@ namespace ProtobufProto
                     if (typeof(IMessage).IsAssignableFrom(type) && request.SubRequest.Is((type as IMessage).Descriptor))
                     {
                         var uppackMethod= request.SubRequest.GetType().GetMethod(nameof(request.SubRequest.Unpack)).MakeGenericMethod(type);
-                        object subMessagae= uppackMethod.Invoke(request.SubRequest, null);
+                        IMessage subMessagae = uppackMethod.Invoke(request.SubRequest, null) as IMessage;
 
                         foreach(var property in subMessagae.GetType().GetProperties(BindingFlags.Public|BindingFlags.Instance))
                         {
                             executeContext.Paramters.Add(property.Name, property.GetValue(subMessagae));
                         }
-
                         break;
                     }
                 }

@@ -31,6 +31,7 @@ namespace TankSever
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.btn_test = new System.Windows.Forms.Button();
             this.lbx_log = new System.Windows.Forms.ListBox();
             this.btn_stop = new System.Windows.Forms.Button();
             this.btn_start = new System.Windows.Forms.Button();
@@ -39,7 +40,6 @@ namespace TankSever
             this.label1 = new System.Windows.Forms.Label();
             this.txt_port = new System.Windows.Forms.TextBox();
             this.txt_ip = new System.Windows.Forms.TextBox();
-            this.btn_test = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -69,6 +69,15 @@ namespace TankSever
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // btn_test
+            // 
+            this.btn_test.Location = new System.Drawing.Point(63, 49);
+            this.btn_test.Name = "btn_test";
+            this.btn_test.Size = new System.Drawing.Size(75, 23);
+            this.btn_test.TabIndex = 3;
+            this.btn_test.Text = "test";
+            this.btn_test.UseVisualStyleBackColor = true;
             // 
             // lbx_log
             // 
@@ -145,16 +154,8 @@ namespace TankSever
             this.txt_ip.Name = "txt_ip";
             this.txt_ip.Size = new System.Drawing.Size(126, 21);
             this.txt_ip.TabIndex = 0;
-            this.txt_ip.Text = "0.0.0.0";
-            // 
-            // btn_test
-            // 
-            this.btn_test.Location = new System.Drawing.Point(63, 49);
-            this.btn_test.Name = "btn_test";
-            this.btn_test.Size = new System.Drawing.Size(75, 23);
-            this.btn_test.TabIndex = 3;
-            this.btn_test.Text = "test";
-            this.btn_test.UseVisualStyleBackColor = true;
+            this.txt_ip.Text = "localhost";
+            this.txt_ip.TextChanged += new System.EventHandler(this.txt_ip_TextChanged);
             // 
             // MainForm
             // 
