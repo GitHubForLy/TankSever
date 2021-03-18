@@ -2,7 +2,7 @@
 
 package ProtobufProto.Model;
 
-//import "google/protobuf/Any.proto";
+import "google/protobuf/Any.proto";
 
 //数据响应
 message Respone{  
@@ -11,8 +11,7 @@ message Respone{
     bool   IsSuccess=3;
     string  Message=4;
 
-    //数据表
-    Table Data=5;
+    google.protobuf.Any Data=5;
 }
 
 /*  只有值的行

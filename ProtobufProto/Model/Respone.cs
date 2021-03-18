@@ -24,16 +24,16 @@ namespace ProtobufProto.Model {
     static ResponeReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg1SZXNwb25lLnByb3RvEhNQcm90b2J1ZlByb3RvLk1vZGVsInsKB1Jlc3Bv",
-            "bmUSEgoKQ29udHJvbGxlchgBIAEoCRIOCgZBY3Rpb24YAiABKAkSEQoJSXNT",
-            "dWNjZXNzGAMgASgIEg8KB01lc3NhZ2UYBCABKAkSKAoERGF0YRgFIAEoCzIa",
-            "LlByb3RvYnVmUHJvdG8uTW9kZWwuVGFibGUiWAoDUm93EiwKBUNlbGxzGAEg",
-            "AygLMh0uUHJvdG9idWZQcm90by5Nb2RlbC5Sb3cuQ2VsbBojCgRDZWxsEgwK",
-            "BE5hbWUYASABKAkSDQoFVmFsdWUYAiABKAkiQAoFVGFibGUSDwoHY29sdW1u",
-            "cxgBIAMoCRImCgRSb3dzGAIgAygLMhguUHJvdG9idWZQcm90by5Nb2RlbC5S",
-            "b3diBnByb3RvMw=="));
+            "Cg1SZXNwb25lLnByb3RvEhNQcm90b2J1ZlByb3RvLk1vZGVsGhlnb29nbGUv",
+            "cHJvdG9idWYvQW55LnByb3RvInUKB1Jlc3BvbmUSEgoKQ29udHJvbGxlchgB",
+            "IAEoCRIOCgZBY3Rpb24YAiABKAkSEQoJSXNTdWNjZXNzGAMgASgIEg8KB01l",
+            "c3NhZ2UYBCABKAkSIgoERGF0YRgFIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5B",
+            "bnkiWAoDUm93EiwKBUNlbGxzGAEgAygLMh0uUHJvdG9idWZQcm90by5Nb2Rl",
+            "bC5Sb3cuQ2VsbBojCgRDZWxsEgwKBE5hbWUYASABKAkSDQoFVmFsdWUYAiAB",
+            "KAkiQAoFVGFibGUSDwoHY29sdW1ucxgBIAMoCRImCgRSb3dzGAIgAygLMhgu",
+            "UHJvdG9idWZQcm90by5Nb2RlbC5Sb3diBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.AnyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Respone), global::ProtobufProto.Model.Respone.Parser, new[]{ "Controller", "Action", "IsSuccess", "Message", "Data" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Row), global::ProtobufProto.Model.Row.Parser, new[]{ "Cells" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Row.Types.Cell), global::ProtobufProto.Model.Row.Types.Cell.Parser, new[]{ "Name", "Value" }, null, null, null, null)}),
@@ -135,12 +135,9 @@ namespace ProtobufProto.Model {
 
     /// <summary>Field number for the "Data" field.</summary>
     public const int DataFieldNumber = 5;
-    private global::ProtobufProto.Model.Table data_;
-    /// <summary>
-    ///数据表
-    /// </summary>
+    private global::Google.Protobuf.WellKnownTypes.Any data_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::ProtobufProto.Model.Table Data {
+    public global::Google.Protobuf.WellKnownTypes.Any Data {
       get { return data_; }
       set {
         data_ = value;
@@ -290,7 +287,7 @@ namespace ProtobufProto.Model {
       }
       if (other.data_ != null) {
         if (data_ == null) {
-          Data = new global::ProtobufProto.Model.Table();
+          Data = new global::Google.Protobuf.WellKnownTypes.Any();
         }
         Data.MergeFrom(other.Data);
       }
@@ -326,7 +323,7 @@ namespace ProtobufProto.Model {
           }
           case 42: {
             if (data_ == null) {
-              Data = new global::ProtobufProto.Model.Table();
+              Data = new global::Google.Protobuf.WellKnownTypes.Any();
             }
             input.ReadMessage(Data);
             break;
@@ -363,7 +360,7 @@ namespace ProtobufProto.Model {
           }
           case 42: {
             if (data_ == null) {
-              Data = new global::ProtobufProto.Model.Table();
+              Data = new global::Google.Protobuf.WellKnownTypes.Any();
             }
             input.ReadMessage(Data);
             break;

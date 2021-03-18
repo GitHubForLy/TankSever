@@ -31,26 +31,26 @@ namespace ServerCommon.Protocol
 
         public ModelStates ModelState { get; set; }
 
-        /// <summary>
-        /// 成功并带有信息的响应
-        /// </summary>
-        protected StandRespone SuccessMessage(string message) => new StandRespone(true, message);
+        ///// <summary>
+        ///// 成功并带有信息的响应
+        ///// </summary>
+        //protected StandRespone SuccessMessage(string message) => new StandRespone(true, message);
 
-        /// <summary>
-        /// 失败并带有信息的响应
-        /// </summary>
-        protected StandRespone FailMessage(string message)=>new StandRespone(false, message);
+        ///// <summary>
+        ///// 失败并带有信息的响应
+        ///// </summary>
+        //protected StandRespone FailMessage(string message)=>new StandRespone(false, message);
 
-        /// <summary>
-        /// 成功并带有信息和表的响应
-        /// </summary>
-        protected StandRespone TableMessage(string message,DataTable table)
-        {
-            StandRespone respone = new StandRespone(true,message)
-            {
-                Data = table
-            };
-            return respone;
-        }
+        ///// <summary>
+        ///// 成功并带有信息和表的响应
+        ///// </summary>
+        //protected StandRespone TableMessage(string message,DataTable table)
+        //{
+        //    StandRespone respone = new StandRespone(true,message)
+        //    {
+        //        Data = table
+        //    };
+        //    return respone;
+        //}
     }
 }

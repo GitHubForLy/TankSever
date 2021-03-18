@@ -37,9 +37,7 @@ namespace TankSever
             this.btn_start = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.txt_port = new System.Windows.Forms.TextBox();
-            this.txt_ip = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -91,12 +89,14 @@ namespace TankSever
             // 
             // btn_stop
             // 
+            this.btn_stop.Enabled = false;
             this.btn_stop.Location = new System.Drawing.Point(499, 35);
             this.btn_stop.Name = "btn_stop";
             this.btn_stop.Size = new System.Drawing.Size(107, 37);
             this.btn_stop.TabIndex = 1;
             this.btn_stop.Text = "停止服务";
             this.btn_stop.UseVisualStyleBackColor = true;
+            this.btn_stop.Click += new System.EventHandler(this.btn_stop_Click);
             // 
             // btn_start
             // 
@@ -111,9 +111,7 @@ namespace TankSever
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.label2);
-            this.tabPage2.Controls.Add(this.label1);
             this.tabPage2.Controls.Add(this.txt_port);
-            this.tabPage2.Controls.Add(this.txt_ip);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -125,37 +123,19 @@ namespace TankSever
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(380, 85);
+            this.label2.Location = new System.Drawing.Point(72, 53);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 12);
             this.label2.TabIndex = 3;
             this.label2.Text = "监听端口：";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(121, 85);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(65, 12);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "监听地址：";
-            // 
             // txt_port
             // 
-            this.txt_port.Location = new System.Drawing.Point(451, 82);
+            this.txt_port.Location = new System.Drawing.Point(143, 50);
             this.txt_port.Name = "txt_port";
             this.txt_port.Size = new System.Drawing.Size(100, 21);
             this.txt_port.TabIndex = 1;
             this.txt_port.Text = "4789";
-            // 
-            // txt_ip
-            // 
-            this.txt_ip.Location = new System.Drawing.Point(192, 82);
-            this.txt_ip.Name = "txt_ip";
-            this.txt_ip.Size = new System.Drawing.Size(126, 21);
-            this.txt_ip.TabIndex = 0;
-            this.txt_ip.Text = "localhost";
-            this.txt_ip.TextChanged += new System.EventHandler(this.txt_ip_TextChanged);
             // 
             // MainForm
             // 
@@ -165,6 +145,7 @@ namespace TankSever
             this.Controls.Add(this.tabControl1);
             this.Name = "MainForm";
             this.Text = "TankGameServer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
@@ -181,9 +162,7 @@ namespace TankSever
         private System.Windows.Forms.Button btn_start;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txt_port;
-        private System.Windows.Forms.TextBox txt_ip;
         private System.Windows.Forms.ListBox lbx_log;
         private System.Windows.Forms.Button btn_test;
     }

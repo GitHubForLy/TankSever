@@ -7,6 +7,7 @@ using Google.Protobuf;
 using System.Reflection;
 using ServerCommon.Protocol;
 using ProtobufProto.Model;
+using Google.Protobuf.WellKnownTypes;
 using System.Data;
 using ServerCommon.NetServer;
 
@@ -29,7 +30,7 @@ namespace ProtobufProto
         {
             Request request = Request.Parser.ParseFrom(data);
 
-            ExecuteContext executeContext = new ExecuteContext();
+            ProtobufExecuteContext executeContext = new ProtobufExecuteContext();
             executeContext.ControllerName = request.Controller;
             executeContext.ActionName = request.Action;
             executeContext.UserToken = userToken;
@@ -38,26 +39,27 @@ namespace ProtobufProto
             if (request.SubRequest != null)
             {
                 Assembly assembly = Assembly.GetExecutingAssembly();
-                foreach (var type in assembly.GetTypes())
+                var type=assembly.GetType(Any.GetTypeName(request.SubRequest.TypeUrl));
+                if(type!=null /*&& request.SubRequest.Is((type as IMessage).Descriptor)*/)
                 {
-                    if (typeof(IMessage).IsAssignableFrom(type) && request.SubRequest.Is((type as IMessage).Descriptor))
-                    {
-                        var uppackMethod= request.SubRequest.GetType().GetMethod(nameof(request.SubRequest.Unpack)).MakeGenericMethod(type);
-                        IMessage subMessagae = uppackMethod.Invoke(request.SubRequest, null) as IMessage;
-
-                        foreach(var property in subMessagae.GetType().GetProperties(BindingFlags.Public|BindingFlags.Instance))
-                        {
-                            executeContext.Paramters.Add(property.Name, property.GetValue(subMessagae));
-                        }
-                        break;
-                    }
+                    var uppackMethod = request.SubRequest.GetType().GetMethod(nameof(request.SubRequest.Unpack)).MakeGenericMethod(type);
+                    IMessage subMessagae = uppackMethod.Invoke(request.SubRequest, null) as IMessage;
+                    executeContext.SubMessage = subMessagae;
                 }
             }
             #endregion
 
-            var obj=actionExecuter.ExecuteAction(executeContext);
-            if (obj == null)
-                return false;
+            var has= actionExecuter.TryExecuteAction(executeContext,out object obj);
+            if(has)
+            {
+                if (obj == null)
+                    return false;
+            }
+            else
+            {
+                //没有找到action
+                obj = "无效的请求";
+            }
 
             var respone = MakeRespone(request,obj);
             data = respone.ToByteArray();
@@ -79,31 +81,16 @@ namespace ProtobufProto
             if (obj == null)
                 return respone;
 
-            if (obj is StandRespone)
+            if (obj is IActionResult result)
             {
-                StandRespone standRespone = obj as StandRespone;
-                respone.IsSuccess = standRespone.IsSuccess;
-                respone.Message = standRespone.Message;
-
-                foreach(DataRow row in standRespone.Data.Rows)
-                {
-                    var newRow = new Row();
-
-                    foreach(DataColumn col in standRespone.Data.Columns)
-                    {
-                        newRow.Cells.Add(new Row.Types.Cell()
-                        {
-                            Name = col.ColumnName,
-                            Value = row[col.ColumnName].ToString()
-                        });
-                    }
-
-                    respone.Data.Rows.Add(newRow);                   
-                }
+                var rerespone= result.GetRespone();
+                rerespone.Controller = request.Controller;
+                rerespone.Action = request.Action;
+                respone = rerespone;
             }
             else
             {
-                respone.IsSuccess = true;
+                respone.IsSuccess = false;
                 respone.Message = obj.ToString();
             }
 
@@ -117,7 +104,7 @@ namespace ProtobufProto
         /// </summary>
         /// <param name="assembly">查找的程序集</param>
         /// <param name="extendedType">扩展方法扩展的类类型</param>
-        IEnumerable<MethodInfo> GetExtensionMethods(Assembly assembly, Type extendedType)
+        IEnumerable<MethodInfo> GetExtensionMethods(Assembly assembly, System.Type extendedType)
         {
             var query = from type in assembly.GetTypes()
                         where !type.IsGenericType && !type.IsNested

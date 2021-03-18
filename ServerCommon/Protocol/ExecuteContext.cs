@@ -7,16 +7,13 @@ using ServerCommon.NetServer;
 
 namespace ServerCommon.Protocol
 {
+    /// <summary>
+    /// 执行上下文
+    /// </summary>
     public class ExecuteContext
     {
-        public ExecuteContext()
-        {
-            Paramters = new Dictionary<string, object>();
-        }
-
         public string ControllerName { get; set; }
         public string ActionName { get; set; }
-        public Dictionary<string, object> Paramters { get; set; }
         /// <summary>
         /// 用户连接对象
         /// </summary>

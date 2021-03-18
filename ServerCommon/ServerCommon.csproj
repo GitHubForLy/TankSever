@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -50,6 +51,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Protocol\ActionExecuter.cs" />
+    <Compile Include="Protocol\NormalExecuteContext.cs" />
+    <Compile Include="Protocol\NormalActionExecuter.cs" />
     <Compile Include="UserCenter.cs" />
     <Compile Include="UserConnection.cs" />
     <Compile Include="DB\IDBExecuterFactory.cs" />

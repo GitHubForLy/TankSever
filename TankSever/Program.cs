@@ -18,10 +18,6 @@ namespace TankSever
     static class Program
     {
         /// <summary>
-        /// 数据库服务
-        /// </summary>
-        public static DBServer DbServer { get; private set; }
-        /// <summary>
         /// 全局IOC容器
         /// </summary>
         public static UnityContainer IocContainer { get;private set; }
@@ -41,13 +37,14 @@ namespace TankSever
         [STAThread]
         static void Main()
         {
-            Init();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             MainForm = new MainForm();
+            Init();
+
             Application.Run(MainForm);
         }
-
 
 
         private static void Init()
@@ -57,19 +54,20 @@ namespace TankSever
             IocContainer = new UnityContainer();
             section.Configure(IocContainer, "Server");
 
-
+            #region 注册类型（已改为在配置文件里注册类型）
             //IocContainer.RegisterType<IProtocolHandler, ProtobufHandler>();
             //IocContainer.RegisterType<IActionExecuter, ActionExecuter>();
             //IocContainer.RegisterType<AsyncSocketServerBase, StandTcpServer>("MainTcpServer");
             //IocContainer.RegisterType<IDBExecuterFactory, MySqlDBExecuterFactory>();
+            #endregion
 
-
-            DbServer = IocContainer.Resolve<DBServer>();
+            DBServer.Instance.RegisterFactory(IocContainer.Resolve<IDBExecuterFactory>());
 
             ParameterOverride maxConnections = new ParameterOverride("MaxConnections", 100);
             ParameterOverride notifier = new ParameterOverride("notifier", MainForm);
             NetServer = IocContainer.Resolve<AsyncSocketServerBase>("MainTcpServer", maxConnections, notifier);
             NetServer.Init();
+            NetServer.SocketTimeOutMS = 100 * 1000;
         }
     }
 }

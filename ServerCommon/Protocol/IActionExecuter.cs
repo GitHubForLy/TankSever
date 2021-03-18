@@ -14,8 +14,14 @@ namespace ServerCommon.Protocol
         /// <summary>
         /// 执行行为
         /// </summary>
-        /// <param name="ControllerName">控制器名称</param>
-        /// <param name="ActionName">行为名称</param>
+        /// <param name="executeContext">执行上下文</param>
         object ExecuteAction(ExecuteContext executeContext);
+
+        /// <summary>
+        /// 尝试执行行为 若没有找到返回false
+        /// </summary>
+        /// <param name="executeContext">执行上下文</param>
+        /// <param name="result">若找到返回结果</param>
+        bool TryExecuteAction(ExecuteContext executeContext,out object result);
     }
 }
