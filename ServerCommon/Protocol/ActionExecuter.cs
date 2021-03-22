@@ -32,12 +32,6 @@ namespace ServerCommon.Protocol
             return null;
         }
 
-        /// <summary>
-        /// 尝试执行行为
-        /// </summary>
-        /// <param name="executeContext"></param>
-        /// <param name="result"></param>
-        /// <returns>返回ture找到了acion false反之</returns>
         public bool TryExecuteAction(ExecuteContext executeContext, out object result)
         {
             var assmbly = GetActionAssembly();
@@ -97,7 +91,7 @@ namespace ServerCommon.Protocol
             if (instance is ControllerBase controllerBase)
             {
                 controllerBase.ModelState = modelStates;
-                controllerBase.UserConnect = new UserConnection(executeContext.UserToken);
+                controllerBase.UserConnect = new ServerCommon.UserConnection(executeContext.UserToken);
             }
 
             return method.Invoke(instance, parms.ToArray());

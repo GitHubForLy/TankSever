@@ -58,10 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controller\BoradcastController.cs" />
-    <Compile Include="Data\DataCenter.cs" />
     <Compile Include="IActionResult.cs" />
-    <Compile Include="Model\Boradcast.cs" />
     <Compile Include="ProtobufActionExecuter.cs" />
     <Compile Include="Controller\EventController.cs" />
     <Compile Include="ProtobufExecuteContext.cs" />
@@ -74,7 +71,6 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Model\Boradcast.proto" />
     <None Include="Model\google\protobuf\any.proto" />
     <None Include="Model\google\protobuf\api.proto" />
     <None Include="Model\google\protobuf\descriptor.proto" />
