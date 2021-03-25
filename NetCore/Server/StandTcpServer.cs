@@ -44,30 +44,40 @@ namespace NetCore.Server
         /// <summary>
         /// 处理请求
         /// </summary>
-        protected override bool HandleReceive(SocketAsyncEventArgs receivearg)
+        protected override void OnReceiveSuccess(AsyncUserToken usertoken)
         {
-            PackageUserToken token = receivearg.UserToken as PackageUserToken;
-
+            base.OnReceiveSuccess(usertoken);
+            PackageUserToken token = usertoken as PackageUserToken;
             try
             {
-                token.Pakcage.IncommingData(receivearg.Buffer, receivearg.Offset, receivearg.BytesTransferred);
-                while(token.Pakcage.OutgoingPackage(out byte[] data))
-                {
-                    //处理数据
-                    if(Handler.DataHandle(token,ref data,ActionExecuter))
-                        SendData(token, DataPackage.PackData(data));    //发送数据
-
-                    //Notify(NotifyType.Message, Encoding.UTF8.GetString(data), this);
-                }
+                token.Pakcage.IncommingData(token.ReceiveEventArgs.Buffer, token.ReceiveEventArgs.Offset, token.ReceiveEventArgs.BytesTransferred);
+                if (!DataHandle(token))
+                    ReceiveAsync(token);
             }
             catch (Exception err)
             {
                 Notify(NotifyType.Error, err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
             }
-
-            return true;  //断开连接
         }
 
+
+        private bool DataHandle(PackageUserToken token)
+        {
+            if(token.Pakcage.OutgoingPackage(out byte[] data))
+            {
+                //处理数据
+                if (Handler.DataHandle(token, ref data, ActionExecuter))
+                {
+                    var senddata = DataPackage.PackData(data);
+                    token.SendEventArgs.SetBuffer(senddata, 0, senddata.Length);
+                    SendAsync(token);    //发送数据
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        
         /// <summary>
         /// 关闭并回收连接对象
         /// </summary>
@@ -77,6 +87,15 @@ namespace NetCore.Server
 
             base.CloseClientSocket(userToken);
         }
+
+        public override void OnSendSuccess(AsyncUserToken token)
+        {
+            base.OnSendSuccess(token);
+
+            if (!DataHandle(token as PackageUserToken))
+                ReceiveAsync(token);
+        }
+
 
         /// <summary>
         /// 广播数据

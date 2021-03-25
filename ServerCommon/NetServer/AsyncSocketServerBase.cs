@@ -228,11 +228,7 @@ namespace ServerCommon.NetServer
 
                 try
                 {
-                    bool willRaiseEvent = userToken.ConnectSocket.ReceiveAsync(userToken.ReceiveEventArgs);
-                    if (!willRaiseEvent)
-                    {
-                        ProcessReceive(userToken.ReceiveEventArgs);
-                    }
+                    ReceiveAsync(userToken);
                 }
                 catch (Exception ex)
                 {
@@ -270,39 +266,12 @@ namespace ServerCommon.NetServer
             {
                 if (!userToken.IsActive)
                     return;
+                userToken.RecvEvent.Set();
 
                 int count = userToken.ReceiveEventArgs.BytesTransferred;
                 if (count > 0 && userToken.ReceiveEventArgs.SocketError == SocketError.Success)
                 {
-                    Interlocked.Increment(ref m_totalSerial);
-                    Interlocked.Add(ref m_totalReceiveBytes, count);
-                    userToken.ActiveDateTime = DateTime.Now;
-
-                    bool isClose = true;
-                    try
-                    {
-                        isClose = !HandleReceive(e);
-                    }
-                    catch (Exception err)
-                    {
-                        CloseClientSocket(userToken);
-                        throw new Exception(err.Message, err);
-                    }
-
-                    if (isClose) //是否需要短连接
-                    {
-                        CloseClientSocket(userToken);
-                    }
-                    else
-                    {
-                        if (!userToken.IsActive)
-                            return;
-                        //接收下一次数据
-                        if (userToken.ConnectSocket.ReceiveAsync(userToken.ReceiveEventArgs))
-                        {
-                            ProcessReceive(userToken.ReceiveEventArgs);
-                        }
-                    }
+                    OnReceiveSuccess(userToken);
                 }
                 else
                 {
@@ -312,27 +281,42 @@ namespace ServerCommon.NetServer
         }
 
         /// <summary>
+        /// 异步接收数据
+        /// </summary>
+        protected void ReceiveAsync(AsyncUserToken token)
+        {
+            lock(token)
+            {
+                token.RecvEvent.WaitOne();
+                if (!token.ConnectSocket.ReceiveAsync(token.ReceiveEventArgs))
+                    ProcessReceive(token.ReceiveEventArgs);
+            }
+        }
+
+
+        /// <summary>
         /// 处理回应逻辑
         /// </summary>
         /// <returns></returns>
-        protected abstract bool HandleReceive(SocketAsyncEventArgs receiveArg);
+        protected virtual void OnReceiveSuccess(AsyncUserToken token)
+        {
+            Interlocked.Increment(ref m_totalSerial);
+            Interlocked.Add(ref m_totalReceiveBytes, token.ReceiveEventArgs.BytesTransferred);
+            token.ActiveDateTime = DateTime.Now;
+        }
 
 
         /// <summary>
         /// 发送数据
         /// </summary>
-        protected void SendData(AsyncUserToken userToken, byte[] data)
+        protected void SendAsync(AsyncUserToken userToken)
         {
             lock(userToken)
             {
-                if (!userToken.IsActive)
-                    return;
-
                 userToken.SendEvent.WaitOne();
-                userToken.SendEventArgs.SetBuffer(data, 0, data.Length);
                 if (!userToken.ConnectSocket.SendAsync(userToken.SendEventArgs))
                     ProcessSend(userToken.SendEventArgs);
-            }                  
+            }       
         }
 
         private void ProcessSend(SocketAsyncEventArgs e)
@@ -346,15 +330,19 @@ namespace ServerCommon.NetServer
                 userToken.SendEvent.Set();
                 if (e.SocketError == SocketError.Success)
                 {
-                    Interlocked.Add(ref m_totalSendBytes, e.BytesTransferred);
-                    userToken.ActiveDateTime = DateTime.Now;
+                    OnSendSuccess(userToken);
                 }
                 else
                 {
                     CloseClientSocket(userToken);
                 }
             }
+        }
 
+        public virtual void OnSendSuccess(AsyncUserToken token)
+        {
+            Interlocked.Add(ref m_totalSendBytes, token.SendEventArgs.BytesTransferred);
+            token.ActiveDateTime = DateTime.Now;
         }
 
         /// <summary>
@@ -383,6 +371,7 @@ namespace ServerCommon.NetServer
                 userToken.ConnectSocket.Close();
                 userToken.ConnectSocket = null;
                 userToken.SendEvent.Set();
+                userToken.RecvEvent.Set();
                 userToken.IsActive = false;
 
                 m_asyncUserTokenPool.Push(userToken);
@@ -437,16 +426,21 @@ namespace ServerCommon.NetServer
                     if (!tokens[i].IsActive || (isNeedLogin && !tokens[i].IsLogined))
                         continue;
                     tokens[i].ConnectSocket.BeginSend(data, 0, data.Length, SocketFlags.None,
-                        SendCompletd, tokens[i]);
+                        SendCompletd, (tokens[i],tokens[i].ConnectSocket));
                 }    
             }
         }
 
         private void SendCompletd(IAsyncResult result)
         {
-            AsyncUserToken token = result.AsyncState as AsyncUserToken;
-            lock(token)
+            (AsyncUserToken token,Socket st)  = ((AsyncUserToken token, Socket st))result.AsyncState;
+
+            lock (token)
             {
+                //因为在到这一步（lock）之前 可能会发生该token被关闭并push到栈里 然后又有人连接又被pop出来 然后又把新的socket赋值个这个token的ConnectSocket
+                //所以 要判断一下这里的socket是不是原来BeginSend的socket
+                if (token.ConnectSocket != st)
+                    return;
                 if (!token.IsActive)
                     return;
 

@@ -14,6 +14,7 @@ namespace ServerCommon.NetServer
         private byte[] m_asyncReceiveBuffer;
 
         public AutoResetEvent SendEvent {get;}
+        public AutoResetEvent RecvEvent { get; }
         /// <summary>
         /// 所属用户名
         /// </summary>
@@ -74,6 +75,7 @@ namespace ServerCommon.NetServer
 
             m_disposed = false;
             SendEvent = new AutoResetEvent(true);
+            RecvEvent = new AutoResetEvent(true);
         }
 
         ~AsyncUserToken()
