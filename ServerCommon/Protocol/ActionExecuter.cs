@@ -97,11 +97,35 @@ namespace ServerCommon.Protocol
             if (instance is ControllerBase controllerBase)
             {
                 controllerBase.ModelState = modelStates;
-                controllerBase.UserConnect = new UserConnection(executeContext.UserToken);
+                controllerBase.Context = new AsyncContext(executeContext);
             }
+
+            if (!IsAuth(executeContext,method,controller))
+                return GetUnauthorizedResult(executeContext);
+
 
             return method.Invoke(instance, parms.ToArray());
         }
+
+        /// <summary>
+        /// 获取未授权的响应
+        /// </summary>
+        public virtual object GetUnauthorizedResult(ExecuteContext executeContext)
+        {
+            return "请求未授权";
+        }
+
+        public virtual bool IsAuth(ExecuteContext executeContext, MethodInfo method, Type controller)
+        {
+            if(!UserCenter.Instance.CheckUser(executeContext.UserToken))
+            {
+                if (controller.IsDefined(typeof(AllowAnonymousAttribute)) ||method.IsDefined(typeof(AllowAnonymousAttribute)))
+                    return true;
+                return false;
+            }
+            return true;
+        }
+
 
 
         protected virtual Assembly GetActionAssembly()

@@ -57,16 +57,13 @@ namespace NetCore.Server
                     if(Handler.DataHandle(token,ref data,ActionExecuter))
                         SendData(token, DataPackage.PackData(data));    //发送数据
 
-                    Notify(NotifyType.RequsetLog, Encoding.UTF8.GetString(data), this);
+                    //Notify(NotifyType.Message, Encoding.UTF8.GetString(data), this);
                 }
             }
             catch (Exception err)
             {
-                Notify(NotifyType.RequsetErrorLog, err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
-                CloseClientSocket(token);
-                throw new Exception(err.Message, err);
+                Notify(NotifyType.Error, err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
             }
-
 
             return true;  //断开连接
         }
@@ -79,6 +76,16 @@ namespace NetCore.Server
             (userToken as PackageUserToken).Pakcage.Clear();
 
             base.CloseClientSocket(userToken);
+        }
+
+        /// <summary>
+        /// 广播数据
+        /// </summary>
+        /// <param name="data"></param>
+        public override void Broadcast(byte[] data,bool isNeedLogin=true)
+        {
+            var packdata = DataPackage.PackData(data);
+            base.Broadcast(packdata);
         }
     }
 }

@@ -67,7 +67,7 @@ namespace TankSever
             ParameterOverride notifier = new ParameterOverride("notifier", MainForm);
             NetServer = IocContainer.Resolve<AsyncSocketServerBase>("MainTcpServer", maxConnections, notifier);
             NetServer.Init();
-            NetServer.SocketTimeOutMS = 100 * 1000;
+            NetServer.SocketTimeOutMS = 10 * 1000;
         }
     }
 }

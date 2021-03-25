@@ -8,11 +8,26 @@ using ProtobufProto.Model;
 
 namespace ProtobufProto.Controller
 {
-    public class BoradcastController:StandController
+    public class BroadcastController:StandController
     {
-        public void Transform(PlayerTransform transforms)
+
+
+        //private static Dictionary<string, Transform> Transforms { get; set; } = new Dictionary<string, Transform>();
+
+        //private static void UpdateTransform(PlayerTransform transform)
+        //{
+        //    if (Transforms.ContainsKey(transform.Account))
+        //        Transforms[transform.Account] = transform.UserTransform;
+        //    else
+        //        Transforms.Add(transform.Account, transform.UserTransform);
+        //}
+
+
+        public void UpdateTransform(PlayerTransform transform)
         {
-            DataCenter.UpdateTransform(transforms);
+            DataCenter.Instance.UpdateTransform(transform);
+
+            Broadcast(DataCenter.Instance.GetTransformsCopy());
         }
 
 

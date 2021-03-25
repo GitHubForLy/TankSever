@@ -17,5 +17,9 @@ message Transform{
 
 message PlayerTransform{
 	string Account=1;
-	Transform UserTransform=2;
+	Transform Trans=2;
+}
+
+message PlayerTransformMap{
+	map<string ,Transform> Transforms=1;
 }

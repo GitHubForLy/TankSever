@@ -16,21 +16,29 @@ namespace ServerCommon.NetServer
         {
             m_asyncSocketServer = asyncSocketServer;
             m_thread = new Thread(DaemonThreadStart);
+            m_thread.Name = "daemonThread";
             m_thread.Start();
         }
 
         protected virtual void DaemonThreadStart()
         {
-            while (m_thread.IsAlive)
+            try
             {
-                m_asyncSocketServer.DetectionUserHandle(new Func<bool>(() => !m_thread.IsAlive));
-                //每分钟检测一次
-                for (int i = 0; i < 60 * 1000 / 10; i++)
+                while (m_thread.IsAlive)
                 {
-                    if (!m_thread.IsAlive)
-                        break;
-                    Thread.Sleep(10);
+                    m_asyncSocketServer.DetectionUserHandle(new Func<bool>(() => !m_thread.IsAlive));
+                    //每2秒检测一次
+                    for (int i = 0; i < 2 * 1000 / 10; i++)
+                    {
+                        if (!m_thread.IsAlive)
+                            break;
+                        Thread.Sleep(10);
+                    }
                 }
+            }
+            catch(Exception e)
+            {
+                m_asyncSocketServer.Notify(NotifyType.Error, "守护线程出错:" + e.Message, m_asyncSocketServer);
             }
         }
 

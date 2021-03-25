@@ -9,17 +9,17 @@ namespace ServerCommon
     public enum NotifyType
     {
         /// <summary>
-        /// 运行日志
+        /// 警告
         /// </summary>
-        RunLog,
+        Warning,
         /// <summary>
-        /// 请求日志
+        /// 信息
         /// </summary>
-        RequsetLog,
+        Message,
         /// <summary>
-        /// 请求错误日志(既在前端列表输出也写入请求日志)
+        /// 错误
         /// </summary>
-        RequsetErrorLog,
+        Error,
     }
 
     public interface INotifier

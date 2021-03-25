@@ -13,6 +13,15 @@ namespace ServerCommon.NetServer
     {
         List<AsyncUserToken> m_list;
 
+
+        //public AsyncUserToken this [int index]
+        //{
+        //    get
+        //    {
+        //        return m_list[index];
+        //    }
+        //}
+
         public AsyncUserTokenList()
         {
             m_list = new List<AsyncUserToken>();

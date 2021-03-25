@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using ServerCommon;
+using Unity.Injection;
 
 namespace ServerCommon.NetServer
 {
@@ -18,7 +19,6 @@ namespace ServerCommon.NetServer
     {
         private Socket m_listenSocket;
         private AsyncUserTokenPool m_asyncUserTokenPool;
-        private AsyncUserTokenList m_asyncUserTokenList;
         private Semaphore m_maxNumberAcceptClients;  //限制访问接收的连接的线程数，控制最大并发数
         private DaemonThread m_daemonThread;        //守护线程 负责心跳检查
         private int m_totalSerial;
@@ -27,13 +27,12 @@ namespace ServerCommon.NetServer
         private bool m_disposed;
         private bool m_isInit = false;
 
+        /// <summary>
+        /// 用户连接列表
+        /// </summary>
+        protected AsyncUserTokenList ConnectionList;
 
         protected int NumMaxConnctions;
-
-        /// <summary>
-        /// 已连接的所有客户
-        /// </summary>
-        public AsyncUserTokenList AsyncSocketUserTokenList { get { return m_asyncUserTokenList; } }
 
         /// <summary>
         /// 连接超时时间，单位MS 默认10秒
@@ -44,9 +43,10 @@ namespace ServerCommon.NetServer
         /// </summary>
         public int ReceiveBufferSize { get; set; } = 1024;
 
-        public int TotalSerial { get { return m_totalSerial; } }
-        public int TotalReceiveBytes { get { return m_totalReceiveBytes; } }
-        public int TotalSendBytes { get { return m_totalSendBytes; } }
+        public int TotalSerial => m_totalSerial; 
+        public int TotalReceiveBytes =>m_totalReceiveBytes;
+        public int TotalSendBytes => m_totalSendBytes; 
+        public int ConnectedCount => ConnectionList.Count;
 
         //指示服务是否关闭
         public bool IsClosed { set; get; }
@@ -61,7 +61,7 @@ namespace ServerCommon.NetServer
             NumMaxConnctions = MaxConnections;
             m_maxNumberAcceptClients = new Semaphore(NumMaxConnctions, NumMaxConnctions);
 
-            m_asyncUserTokenList = new AsyncUserTokenList();
+            ConnectionList = new AsyncUserTokenList();
             m_asyncUserTokenPool = new AsyncUserTokenPool(NumMaxConnctions);
 
             m_totalSerial = 0;
@@ -88,7 +88,7 @@ namespace ServerCommon.NetServer
             if (disposing)
             {
                 //释放托管资源
-                m_asyncUserTokenList = null;
+                ConnectionList = null;
                 m_asyncUserTokenPool = null;
             }
             //释放非托管资源
@@ -129,7 +129,7 @@ namespace ServerCommon.NetServer
         {
             if(!m_isInit)
             {
-                Notify(NotifyType.RequsetErrorLog, "服务未初始化,无法启动",this);
+                Notify(NotifyType.Error, "服务未初始化,无法启动",this);
                 return;
             }
 
@@ -137,7 +137,7 @@ namespace ServerCommon.NetServer
             m_listenSocket = new Socket(localEP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             m_listenSocket.Bind(localEP);
             m_listenSocket.Listen(NumMaxConnctions);
-            Notifier?.OnNotify(NotifyType.RunLog, string.Format("开始监听端口：{0}", localEP.ToString()), this);
+            Notifier?.OnNotify(NotifyType.Message, string.Format("开始监听端口：{0}", localEP.ToString()), this);
 
             StartAccept(null);
             m_daemonThread = new DaemonThread(this, Notifier);
@@ -146,13 +146,12 @@ namespace ServerCommon.NetServer
         public void Close()
         {
             AsyncUserToken[] array = null;
-            m_asyncUserTokenList.CopyList(ref array);
+            ConnectionList.CopyList(ref array);
 
-            for (int i = 0; i < array.Length; i++)
+            for (int i = array.Length - 1; i >= 0; i--)
             {
                 CloseClientSocket(array[i]);
             }
-
             try
             {
                 if (m_listenSocket.Connected)
@@ -160,7 +159,7 @@ namespace ServerCommon.NetServer
             }
             catch (Exception e)
             {
-                Notifier?.OnNotify(NotifyType.RunLog, string.Format("关闭网络服务发生错误：{0}", e.Message), this);
+                Notifier?.OnNotify(NotifyType.Error, string.Format("关闭网络服务发生错误：{0}", e.Message), this);
             }
             m_listenSocket.Close();
             m_listenSocket = null;
@@ -168,6 +167,7 @@ namespace ServerCommon.NetServer
             if (m_daemonThread != null)
                 m_daemonThread.Close();
             IsClosed = true;
+                 
         }
 
         private void StartAccept(SocketAsyncEventArgs e)
@@ -193,7 +193,7 @@ namespace ServerCommon.NetServer
             }
             catch (Exception ex)
             {
-                Notifier?.OnNotify(NotifyType.RunLog, string.Format("等待用户连接时发生错误 : {0}", ex.Message), this);
+                Notifier?.OnNotify(NotifyType.Error, string.Format("等待用户连接时发生错误 : {0}", ex.Message), this);
             }
         }
 
@@ -208,7 +208,7 @@ namespace ServerCommon.NetServer
             }
             catch (Exception ex)
             {
-                Notifier?.OnNotify(NotifyType.RunLog, string.Format("接受用户{0}连接时发生错误: {1}", e.AcceptSocket, ex.Message), this);
+                Notifier?.OnNotify(NotifyType.Error, string.Format("接受用户{0}连接时发生错误: {1}", e.AcceptSocket, ex.Message), this);
             }
         }
 
@@ -216,13 +216,15 @@ namespace ServerCommon.NetServer
         {
             if (e.SocketError == SocketError.Success)
             {
-                Notifier?.OnNotify(NotifyType.RunLog, string.Format("成功与用户建立连接，本地地址: {0}, 远程地址: {1}",
+                Notifier?.OnNotify(NotifyType.Message, string.Format("成功与用户建立连接，本地地址: {0}, 远程地址: {1}",
                      e.AcceptSocket.LocalEndPoint, e.AcceptSocket.RemoteEndPoint), this);
 
                 AsyncUserToken userToken = m_asyncUserTokenPool.Pop();
                 userToken.ConnectSocket = e.AcceptSocket;
                 userToken.ConnectDateTime = DateTime.Now;
-                m_asyncUserTokenList.Add(userToken);
+                userToken.ActiveDateTime = DateTime.Now;
+                userToken.IsActive = true;
+                ConnectionList.Add(userToken);
 
                 try
                 {
@@ -234,7 +236,7 @@ namespace ServerCommon.NetServer
                 }
                 catch (Exception ex)
                 {
-                    Notifier?.OnNotify(NotifyType.RunLog, string.Format("接受用户{0}的数据时发生错误: {1}", userToken.ConnectSocket, ex.Message), this);
+                    Notifier?.OnNotify(NotifyType.Error, string.Format("接受用户{0}的数据时发生错误: {1}", userToken.ConnectSocket, ex.Message), this);
                 }
             }
             //递归接收下一次请求
@@ -257,54 +259,56 @@ namespace ServerCommon.NetServer
             }
             catch (Exception ex)
             {
-                Notifier?.OnNotify(NotifyType.RunLog, string.Format("用户{0}读取或发送时发生错误：{1}", userToken.ConnectSocket, ex.Message), this);
+                Notifier?.OnNotify(NotifyType.Error, string.Format("用户{0}读取或发送时发生错误：{1}", userToken.ConnectSocket, ex.Message), this);
             }
         }
 
         private void ProcessReceive(SocketAsyncEventArgs e)
         {
             AsyncUserToken userToken = e.UserToken as AsyncUserToken;
-            if (null == userToken.ConnectSocket)
-                return;
-
-            userToken.ActiveDateTime = DateTime.Now;
-            int offset = userToken.ReceiveEventArgs.Offset;
-            int count = userToken.ReceiveEventArgs.BytesTransferred;
-
-            if (count > 0 && userToken.ReceiveEventArgs.SocketError == SocketError.Success)
+            lock (userToken)
             {
-                Interlocked.Increment(ref m_totalSerial);
-                Interlocked.Add(ref m_totalReceiveBytes, count);
+                if (!userToken.IsActive)
+                    return;
 
-                bool isClose = true;
-                try
+                int count = userToken.ReceiveEventArgs.BytesTransferred;
+                if (count > 0 && userToken.ReceiveEventArgs.SocketError == SocketError.Success)
                 {
-                    isClose = !HandleReceive(e);
-                }
-                catch (Exception err)
-                {
-                    CloseClientSocket(userToken);
-                    throw new Exception(err.Message, err);
-                }
+                    Interlocked.Increment(ref m_totalSerial);
+                    Interlocked.Add(ref m_totalReceiveBytes, count);
+                    userToken.ActiveDateTime = DateTime.Now;
 
-                if (isClose) //是否需要短连接
-                {
-                    CloseClientSocket(userToken);
+                    bool isClose = true;
+                    try
+                    {
+                        isClose = !HandleReceive(e);
+                    }
+                    catch (Exception err)
+                    {
+                        CloseClientSocket(userToken);
+                        throw new Exception(err.Message, err);
+                    }
+
+                    if (isClose) //是否需要短连接
+                    {
+                        CloseClientSocket(userToken);
+                    }
+                    else
+                    {
+                        if (!userToken.IsActive)
+                            return;
+                        //接收下一次数据
+                        if (userToken.ConnectSocket.ReceiveAsync(userToken.ReceiveEventArgs))
+                        {
+                            ProcessReceive(userToken.ReceiveEventArgs);
+                        }
+                    }
                 }
                 else
                 {
-                    //接收下一次数据
-                    bool willRaiseEvent = userToken.ConnectSocket.ReceiveAsync(userToken.ReceiveEventArgs);
-                    if (!willRaiseEvent)
-                    {
-                        ProcessReceive(userToken.ReceiveEventArgs);
-                    }
+                    CloseClientSocket(userToken);
                 }
-            }
-            else
-            {
-                CloseClientSocket(userToken);
-            }
+            }           
         }
 
         /// <summary>
@@ -319,28 +323,38 @@ namespace ServerCommon.NetServer
         /// </summary>
         protected void SendData(AsyncUserToken userToken, byte[] data)
         {
-            if (userToken.IsSending)
-                throw new Exception("已经在发送中");
-            userToken.SendEventArgs.SetBuffer(data, 0, data.Length);
-            userToken.IsSending = true;
-            if (!userToken.ConnectSocket.SendAsync(userToken.SendEventArgs))
-                ProcessSend(userToken.SendEventArgs);
+            lock(userToken)
+            {
+                if (!userToken.IsActive)
+                    return;
+
+                userToken.SendEvent.WaitOne();
+                userToken.SendEventArgs.SetBuffer(data, 0, data.Length);
+                if (!userToken.ConnectSocket.SendAsync(userToken.SendEventArgs))
+                    ProcessSend(userToken.SendEventArgs);
+            }                  
         }
 
         private void ProcessSend(SocketAsyncEventArgs e)
         {
             AsyncUserToken userToken = e.UserToken as AsyncUserToken;
-            userToken.IsSending = false;
+            lock(userToken)
+            {
+                if (!userToken.IsActive)
+                    return;
 
-            if (e.SocketError == SocketError.Success)
-            {
-                Interlocked.Add(ref m_totalSendBytes, e.BytesTransferred);
-                userToken.ActiveDateTime = DateTime.Now;
+                userToken.SendEvent.Set();
+                if (e.SocketError == SocketError.Success)
+                {
+                    Interlocked.Add(ref m_totalSendBytes, e.BytesTransferred);
+                    userToken.ActiveDateTime = DateTime.Now;
+                }
+                else
+                {
+                    CloseClientSocket(userToken);
+                }
             }
-            else
-            {
-                CloseClientSocket(userToken);
-            }
+
         }
 
         /// <summary>
@@ -348,24 +362,35 @@ namespace ServerCommon.NetServer
         /// </summary>
         public virtual void CloseClientSocket(AsyncUserToken userToken)
         {
-            if (null == userToken.ConnectSocket) return;
+            System.Diagnostics.Debug.WriteLine("closeClientsocket");
 
-            string socketInfo = string.Format("本地地址 : {0} 远程地址 : {1}", userToken.ConnectSocket.LocalEndPoint,
-                userToken.ConnectSocket.RemoteEndPoint);
-            try
+            lock (userToken)
             {
-                userToken.ConnectSocket.Shutdown(SocketShutdown.Both);
-            }
-            catch (SocketException ex)
-            {
-                Notifier?.OnNotify(NotifyType.RunLog, string.Format("断开连接 {0} 时发生错误: {1}", socketInfo, ex.Message), this);
-            }
-            userToken.ConnectSocket.Close();
-            userToken.ConnectSocket = null;
+                if (!userToken.IsActive) return;
+                //if (null == userToken.ConnectSocket) return;
 
-            m_asyncUserTokenPool.Push(userToken);
-            m_asyncUserTokenList.Remove(userToken);
-            m_maxNumberAcceptClients.Release();
+                string socketInfo = string.Format("本地地址 : {0} 远程地址 : {1}", userToken.ConnectSocket.LocalEndPoint,
+                    userToken.ConnectSocket.RemoteEndPoint);
+                try
+                {
+                    userToken.ConnectSocket.Shutdown(SocketShutdown.Both);
+                }
+                catch (SocketException ex)
+                {
+                    Notifier?.OnNotify(NotifyType.Error, string.Format("断开连接 {0} 时发生错误: {1}", socketInfo, ex.Message), this);
+                }
+                UserCenter.Instance.UserLogout(userToken.UserName);
+                userToken.ConnectSocket.Close();
+                userToken.ConnectSocket = null;
+                userToken.SendEvent.Set();
+                userToken.IsActive = false;
+
+                m_asyncUserTokenPool.Push(userToken);
+                ConnectionList.Remove(userToken);
+                m_maxNumberAcceptClients.Release();
+            }
+
+
         }
 
         /// <summary>
@@ -374,24 +399,66 @@ namespace ServerCommon.NetServer
         /// <param name="checkBreak">判断是否中断的回调</param>
         public void DetectionUserHandle(Func<bool> checkBreak = null)
         {
-
-            AsyncUserToken[] userTokenArray = null;
-            AsyncSocketUserTokenList.CopyList(ref userTokenArray);
-            for (int i = 0; i < userTokenArray.Length; i++)
+            AsyncUserToken[] tokens=null;
+            ConnectionList.CopyList(ref tokens);
+            for (int i = 0; i < tokens.Length; i++)
             {
                 if (checkBreak != null && checkBreak())
                     break;
                 try
                 {
-                    if ((DateTime.Now - userTokenArray[i].ActiveDateTime).TotalMilliseconds >= SocketTimeOutMS)
+                    if ((DateTime.Now - tokens[i].ActiveDateTime).TotalMilliseconds >= SocketTimeOutMS )
                     {
-                        lock (userTokenArray[i])
-                            CloseClientSocket(userTokenArray[i]);
+                        CloseClientSocket(tokens[i]);
                     }
                 }
                 catch (Exception e)
                 {
-                    Notifier.OnNotify(NotifyType.RunLog, string.Format("守护线程关闭套接字时超时，错误信息: {0}", e.Message), this);
+                    Notifier.OnNotify(NotifyType.Error, string.Format("守护线程关闭套接字时超时，错误信息: {0}", e.Message), this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 广播数据
+        /// </summary>
+        /// <param name="data">数据</param>
+        /// <param name="isNeedLogin">广播给是否需要登录的人</param>
+        public virtual void Broadcast(byte[] data,bool isNeedLogin=true)
+        {
+            AsyncUserToken[] tokens = null;
+            ConnectionList.CopyList(ref tokens);
+
+            for (int i = tokens.Length - 1; i >= 0; i--)
+            {
+                lock(tokens[i])
+                {
+                    //目前取消登录后 不会断开连接 所以要靠这里进行心跳判断
+                    if (!tokens[i].IsActive || (isNeedLogin && !tokens[i].IsLogined))
+                        continue;
+                    tokens[i].ConnectSocket.BeginSend(data, 0, data.Length, SocketFlags.None,
+                        SendCompletd, tokens[i]);
+                }    
+            }
+        }
+
+        private void SendCompletd(IAsyncResult result)
+        {
+            AsyncUserToken token = result.AsyncState as AsyncUserToken;
+            lock(token)
+            {
+                if (!token.IsActive)
+                    return;
+
+                int bytes = token.ConnectSocket.EndSend(result, out SocketError error);
+                if (error != SocketError.Success)
+                {
+                    CloseClientSocket(token);
+                }
+                else
+                {
+                    token.ActiveDateTime = DateTime.Now;
+                    Interlocked.Add(ref m_totalSendBytes, bytes);
                 }
             }
         }

@@ -30,9 +30,9 @@ namespace ProtobufProto
             return null;
         }
 
-        bool IsNullableType(Type theType)
+        public override object GetUnauthorizedResult(ExecuteContext executeContext)
         {
-            return (theType.IsGenericType && theType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)));
+            return new StandResponeResult(StandRespone.FailResult("请求未授权")).GetRespone();
         }
     }
 }

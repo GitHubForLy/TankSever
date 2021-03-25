@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using ProtobufProto.Model;
+using Google.Protobuf;
 using ServerCommon.Protocol;
 
 namespace ProtobufProto
@@ -52,9 +53,36 @@ namespace ProtobufProto
         /// <summary>
         /// 标准响应
         /// </summary>
-        protected IActionResult StandResult(StandRespone standRespone)
+        protected Respone StandResult(StandRespone standRespone)
         {
-            return new StandResponeResult(standRespone);
+            return new StandResponeResult(standRespone).GetRespone();
+        }
+
+        protected void Broadcast(StandRespone respone)
+        {
+            var resp= new StandResponeResult(respone).GetRespone();
+            Broadcast(resp);
+        }
+
+        /// <summary>
+        /// 广播数据
+        /// </summary>
+        /// <param name="SubMessage">子消息</param>
+        protected void Broadcast(IMessage SubMessage)
+        {
+
+            Respone res = new Respone
+            {
+                Controller = Context.Controller,
+                Action = Context.Action,
+                IsSuccess = false,
+                Data = Any.Pack(SubMessage)
+            };
+
+            Task.Run(() =>
+            {
+                Context.NetServer.Broadcast(res.ToByteArray());
+            });
         }
     }
 }

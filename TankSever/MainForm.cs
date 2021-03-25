@@ -9,16 +9,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ServerCommon;
 using System.Net;
-using Unity;
-using Unity.Resolution;
-using static System.Net.Dns;
+using System.Threading;
 
 namespace TankSever
 {
     public partial class MainForm : Form,INotifier
     {
+        private int PrevTotaiReiveBytes;
+        private int PrevTotaiSendBytes;
+        private SynchronizationContext synchronizationContext;
+
         public MainForm()
         {
+            synchronizationContext = SynchronizationContext.Current;
             InitializeComponent();          
         }
 
@@ -28,20 +31,27 @@ namespace TankSever
             lbx_log.Items.Add("[服务已启动]");
             btn_start.Enabled = false;
             btn_stop.Enabled = true;
+            netTimer.Enabled = true;
         }
 
 
         public void OnNotify(NotifyType type, string logInfo, IServer sender)
         {
-            lbx_log.Invoke(new Action(() =>
+            synchronizationContext.Post((state) =>
             {
-                lbx_log.Items.Add("[" + sender.ServerName + "]:" + logInfo);
-            }));        
-        }
-
-        private void txt_ip_TextChanged(object sender, EventArgs e)
-        {
-
+                switch (type)
+                {
+                    case NotifyType.Error:
+                        lbx_log.Items.Add(new ListBoxItem { Text = "[" + sender.ServerName + "]异常:" + logInfo, TextColor = Color.Red });
+                        break;
+                    case NotifyType.Message:
+                        lbx_log.Items.Add(new ListBoxItem { Text = "[" + sender.ServerName + "]:" + logInfo, TextColor = Color.Black });
+                        break;
+                    case NotifyType.Warning:
+                        lbx_log.Items.Add(new ListBoxItem { Text = "[" + sender.ServerName + "]警告:" + logInfo, TextColor = Color.Yellow });
+                        break;
+                }
+            },null);          
         }
 
         private void btn_stop_Click(object sender, EventArgs e)
@@ -50,6 +60,7 @@ namespace TankSever
             lbx_log.Items.Add("[服务已停止]");
             btn_start.Enabled = true;
             btn_stop.Enabled = false;
+            netTimer.Enabled = false;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -67,6 +78,20 @@ namespace TankSever
                 }
 
             }
+        }
+
+        private void netTimer_Tick(object sender, EventArgs e)
+        {
+
+            float krbytes = (float)Math.Round((Program.NetServer.TotalReceiveBytes - PrevTotaiReiveBytes) / 1024f, 2);
+            float ksbytes = (float)Math.Round((Program.NetServer.TotalSendBytes - PrevTotaiSendBytes) / 1024f,2);
+            tssl_request.Text = $"{krbytes}kb/s";
+            tssl_resbytes.Text = $"{ksbytes}kb/s";
+            tssl_conncount.Text = Program.NetServer.ConnectedCount.ToString();
+            tssl_usercount.Text = UserCenter.Instance.Count.ToString();
+
+            PrevTotaiReiveBytes = Program.NetServer.TotalReceiveBytes;
+            PrevTotaiSendBytes = Program.NetServer.TotalSendBytes;
         }
     }
 }

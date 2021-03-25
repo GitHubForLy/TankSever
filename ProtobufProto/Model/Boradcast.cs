@@ -28,15 +28,20 @@ namespace ProtobufProto.Model {
             "dG9yMxIJCgFYGAEgASgCEgkKAVkYAiABKAISCQoBWhgDIAEoAiJrCglUcmFu",
             "c2Zvcm0SLgoIUG9zaXRpb24YASABKAsyHC5Qcm90b2J1ZlByb3RvLk1vZGVs",
             "LlZlY3RvcjMSLgoIUm90YXRpb24YAiABKAsyHC5Qcm90b2J1ZlByb3RvLk1v",
-            "ZGVsLlZlY3RvcjMiWQoPUGxheWVyVHJhbnNmb3JtEg8KB0FjY291bnQYASAB",
-            "KAkSNQoNVXNlclRyYW5zZm9ybRgCIAEoCzIeLlByb3RvYnVmUHJvdG8uTW9k",
-            "ZWwuVHJhbnNmb3JtYgZwcm90bzM="));
+            "ZGVsLlZlY3RvcjMiUQoPUGxheWVyVHJhbnNmb3JtEg8KB0FjY291bnQYASAB",
+            "KAkSLQoFVHJhbnMYAiABKAsyHi5Qcm90b2J1ZlByb3RvLk1vZGVsLlRyYW5z",
+            "Zm9ybSK0AQoSUGxheWVyVHJhbnNmb3JtTWFwEksKClRyYW5zZm9ybXMYASAD",
+            "KAsyNy5Qcm90b2J1ZlByb3RvLk1vZGVsLlBsYXllclRyYW5zZm9ybU1hcC5U",
+            "cmFuc2Zvcm1zRW50cnkaUQoPVHJhbnNmb3Jtc0VudHJ5EgsKA2tleRgBIAEo",
+            "CRItCgV2YWx1ZRgCIAEoCzIeLlByb3RvYnVmUHJvdG8uTW9kZWwuVHJhbnNm",
+            "b3JtOgI4AWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Vector3), global::ProtobufProto.Model.Vector3.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Transform), global::ProtobufProto.Model.Transform.Parser, new[]{ "Position", "Rotation" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.PlayerTransform), global::ProtobufProto.Model.PlayerTransform.Parser, new[]{ "Account", "UserTransform" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.PlayerTransform), global::ProtobufProto.Model.PlayerTransform.Parser, new[]{ "Account", "Trans" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.PlayerTransformMap), global::ProtobufProto.Model.PlayerTransformMap.Parser, new[]{ "Transforms" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -549,7 +554,7 @@ namespace ProtobufProto.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public PlayerTransform(PlayerTransform other) : this() {
       account_ = other.account_;
-      userTransform_ = other.userTransform_ != null ? other.userTransform_.Clone() : null;
+      trans_ = other.trans_ != null ? other.trans_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -569,14 +574,14 @@ namespace ProtobufProto.Model {
       }
     }
 
-    /// <summary>Field number for the "UserTransform" field.</summary>
-    public const int UserTransformFieldNumber = 2;
-    private global::ProtobufProto.Model.Transform userTransform_;
+    /// <summary>Field number for the "Trans" field.</summary>
+    public const int TransFieldNumber = 2;
+    private global::ProtobufProto.Model.Transform trans_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::ProtobufProto.Model.Transform UserTransform {
-      get { return userTransform_; }
+    public global::ProtobufProto.Model.Transform Trans {
+      get { return trans_; }
       set {
-        userTransform_ = value;
+        trans_ = value;
       }
     }
 
@@ -594,7 +599,7 @@ namespace ProtobufProto.Model {
         return true;
       }
       if (Account != other.Account) return false;
-      if (!object.Equals(UserTransform, other.UserTransform)) return false;
+      if (!object.Equals(Trans, other.Trans)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -602,7 +607,7 @@ namespace ProtobufProto.Model {
     public override int GetHashCode() {
       int hash = 1;
       if (Account.Length != 0) hash ^= Account.GetHashCode();
-      if (userTransform_ != null) hash ^= UserTransform.GetHashCode();
+      if (trans_ != null) hash ^= Trans.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -623,9 +628,9 @@ namespace ProtobufProto.Model {
         output.WriteRawTag(10);
         output.WriteString(Account);
       }
-      if (userTransform_ != null) {
+      if (trans_ != null) {
         output.WriteRawTag(18);
-        output.WriteMessage(UserTransform);
+        output.WriteMessage(Trans);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -640,9 +645,9 @@ namespace ProtobufProto.Model {
         output.WriteRawTag(10);
         output.WriteString(Account);
       }
-      if (userTransform_ != null) {
+      if (trans_ != null) {
         output.WriteRawTag(18);
-        output.WriteMessage(UserTransform);
+        output.WriteMessage(Trans);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -656,8 +661,8 @@ namespace ProtobufProto.Model {
       if (Account.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Account);
       }
-      if (userTransform_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(UserTransform);
+      if (trans_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Trans);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -673,11 +678,11 @@ namespace ProtobufProto.Model {
       if (other.Account.Length != 0) {
         Account = other.Account;
       }
-      if (other.userTransform_ != null) {
-        if (userTransform_ == null) {
-          UserTransform = new global::ProtobufProto.Model.Transform();
+      if (other.trans_ != null) {
+        if (trans_ == null) {
+          Trans = new global::ProtobufProto.Model.Transform();
         }
-        UserTransform.MergeFrom(other.UserTransform);
+        Trans.MergeFrom(other.Trans);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -698,10 +703,10 @@ namespace ProtobufProto.Model {
             break;
           }
           case 18: {
-            if (userTransform_ == null) {
-              UserTransform = new global::ProtobufProto.Model.Transform();
+            if (trans_ == null) {
+              Trans = new global::ProtobufProto.Model.Transform();
             }
-            input.ReadMessage(UserTransform);
+            input.ReadMessage(Trans);
             break;
           }
         }
@@ -723,10 +728,171 @@ namespace ProtobufProto.Model {
             break;
           }
           case 18: {
-            if (userTransform_ == null) {
-              UserTransform = new global::ProtobufProto.Model.Transform();
+            if (trans_ == null) {
+              Trans = new global::ProtobufProto.Model.Transform();
             }
-            input.ReadMessage(UserTransform);
+            input.ReadMessage(Trans);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class PlayerTransformMap : pb::IMessage<PlayerTransformMap>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<PlayerTransformMap> _parser = new pb::MessageParser<PlayerTransformMap>(() => new PlayerTransformMap());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<PlayerTransformMap> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ProtobufProto.Model.BoradcastReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PlayerTransformMap() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PlayerTransformMap(PlayerTransformMap other) : this() {
+      transforms_ = other.transforms_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public PlayerTransformMap Clone() {
+      return new PlayerTransformMap(this);
+    }
+
+    /// <summary>Field number for the "Transforms" field.</summary>
+    public const int TransformsFieldNumber = 1;
+    private static readonly pbc::MapField<string, global::ProtobufProto.Model.Transform>.Codec _map_transforms_codec
+        = new pbc::MapField<string, global::ProtobufProto.Model.Transform>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForMessage(18, global::ProtobufProto.Model.Transform.Parser), 10);
+    private readonly pbc::MapField<string, global::ProtobufProto.Model.Transform> transforms_ = new pbc::MapField<string, global::ProtobufProto.Model.Transform>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::MapField<string, global::ProtobufProto.Model.Transform> Transforms {
+      get { return transforms_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as PlayerTransformMap);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(PlayerTransformMap other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!Transforms.Equals(other.Transforms)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= Transforms.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      transforms_.WriteTo(output, _map_transforms_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      transforms_.WriteTo(ref output, _map_transforms_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += transforms_.CalculateSize(_map_transforms_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(PlayerTransformMap other) {
+      if (other == null) {
+        return;
+      }
+      transforms_.Add(other.transforms_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            transforms_.AddEntriesFrom(input, _map_transforms_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            transforms_.AddEntriesFrom(ref input, _map_transforms_codec);
             break;
           }
         }

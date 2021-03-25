@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServerCommon.NetServer;
 
 namespace ServerCommon
 {
     public class UserCenter
     {
         private static readonly object lockobj = new object();
-        private static Dictionary<string, object> m_dictionary;
+        private static Dictionary<string, AsyncUserToken> m_dictionary;
 
-        public int Count { get { return m_dictionary.Count; } }
+        public int Count { get {return m_dictionary.Count;  } }
 
         private static UserCenter instance;
         /// <summary>
@@ -40,7 +41,7 @@ namespace ServerCommon
 
         private UserCenter()
         {
-            m_dictionary = new Dictionary<string, object>();
+            m_dictionary = new Dictionary<string, AsyncUserToken>();
         }
 
 
@@ -48,17 +49,26 @@ namespace ServerCommon
         {
             lock (m_dictionary)
             {
-                m_dictionary.Remove(userName);
+                if(!string.IsNullOrEmpty(userName) && m_dictionary.ContainsKey(userName))
+                {
+                    m_dictionary[userName].UserName = null;
+                    m_dictionary.Remove(userName);
+                }
             }
         }
 
-        public void UserLogin(string userName, object loginContext)
+        public void UserLogin(string userName, AsyncUserToken loginContext)
         {
             lock (m_dictionary)
             {
                 if (m_dictionary.ContainsKey(userName))
+                {
+                    //m_dictionary[userName].Server.CloseClientSocket(m_dictionary[userName]);
                     m_dictionary[userName] = loginContext;
-                m_dictionary.Add(userName, loginContext);
+                }
+                else
+                    m_dictionary.Add(userName, loginContext);
+                loginContext.UserName = userName;
             }
 
             OnUserLogin?.Invoke(userName);
@@ -77,7 +87,7 @@ namespace ServerCommon
         /// 检测用户登录
         /// </summary>
         /// <param name="loginContext">登录上下文</param>
-        public bool CheckUser(object loginContext)
+        public bool CheckUser(AsyncUserToken loginContext)
         {
             lock (m_dictionary)
             {

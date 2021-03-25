@@ -1,4 +1,5 @@
 ﻿using ServerCommon.NetServer;
+using ServerCommon.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +8,34 @@ using System.Threading.Tasks;
 
 namespace ServerCommon
 {
-    public class UserConnection
+    public class AsyncContext
     {
-        private AsyncUserToken asyncUserToken;
         private bool isClosed;
-        public string UserName { get; private set; }
+        private ExecuteContext executeContext;
+        private AsyncUserToken UserToken => executeContext.UserToken;
 
+        /// <summary>
+        /// 用户名
+        /// </summary>
+        public string UserName { get; private set; }
+        /// <summary>
+        /// 所属服务
+        /// </summary>
+        public AsyncSocketServerBase NetServer => UserToken.Server;
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined=>UserCenter.Instance.CheckUser(asyncUserToken);
+        public bool IsLogined=>UserCenter.Instance.CheckUser(UserToken);
+
+        public string Controller => executeContext.ControllerName;
+        public string Action => executeContext.ActionName;
 
 
-        public UserConnection(AsyncUserToken userToken)
+        public AsyncContext(ExecuteContext Context)
         {
-            asyncUserToken = userToken;
+            executeContext = Context;
         }
+
 
         /// <summary>
         /// 用户登录
@@ -31,7 +44,7 @@ namespace ServerCommon
         public void Login(string UserName)
         {
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName,asyncUserToken);
+            UserCenter.Instance.UserLogin(UserName, UserToken);
         }
 
         /// <summary>
@@ -48,9 +61,11 @@ namespace ServerCommon
         {
             if (!isClosed)
             {
-                asyncUserToken.Server.CloseClientSocket(this.asyncUserToken);
+                UserToken.Server.CloseClientSocket(UserToken);
                 isClosed = true;
             }
         }
+
+
     }
 }

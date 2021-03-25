@@ -27,7 +27,7 @@ namespace ServerCommon.Protocol
         /// <summary>
         /// 用户连接对象
         /// </summary>
-        public UserConnection UserConnect { get; set; }
+        public AsyncContext Context { get; set; }
 
         public ModelStates ModelState { get; set; }
 

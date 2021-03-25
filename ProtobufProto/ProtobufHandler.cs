@@ -13,7 +13,6 @@ using ServerCommon.NetServer;
 
 namespace ProtobufProto
 {
-
     /// <summary>
     /// protobuf数据协议处理类
     /// </summary>
@@ -81,12 +80,15 @@ namespace ProtobufProto
             if (obj == null)
                 return respone;
 
-            if (obj is IActionResult result)
+            if (obj is Respone retRes)
             {
-                var rerespone= result.GetRespone();
-                rerespone.Controller = request.Controller;
-                rerespone.Action = request.Action;
-                respone = rerespone;
+                respone.IsSuccess = retRes.IsSuccess;
+                respone.Data = retRes.Data;
+                respone.Message = retRes.Message;
+            }
+            else if(obj is IMessage megRes)
+            {
+                respone.Data = Any.Pack(megRes);
             }
             else
             {

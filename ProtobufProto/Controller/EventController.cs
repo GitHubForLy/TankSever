@@ -14,7 +14,8 @@ namespace ProtobufProto.Controller
     public class EventController : StandController
     {
         //注册
-        public IActionResult Register(RegistrRequest request)
+        [AllowAnonymous]
+        public Respone Register(RegistrRequest request)
         {
             //加密密码
             byte[] salt = new byte[20];
@@ -27,7 +28,8 @@ namespace ProtobufProto.Controller
         }
 
         //登录
-        public IActionResult Login(LoginRequest request)
+        [AllowAnonymous]
+        public Respone Login(LoginRequest request)
         {
             var res = DBServer.Instance.GetPassword(request.Account);
             if (res.IsSuccess)
@@ -40,7 +42,7 @@ namespace ProtobufProto.Controller
 
                 if (oldPass == crpPass)
                 {
-                    UserConnect.Login(request.Account);
+                    Context.Login(request.Account);
                     return StandResult(StandRespone.SuccessResult("登录成功"));
                 }
                 else
@@ -54,7 +56,7 @@ namespace ProtobufProto.Controller
 
         public void LoginOut([Required] string Account)
         {
-            UserConnect.LoginOut();
+            Context.LoginOut();
         }
 
     }

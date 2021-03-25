@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Protocol\ActionExecuter.cs" />
+    <Compile Include="Protocol\AllowAnonymous.cs" />
     <Compile Include="Protocol\NormalExecuteContext.cs" />
     <Compile Include="Protocol\NormalActionExecuter.cs" />
     <Compile Include="UserCenter.cs" />

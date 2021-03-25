@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Net.Sockets;
 
 namespace ServerCommon.NetServer
@@ -13,10 +13,19 @@ namespace ServerCommon.NetServer
         private Socket m_connectSocket;
         private byte[] m_asyncReceiveBuffer;
 
+        public AutoResetEvent SendEvent {get;}
         /// <summary>
-        /// 是否发送中
+        /// 所属用户名
         /// </summary>
-        public bool IsSending { get; set; }
+        public string UserName { get; set; }
+        /// <summary>
+        /// 是否处于激活状态(可用状态)
+        /// </summary>
+        public bool IsActive { get; set; }
+        /// <summary>
+        /// 是否登录
+        /// </summary>
+        public bool IsLogined => UserCenter.Instance.CheckUser(this);
 
         public Socket ConnectSocket
         {
@@ -64,6 +73,7 @@ namespace ServerCommon.NetServer
             SendEventArgs.UserToken = this;
 
             m_disposed = false;
+            SendEvent = new AutoResetEvent(true);
         }
 
         ~AsyncUserToken()
@@ -91,7 +101,10 @@ namespace ServerCommon.NetServer
             //释放非托管资源            
             ReceiveEventArgs.Dispose();
             SendEventArgs.Dispose();
+            SendEvent.Dispose();
             m_disposed = true;
         }
+
+
     }
 }
