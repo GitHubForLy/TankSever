@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Net.Sockets;
+using ServerCommon.Protocol;
 
 namespace ServerCommon.NetServer
 {
@@ -13,12 +14,14 @@ namespace ServerCommon.NetServer
         private Socket m_connectSocket;
         private byte[] m_asyncReceiveBuffer;
 
+        public IProtocolHandler ProtocolHandler { get; set; }
+
         public AutoResetEvent SendEvent {get;}
         public AutoResetEvent RecvEvent { get; }
         /// <summary>
         /// 所属用户名
         /// </summary>
-        public string UserName { get; set; }
+        public AsyncUser User { get; set; }
         /// <summary>
         /// 是否处于激活状态(可用状态)
         /// </summary>
@@ -76,6 +79,7 @@ namespace ServerCommon.NetServer
             m_disposed = false;
             SendEvent = new AutoResetEvent(true);
             RecvEvent = new AutoResetEvent(true);
+            User = new AsyncUser(this);
         }
 
         ~AsyncUserToken()

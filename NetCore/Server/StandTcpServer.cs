@@ -7,7 +7,6 @@ using ServerCommon.Protocol;
 using ServerCommon.NetServer;
 using ServerCommon;
 using System.Net.Sockets;
-using Unity;
 
 namespace NetCore.Server
 {
@@ -17,12 +16,6 @@ namespace NetCore.Server
     /// </summary>
     public class StandTcpServer : AsyncSocketServerBase
     {
-        [Dependency]
-        public IProtocolHandler Handler { get; set; }
-        [Dependency]
-        public IActionExecuter ActionExecuter { get; set; }
-
-
         public override string ServerName => "StandTcpServer";
 
         /// <summary>
@@ -38,7 +31,12 @@ namespace NetCore.Server
         /// <summary>
         /// 构造UserToken
         /// </summary>
-        protected override AsyncUserToken CreateUserToken()=> new PackageUserToken(this, ReceiveBufferSize);
+        protected override AsyncUserToken CreateUserToken()
+        {
+            var token =new PackageUserToken(this, ReceiveBufferSize);
+            token.ProtocolHandler = ProtoFactory.CreateProtocolHandler(token);
+            return token;
+        }
 
 
         /// <summary>
@@ -65,10 +63,10 @@ namespace NetCore.Server
         {
             if(token.Pakcage.OutgoingPackage(out byte[] data))
             {
-                //处理数据
-                if (Handler.DataHandle(token, ref data, ActionExecuter))
+                token.ProtocolHandler.DoRequest(data);
+                if(token.ProtocolHandler.TryGetRespone(out byte[] res))
                 {
-                    var senddata = DataPackage.PackData(data);
+                    var senddata = DataPackage.PackData(res);
                     token.SendEventArgs.SetBuffer(senddata, 0, senddata.Length);
                     SendAsync(token);    //发送数据
                     return true;

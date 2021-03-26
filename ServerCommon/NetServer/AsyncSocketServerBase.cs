@@ -8,10 +8,10 @@ using System.Net.Sockets;
 using System.Threading;
 using ServerCommon;
 using Unity.Injection;
+using ServerCommon.Protocol;
 
 namespace ServerCommon.NetServer
 {
-
     /// <summary>
     /// 表示一个异步套接字服务
     /// </summary>
@@ -33,6 +33,8 @@ namespace ServerCommon.NetServer
         protected AsyncUserTokenList ConnectionList;
 
         protected int NumMaxConnctions;
+
+        protected IProtocolHandlerFactory ProtoFactory { get; }
 
         /// <summary>
         /// 连接超时时间，单位MS 默认10秒
@@ -69,6 +71,7 @@ namespace ServerCommon.NetServer
             m_totalSendBytes = 0;
             m_disposed = false;
             IsClosed = true;
+            ProtoFactory = DI.Instance.Resolve<IProtocolHandlerFactory>();
         }
 
         ~AsyncSocketServerBase()
@@ -106,7 +109,9 @@ namespace ServerCommon.NetServer
         /// <returns></returns>
         protected virtual AsyncUserToken CreateUserToken()
         {
-            return new AsyncUserToken(this,ReceiveBufferSize);
+            var token=new AsyncUserToken(this,ReceiveBufferSize);
+            token.ProtocolHandler = ProtoFactory.CreateProtocolHandler(token);
+            return token;
         }
 
         /// <summary>
@@ -409,7 +414,7 @@ namespace ServerCommon.NetServer
         }
 
         /// <summary>
-        /// 广播数据
+        /// 广播数据  （！调用此方法的上层不能锁某个<see cref="ServerCommon.NetServer.AsyncUserToken"/>，否则就在新线程里调用该方法）
         /// </summary>
         /// <param name="data">数据</param>
         /// <param name="isNeedLogin">广播给是否需要登录的人</param>

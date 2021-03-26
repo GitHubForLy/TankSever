@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServerCommon.Protocol;
 
-namespace ServerCommon.Protocol
+namespace TankSever.BLL.Controllers
 {
-    public interface IController
+    class BroadController:Controller
     {
-        public AsyncUser User { get; set; }
     }
 }

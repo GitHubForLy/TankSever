@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerCommon.Protocol
+namespace ServerCommon
 {
-    public interface IController
+    interface IDataFormatter
     {
-        public AsyncUser User { get; set; }
+        byte[] Serialize(object ojb);
+        object Deserialize(byte[] data);
     }
 }

@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServerCommon.NetServer;
 
 namespace ServerCommon.Protocol
 {
-    public interface IController
+    public interface IProtocolHandlerFactory
     {
-        public AsyncUser User { get; set; }
+         IProtocolHandler CreateProtocolHandler(AsyncUserToken token);
     }
 }

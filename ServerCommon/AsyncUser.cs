@@ -8,32 +8,26 @@ using System.Threading.Tasks;
 
 namespace ServerCommon
 {
-    public class AsyncContext
+    public class AsyncUser
     {
-        private bool isClosed;
-        private ExecuteContext executeContext;
-        private AsyncUserToken UserToken => executeContext.UserToken;
+        private AsyncUserToken _userToken;
+        private bool _isClosed = false;
 
         /// <summary>
         /// 用户名
         /// </summary>
         public string UserName { get; private set; }
-        /// <summary>
-        /// 所属服务
-        /// </summary>
-        public AsyncSocketServerBase NetServer => UserToken.Server;
+
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined=>UserCenter.Instance.CheckUser(UserToken);
-
-        public string Controller => executeContext.ControllerName;
-        public string Action => executeContext.ActionName;
+        public bool IsLogined { get; private set; }
 
 
-        public AsyncContext(ExecuteContext Context)
+
+        public AsyncUser(AsyncUserToken Token)
         {
-            executeContext = Context;
+            _userToken = Token;
         }
 
 
@@ -44,7 +38,7 @@ namespace ServerCommon
         public void Login(string UserName)
         {
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, UserToken);
+            UserCenter.Instance.UserLogin(UserName, _userToken);
         }
 
         /// <summary>
@@ -59,10 +53,10 @@ namespace ServerCommon
 
         private void Close()
         {
-            if (!isClosed)
+            if (!_isClosed)
             {
-                UserToken.Server.CloseClientSocket(UserToken);
-                isClosed = true;
+                _userToken.Server.CloseClientSocket(_userToken);
+                _isClosed = true;
             }
         }
 

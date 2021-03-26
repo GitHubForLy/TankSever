@@ -5,22 +5,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DBCore;
-using DBCore.MySql;
-using Microsoft.Practices.Unity.Configuration;
+using ServerCommon;
 using ServerCommon.DB;
 using ServerCommon.NetServer;
-using Unity;
-using Unity.Resolution;
+
 
 namespace TankSever
 {
 
     static class Program
     {
-        /// <summary>
-        /// 全局IOC容器
-        /// </summary>
-        public static UnityContainer IocContainer { get;private set; }
         /// <summary>
         /// 主Tcp监听服务
         /// </summary>
@@ -49,11 +43,6 @@ namespace TankSever
 
         private static void Init()
         {
-            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            UnityConfigurationSection section = (UnityConfigurationSection)configuration.GetSection(UnityConfigurationSection.SectionName);
-            IocContainer = new UnityContainer();
-            section.Configure(IocContainer, "Server");
-
             #region 注册类型（已改为在配置文件里注册类型）
             //IocContainer.RegisterType<IProtocolHandler, ProtobufHandler>();
             //IocContainer.RegisterType<IActionExecuter, ActionExecuter>();
@@ -61,11 +50,9 @@ namespace TankSever
             //IocContainer.RegisterType<IDBExecuterFactory, MySqlDBExecuterFactory>();
             #endregion
 
-            DBServer.Instance.RegisterFactory(IocContainer.Resolve<IDBExecuterFactory>());
+            DBServer.Instance.RegisterFactory(DI.Instance.Resolve<IDBExecuterFactory>());
 
-            ParameterOverride maxConnections = new ParameterOverride("MaxConnections", 100);
-            ParameterOverride notifier = new ParameterOverride("notifier", MainForm);
-            NetServer = IocContainer.Resolve<AsyncSocketServerBase>("MainTcpServer", maxConnections, notifier);
+            NetServer = DI.Instance.Resolve<AsyncSocketServerBase>("MainTcpServer", ("MaxConnections", 100), ("notifier", MainForm));
             NetServer.Init();
             NetServer.SocketTimeOutMS = 10 * 1000;
         }
