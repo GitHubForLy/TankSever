@@ -59,12 +59,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DI.cs" />
+    <Compile Include="IDataFormatter.cs" />
     <Compile Include="Protocol\ActionExecuter.cs" />
     <Compile Include="Protocol\AllowAnonymous.cs" />
+    <Compile Include="Protocol\IProtocolHandlerFactory.cs" />
     <Compile Include="Protocol\NormalExecuteContext.cs" />
     <Compile Include="Protocol\NormalActionExecuter.cs" />
     <Compile Include="UserCenter.cs" />
-    <Compile Include="UserConnection.cs" />
+    <Compile Include="AsyncUser.cs" />
     <Compile Include="DB\IDBExecuterFactory.cs" />
     <Compile Include="DB\IDBExecuter.cs" />
     <Compile Include="IServer.cs" />
@@ -76,7 +78,7 @@
     <Compile Include="NotifyServer.cs" />
     <Compile Include="INotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol\ControllerBase.cs" />
+    <Compile Include="Protocol\Controller.cs" />
     <Compile Include="Protocol\ExecuteContext.cs" />
     <Compile Include="Protocol\IActionExecuter.cs" />
     <Compile Include="Protocol\IController.cs" />

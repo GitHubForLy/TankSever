@@ -105,6 +105,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\Controllers\BroadController.cs" />
+    <Compile Include="BLL\Controllers\EventController.cs" />
     <Compile Include="ListBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -152,17 +154,11 @@
       <Project>{5c2e9e88-98ec-415f-ad04-d3cbf81d4ab9}</Project>
       <Name>NetCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ProtobufProto\ProtobufProto.csproj">
-      <Project>{d5822691-c5fd-4b88-9366-746852477f47}</Project>
-      <Name>ProtobufProto</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ServerCommon\ServerCommon.csproj">
       <Project>{6bb75930-151f-4cb4-acb9-1a3411dc4d0c}</Project>
       <Name>ServerCommon</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="BLL\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
