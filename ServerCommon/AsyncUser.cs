@@ -21,7 +21,7 @@ namespace ServerCommon
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined { get; private set; }
+        public bool IsLogined => UserCenter.Instance.HasUser(UserName);
 
 
 

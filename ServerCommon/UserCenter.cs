@@ -51,7 +51,6 @@ namespace ServerCommon
             {
                 if(!string.IsNullOrEmpty(userName) && m_dictionary.ContainsKey(userName))
                 {
-                    m_dictionary[userName].UserName = null;
                     m_dictionary.Remove(userName);
                 }
             }
@@ -68,7 +67,6 @@ namespace ServerCommon
                 }
                 else
                     m_dictionary.Add(userName, loginContext);
-                loginContext.UserName = userName;
             }
 
             OnUserLogin?.Invoke(userName);
@@ -76,6 +74,9 @@ namespace ServerCommon
 
         public bool HasUser(string userName)
         {
+            if (string.IsNullOrEmpty(userName))
+                return false;
+
             lock (m_dictionary)
             {
                 return m_dictionary.ContainsKey(userName);

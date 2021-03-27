@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace ServerCommon
 {
-    interface IDataFormatter
+    public interface IDataFormatter
     {
         byte[] Serialize(object ojb);
         object Deserialize(byte[] data);
+        T Deserialize<T>(byte[] data);
+        IDynamicType DeserializeDynamic(byte[] data);
     }
 }

@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using ServerCommon;
-using Unity.Injection;
 using ServerCommon.Protocol;
 
 namespace ServerCommon.NetServer
@@ -372,7 +371,9 @@ namespace ServerCommon.NetServer
                 {
                     Notifier?.OnNotify(NotifyType.Error, string.Format("断开连接 {0} 时发生错误: {1}", socketInfo, ex.Message), this);
                 }
-                UserCenter.Instance.UserLogout(userToken.UserName);
+
+                if(userToken.User.IsLogined)
+                    userToken.User.LoginOut();
                 userToken.ConnectSocket.Close();
                 userToken.ConnectSocket = null;
                 userToken.SendEvent.Set();

@@ -7,7 +7,7 @@ using ServerCommon.Protocol;
 
 namespace TankSever.BLL.Controllers
 {
-    class BroadController:Controller
+    class BroadcastController : Controller
     {
     }
 }

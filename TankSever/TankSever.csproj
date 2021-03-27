@@ -105,8 +105,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BLL\Controllers\BroadController.cs" />
+    <Compile Include="BLL\ControllerConst.cs" />
+    <Compile Include="BLL\Controllers\BroadcastController.cs" />
     <Compile Include="BLL\Controllers\EventController.cs" />
+    <Compile Include="BLL\Model\Request.cs" />
+    <Compile Include="BLL\Protocol\ProtocolHandler.cs" />
+    <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />
     <Compile Include="ListBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -149,6 +153,10 @@
     <ProjectReference Include="..\DBCore\DBCore.csproj">
       <Project>{ec1fcbad-d7d8-40a0-a633-df805d4a2ff2}</Project>
       <Name>DBCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\JsonFormatter\JsonFormatter.csproj">
+      <Project>{f7abae2d-89b0-4987-bf1e-7fb73824bd99}</Project>
+      <Name>JsonFormatter</Name>
     </ProjectReference>
     <ProjectReference Include="..\NetCore\NetCore.csproj">
       <Project>{5c2e9e88-98ec-415f-ad04-d3cbf81d4ab9}</Project>

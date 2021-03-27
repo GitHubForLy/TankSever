@@ -8,6 +8,6 @@ namespace ServerCommon.Protocol
 {
     public interface IController
     {
-        public AsyncUser User { get; set; }
+        AsyncUser User { get; set; }
     }
 }
