@@ -8,7 +8,7 @@ namespace TankSever.BLL
 {
     public class ControllerConst
     {
-        public const string Event = "EventController";
-        public const string Broad = "BroadController";
+        public const string Event = "Event";
+        public const string Broad = "Broadcast";
     }
 }

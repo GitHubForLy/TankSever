@@ -8,6 +8,7 @@ using DBCore;
 using ServerCommon;
 using ServerCommon.DB;
 using ServerCommon.NetServer;
+using TankSever.BLL.Server;
 
 
 namespace TankSever
@@ -19,6 +20,7 @@ namespace TankSever
         /// 主Tcp监听服务
         /// </summary>
         public static AsyncSocketServerBase NetServer { get;private set; }
+        public static ServerBase BroadServer { get; private set; }
         /// <summary>
         /// 主窗口
         /// </summary>
@@ -55,6 +57,8 @@ namespace TankSever
             NetServer = DI.Instance.Resolve<AsyncSocketServerBase>("MainTcpServer", ("MaxConnections", 100), ("notifier", MainForm));
             NetServer.Init();
             NetServer.SocketTimeOutMS = 10 * 1000;
+
+            BroadServer = new BroadcastServer(MainForm as MainForm);
         }
     }
 }

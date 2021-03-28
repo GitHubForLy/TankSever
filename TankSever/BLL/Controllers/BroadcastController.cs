@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataModel;
 using ServerCommon.Protocol;
 
 namespace TankSever.BLL.Controllers
 {
     class BroadcastController : Controller
     {
+        public void UpdateTransform(PlayerTransformRequest transform)
+        {
+            DataCenter.Instance.UpdateTrnasforms(transform.Trans);
+        }
     }
 }

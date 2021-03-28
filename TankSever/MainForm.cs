@@ -28,6 +28,7 @@ namespace TankSever
         private void btn_start_Click(object sender, EventArgs e)
         {          
             Program.NetServer.Start(new IPEndPoint(IPAddress.Any,int.Parse(txt_port.Text)));
+            Program.BroadServer.Start();
             lbx_log.Items.Add("[服务已启动]");
             btn_start.Enabled = false;
             btn_stop.Enabled = true;
@@ -57,6 +58,7 @@ namespace TankSever
         private void btn_stop_Click(object sender, EventArgs e)
         {
             Program.NetServer.Close();
+            Program.BroadServer.Stop();
             lbx_log.Items.Add("[服务已停止]");
             btn_start.Enabled = true;
             btn_stop.Enabled = false;

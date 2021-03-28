@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ServerCommon.Protocol;
-using TankSever.BLL.Model;
+using DataModel;
 using ServerCommon;
 using TankSever.BLL.Controllers;
 using System.Reflection;

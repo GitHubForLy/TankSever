@@ -17,7 +17,7 @@ namespace ServerCommon
         /// </summary>
         public INotifier Notifier { get { return notifier; } }
 
-        public abstract string ServerName{ get; }
+        public abstract string ServerName { get; }
 
         public NotifyServer(INotifier notifier)
         {

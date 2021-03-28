@@ -65,6 +65,7 @@
     <Compile Include="Protocol\IProtocolHandlerFactory.cs" />
     <Compile Include="Protocol\ProtocolHandlerBase.cs" />
     <Compile Include="Protocol\ProtocolHandlerFactoryBase.cs" />
+    <Compile Include="ServerBase.cs" />
     <Compile Include="UserCenter.cs" />
     <Compile Include="AsyncUser.cs" />
     <Compile Include="DB\IDBExecuterFactory.cs" />

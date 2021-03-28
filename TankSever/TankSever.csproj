@@ -108,9 +108,10 @@
     <Compile Include="BLL\ControllerConst.cs" />
     <Compile Include="BLL\Controllers\BroadcastController.cs" />
     <Compile Include="BLL\Controllers\EventController.cs" />
-    <Compile Include="BLL\Model\Request.cs" />
+    <Compile Include="BLL\DataCenter.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandler.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />
+    <Compile Include="BLL\Server\BroadcastServer.cs" />
     <Compile Include="ListBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -150,6 +151,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DataModel\DataModel.csproj">
+      <Project>{21dd6df1-ea2a-4810-8ddf-d21537cb36f1}</Project>
+      <Name>DataModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DBCore\DBCore.csproj">
       <Project>{ec1fcbad-d7d8-40a0-a633-df805d4a2ff2}</Project>
       <Name>DBCore</Name>

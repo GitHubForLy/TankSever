@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DBCore;
 using ServerCommon.Protocol;
-using TankSever.BLL.Model;
+using DataModel;
 
 namespace TankSever.BLL.Controllers
 {

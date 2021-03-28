@@ -372,8 +372,9 @@ namespace ServerCommon.NetServer
                     Notifier?.OnNotify(NotifyType.Error, string.Format("断开连接 {0} 时发生错误: {1}", socketInfo, ex.Message), this);
                 }
 
-                if(userToken.User.IsLogined)
-                    userToken.User.LoginOut();
+                UserCenter.Instance.UserLogout(userToken.User.UserName);
+                //if(userToken.User.IsLogined)
+                //    userToken.User.LoginOut();
                 userToken.ConnectSocket.Close();
                 userToken.ConnectSocket = null;
                 userToken.SendEvent.Set();
