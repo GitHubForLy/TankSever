@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using ServerCommon;
+using DataModel;
 
 namespace TankSever.BLL.Server
 {
@@ -21,8 +22,8 @@ namespace TankSever.BLL.Server
         public override void Run()
         {
             try
-            {               
-                BoradcastTransform();
+            {
+                UpadateTransform();
             }
             catch(Exception e)
             {
@@ -31,12 +32,18 @@ namespace TankSever.BLL.Server
        
         }
 
-        private void BoradcastTransform()
+        private void UpadateTransform()
         {
             var trans= DataCenter.Instance.GetTransforms();
             if(trans.Count>0)
             {
-                var data = _dataFormatter.Serialize(trans);
+                Respone respone = new Respone()
+                {
+                    Controller = ControllerConst.Broad,
+                    Action = nameof(UpadateTransform),
+                    Data = trans
+                };
+                var data = _dataFormatter.Serialize(respone);
 
                 Program.NetServer.Broadcast(data);
             }

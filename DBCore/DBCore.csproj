@@ -102,6 +102,10 @@
     <Compile Include="SqlServer\SqlServerExecuter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DataModel\DataModel.csproj">
+      <Project>{21dd6df1-ea2a-4810-8ddf-d21537cb36f1}</Project>
+      <Name>DataModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ServerCommon\ServerCommon.csproj">
       <Project>{6bb75930-151f-4cb4-acb9-1a3411dc4d0c}</Project>
       <Name>ServerCommon</Name>

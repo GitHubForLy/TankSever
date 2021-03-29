@@ -18,9 +18,9 @@ namespace TankSever.BLL.Protocol
 
         public override IController CreateController(IDynamicType data)
         {
-            _dynamicData = data;
-            _req = _dynamicData.GetValue<Request>();
-            switch(_req.Controller)
+            _req = data.GetValue<Request>();
+            _dynamicData= data.GetChid(nameof(_req.Data));
+            switch (_req.Controller)
             {
                 case ControllerConst.Event:
                     return new EventController();
@@ -57,6 +57,13 @@ namespace TankSever.BLL.Protocol
             }
 
             res=method.Invoke(controller, pendingPars.ToArray());
+            Respone respone = new Respone()
+            {
+                Controller = _req.Controller,
+                Action = _req.Action,
+                Data = res
+            };
+            res = respone;
             return true;
         }
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 
-namespace ServerCommon.Protocol
+namespace DataModel
 {
     /// <summary>
     /// 标准请求响应

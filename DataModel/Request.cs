@@ -8,23 +8,25 @@ namespace DataModel
 {
     public class Request
     {
+        public int RequestId { get; set; }
         public string Controller { get; set; }
         public string Action { get; set; }
+        public object Data { get; set; }
     }
 
 
-    public class LoginRequest : Request
+    public class LoginRequest 
     {
         public string UserName { get; set; }
         public string Password { get; set; }
     }
 
-    public class RegisterRequest : Request
+    public class RegisterRequest 
     {
         public string UserName { get; set; }
         public string Password { get; set; }
     }
-    public class  PlayerTransformRequest:Request
+    public class  PlayerTransformRequest
     {
         public PlayerTransform Trans { get; set; }
     }

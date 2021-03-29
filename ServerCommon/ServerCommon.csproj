@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServerCommon</RootNamespace>
     <AssemblyName>ServerCommon</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -84,7 +85,6 @@
     <Compile Include="Protocol\IActionExecuter.cs" />
     <Compile Include="Protocol\IController.cs" />
     <Compile Include="Protocol\IProtocolHandler.cs" />
-    <Compile Include="Protocol\StandRespone.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
