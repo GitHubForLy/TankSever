@@ -10,9 +10,9 @@ namespace TankSever.BLL.Controllers
 {
     class BroadcastController : Controller
     {
-        public void UpdateTransform(PlayerTransformRequest transform)
+        public void UpdateTransform(PlayerTransform transform)
         {
-            DataCenter.Instance.UpdateTrnasforms(transform.Trans);
+            DataCenter.Instance.UpdateTrnasforms(transform);
         }
     }
 }

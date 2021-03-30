@@ -56,7 +56,12 @@ namespace TankSever.BLL.Protocol
                 pendingPars.Add(data);
             }
 
+    
             res=method.Invoke(controller, pendingPars.ToArray());
+
+            if (method.ReturnType == typeof(void))
+                return false;
+
             Respone respone = new Respone()
             {
                 RequestId=_req.RequestId,

@@ -54,6 +54,7 @@ namespace NetCore.Server
             }
             catch (Exception err)
             {
+                System.Diagnostics.Debugger.Break();
                 Notify(NotifyType.Error, err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
             }
         }

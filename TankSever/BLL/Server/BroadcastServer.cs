@@ -44,7 +44,7 @@ namespace TankSever.BLL.Server
                     Data = trans
                 };
                 var data = _dataFormatter.Serialize(respone);
-
+                var s = _dataFormatter.DeserializeDynamic(data);
                 Program.NetServer.Broadcast(data);
             }
         }
