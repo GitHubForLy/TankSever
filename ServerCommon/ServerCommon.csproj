@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\Unity\Tank\Assets\Plugin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DI.cs" />
-    <Compile Include="DynamicObject.cs" />
+    <Compile Include="IDynamicType.cs" />
     <Compile Include="IDataFormatter.cs" />
     <Compile Include="Protocol\AllowAnonymous.cs" />
     <Compile Include="Protocol\IProtocolHandlerFactory.cs" />

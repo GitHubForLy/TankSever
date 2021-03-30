@@ -15,6 +15,11 @@ namespace DataModel
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
         public DataTable Data { get; set; }
+        
+        public StandRespone()
+        {
+            IsSuccess = false;
+        }
 
         public StandRespone(bool isSuccess) : this(isSuccess, "") { }
 

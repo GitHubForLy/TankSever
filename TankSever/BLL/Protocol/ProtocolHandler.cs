@@ -59,6 +59,7 @@ namespace TankSever.BLL.Protocol
             res=method.Invoke(controller, pendingPars.ToArray());
             Respone respone = new Respone()
             {
+                RequestId=_req.RequestId,
                 Controller = _req.Controller,
                 Action = _req.Action,
                 Data = res

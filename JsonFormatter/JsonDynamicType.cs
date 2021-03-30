@@ -29,7 +29,7 @@ namespace JsonFormatter
             if (jtoken == null)
                 return null;
 
-            return new JsonDynamicType(_jToken[name] as JObject);
+            return new JsonDynamicType(jtoken);
         }
 
         public IDynamicType[] GetChids()
