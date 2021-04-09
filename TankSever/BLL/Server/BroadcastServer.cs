@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks; 
 using System.Threading;
 using ServerCommon;
 using DataModel;
@@ -11,19 +12,24 @@ namespace TankSever.BLL.Server
     class BroadcastServer :ServerBase
     {
         public override string ServerName => "广播服务";
-        private IDataFormatter _dataFormatter;
+        private static IDataFormatter _dataFormatter = DI.Instance.Resolve<IDataFormatter>();
 
         public BroadcastServer(INotifier notifier):base(notifier)
         {
             RunInterval = 100;
-            _dataFormatter = DI.Instance.Resolve<IDataFormatter>();
+            UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
+        }
+
+        private void Instance_OnUserLoginout(string account)
+        {
+            BroadcastMessage("Loginout", account);
         }
 
         public override void Run()
         {
             try
             {
-                UpadateTransform();
+               // UpdateTransform();
             }
             catch(Exception e)
             {
@@ -32,7 +38,23 @@ namespace TankSever.BLL.Server
        
         }
 
-        private void UpadateTransform()
+        public static void BroadcastMessage(string action,object data)
+        {
+            Task.Run(() =>
+            {
+                Respone respone = new Respone()
+                {
+                    Controller = ControllerConst.Broad,
+                    Action = action,
+                    Data = data
+                };
+                var bytes= _dataFormatter.Serialize(respone);
+                Program.NetServer.Broadcast(bytes);
+            });
+        }
+
+
+        private void UpdateTransform()
         {
             var trans= DataCenter.Instance.GetTransforms();
             if(trans.Count>0)
@@ -40,11 +62,10 @@ namespace TankSever.BLL.Server
                 Respone respone = new Respone()
                 {
                     Controller = ControllerConst.Broad,
-                    Action = nameof(UpadateTransform),
+                    Action = nameof(UpdateTransform),
                     Data = trans
                 };
                 var data = _dataFormatter.Serialize(respone);
-                var s = _dataFormatter.DeserializeDynamic(data);
                 Program.NetServer.Broadcast(data);
             }
         }

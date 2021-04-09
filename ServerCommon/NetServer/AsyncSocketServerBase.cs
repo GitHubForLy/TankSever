@@ -399,7 +399,7 @@ namespace ServerCommon.NetServer
             ConnectionList.CopyList(ref tokens);
             for (int i = 0; i < tokens.Length; i++)
             {
-                if (checkBreak != null && checkBreak())
+                if(checkBreak?.Invoke()??false)
                     break;
                 try
                 {

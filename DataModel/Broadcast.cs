@@ -20,9 +20,17 @@ namespace DataModel
         public Vector3 Rotation { get; set; }
     }
 
-    public class PlayerTransform
+    public class LoginInfo
     {
-        public string Accout { get; set; }
-        public Transform Trans { get; set; }
+        public string Account { get; set; }
+        public int WaypointIndex { get; set; }
     }
+
+    public class SyncMethod
+    {
+        public string ClassFullName { get; set; }
+        public string MethodName { get; set; }
+        public object[] Parameters { get; set; }
+    }
+
 }

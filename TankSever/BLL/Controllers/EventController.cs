@@ -53,6 +53,13 @@ namespace TankSever.BLL.Controllers
                 return res;
         }
 
+
+        public List<(string,Transform)> GetPlayerTransforms()
+        {
+            return DataCenter.Instance.GetTransforms();
+        }
+
+
         public void LoginOut(string Account)
         {
             User.LoginOut();

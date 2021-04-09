@@ -25,6 +25,7 @@ namespace ServerCommon
         public void Start()
         {
             _thread = new Thread(ThreadStart);
+            _thread.IsBackground = true;
             IsStop = false;
             _thread.Start();
         }

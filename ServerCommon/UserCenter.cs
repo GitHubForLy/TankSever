@@ -10,7 +10,7 @@ namespace ServerCommon
     public class UserCenter
     {
         private static readonly object lockobj = new object();
-        private static Dictionary<string, AsyncUserToken> m_dictionary;
+        private static Dictionary<string, AsyncUserContext> m_dictionary;
 
         public int Count { get {return m_dictionary.Count;  } }
 
@@ -38,10 +38,14 @@ namespace ServerCommon
         /// 用户登录时
         /// </summary>
         public event Action<string> OnUserLogin;
+        /// <summary>
+        /// 用户登出
+        /// </summary>
+        public event Action<string> OnUserLoginout;
 
         private UserCenter()
         {
-            m_dictionary = new Dictionary<string, AsyncUserToken>();
+            m_dictionary = new Dictionary<string, AsyncUserContext>();
         }
 
 
@@ -52,6 +56,7 @@ namespace ServerCommon
                 if(!string.IsNullOrEmpty(userName) && m_dictionary.ContainsKey(userName))
                 {
                     m_dictionary.Remove(userName);
+                    OnUserLoginout.Invoke(userName);
                 }
             }
         }
@@ -63,10 +68,10 @@ namespace ServerCommon
                 if (m_dictionary.ContainsKey(userName))
                 {
                     //m_dictionary[userName].Server.CloseClientSocket(m_dictionary[userName]);
-                    m_dictionary[userName] = loginContext;
+                    m_dictionary[userName] = new AsyncUserContext(loginContext);
                 }
                 else
-                    m_dictionary.Add(userName, loginContext);
+                    m_dictionary.Add(userName, new AsyncUserContext(loginContext));
             }
 
             OnUserLogin?.Invoke(userName);
@@ -92,7 +97,7 @@ namespace ServerCommon
         {
             lock (m_dictionary)
             {
-                return m_dictionary.ContainsValue(loginContext);
+                return m_dictionary.Values.Any(m=>m.UserToken==loginContext);
             }
         }
 

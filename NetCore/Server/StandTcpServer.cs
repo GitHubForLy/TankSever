@@ -16,6 +16,7 @@ namespace NetCore.Server
     /// </summary>
     public class StandTcpServer : AsyncSocketServerBase
     {
+        public readonly byte[] heartbyte = Encoding.UTF8.GetBytes("heart");
         public override string ServerName => "StandTcpServer";
 
         /// <summary>
@@ -54,17 +55,31 @@ namespace NetCore.Server
             }
             catch (Exception err)
             {
-                System.Diagnostics.Debugger.Break();
                 Notify(NotifyType.Error, err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
             }
         }
 
-
+        /// <summary>
+        /// 数据处理
+        /// </summary>
+        /// <returns>返回true代表内部已进行接收 否则没有进行接收需要调用方再进行接收</returns>
         private bool DataHandle(PackageUserToken token)
         {
             if(token.Pakcage.OutgoingPackage(out byte[] data))
             {
-                token.ProtocolHandler.DoRequest(data);
+                if (CheckHeart(data))  //心跳包
+                    return false;
+                try 
+                {
+                    token.ProtocolHandler.DoRequest(data);
+                }
+                catch(Exception err)
+                {
+                    System.Diagnostics.Debugger.Break();
+                    Notify(NotifyType.Error,"处理数据出错:"+ err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
+                    return false;
+                }
+
                 if(token.ProtocolHandler.TryGetRespone(out byte[] res))
                 {
                     var senddata = DataPackage.PackData(res);
@@ -76,6 +91,21 @@ namespace NetCore.Server
             return false;
         }
 
+        /// <summary>
+        /// 检查心跳包
+        /// </summary>
+        /// <returns>true是</returns>
+        protected virtual bool CheckHeart(byte[] data)
+        {
+            if (data == null || data.Length != heartbyte.Length)
+                return false;
+            for(int i=0;i<heartbyte.Length;i++)
+            {
+                if (data[i] != heartbyte[i])
+                    return false;
+            }
+            return true;
+        }
         
         /// <summary>
         /// 关闭并回收连接对象

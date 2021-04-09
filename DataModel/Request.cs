@@ -26,8 +26,4 @@ namespace DataModel
         public string UserName { get; set; }
         public string Password { get; set; }
     }
-    public class  PlayerTransformRequest
-    {
-        public PlayerTransform Trans { get; set; }
-    }
 }

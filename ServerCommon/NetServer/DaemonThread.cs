@@ -16,6 +16,7 @@ namespace ServerCommon.NetServer
         {
             m_asyncSocketServer = asyncSocketServer;
             m_thread = new Thread(DaemonThreadStart);
+            m_thread.IsBackground = true;
             m_thread.Name = "daemonThread";
             m_thread.Start();
         }
@@ -35,6 +36,9 @@ namespace ServerCommon.NetServer
                         Thread.Sleep(10);
                     }
                 }
+            }
+            catch(ThreadAbortException)
+            {
             }
             catch(Exception e)
             {
