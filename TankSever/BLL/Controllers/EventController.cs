@@ -42,6 +42,7 @@ namespace TankSever.BLL.Controllers
                 if (oldPass == crpPass)
                 {
                     User.Login(request.UserName);
+
                     return StandRespone.SuccessResult("登录成功");
                 }
                 else
@@ -60,7 +61,7 @@ namespace TankSever.BLL.Controllers
         }
 
 
-        public void LoginOut(string Account)
+        public void Logout()
         {
             User.LoginOut();
         }

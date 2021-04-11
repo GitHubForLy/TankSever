@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Broadcast.cs" />
+    <Compile Include="Actions.cs" />
     <Compile Include="Respone.cs" />
     <Compile Include="StandRespone.cs" />
     <Compile Include="Request.cs" />

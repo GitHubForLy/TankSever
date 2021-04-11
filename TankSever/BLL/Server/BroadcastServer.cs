@@ -22,7 +22,7 @@ namespace TankSever.BLL.Server
 
         private void Instance_OnUserLoginout(string account)
         {
-            BroadcastMessage("Loginout", account);
+            BroadcastMessage(BroadcastActions.Loginout, account);
         }
 
         public override void Run()

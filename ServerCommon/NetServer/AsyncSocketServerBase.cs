@@ -291,6 +291,8 @@ namespace ServerCommon.NetServer
         {
             lock(token)
             {
+                if (!token.IsActive)
+                    return;
                 token.RecvEvent.WaitOne();
                 if (!token.ConnectSocket.ReceiveAsync(token.ReceiveEventArgs))
                     ProcessReceive(token.ReceiveEventArgs);
