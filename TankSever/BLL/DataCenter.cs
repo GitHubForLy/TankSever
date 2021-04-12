@@ -39,7 +39,7 @@ namespace TankSever.BLL
             UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account)
+        private void Instance_OnUserLoginout(string account,object userdata)
         {
             lock(Players)
             {

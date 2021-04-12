@@ -44,12 +44,29 @@ namespace JsonFormatter
 
         public T GetValue<T>()
         {
-            return _jToken.ToObject<T>();
+            try
+            {
+                return _jToken.ToObject<T>();
+            }
+            catch
+            {
+                    return default(T);
+            }
         }
+
 
         public object GetValue(Type dataType)
         {
-            return _jToken.ToObject(dataType);
+            try
+            {
+                return _jToken.ToObject(dataType);
+            }
+            catch
+            {
+                if (dataType.IsValueType)
+                    return Activator.CreateInstance(dataType);
+                return null;
+            }
         }
     }
 }

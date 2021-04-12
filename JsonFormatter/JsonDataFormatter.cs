@@ -28,7 +28,7 @@ namespace JsonFormatter
         public IDynamicType DeserializeDynamic(byte[] data)
         {
             var jsonstr = FormatterEncoding.GetString(data);
-            var jtoken= JsonConvert.DeserializeObject(jsonstr) as JToken;
+            var jtoken= JsonConvert.DeserializeObject<JToken>(jsonstr);
             return new JsonDynamicType(jtoken);
         }
 

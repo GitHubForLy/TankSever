@@ -41,7 +41,7 @@ namespace ServerCommon
         /// <summary>
         /// 用户登出
         /// </summary>
-        public event Action<string> OnUserLoginout;
+        public event Action<string,object> OnUserLoginout;
 
         private UserCenter()
         {
@@ -55,23 +55,25 @@ namespace ServerCommon
             {
                 if(!string.IsNullOrEmpty(userName) && m_dictionary.ContainsKey(userName))
                 {
+                    var data = m_dictionary[userName].UserData;
                     m_dictionary.Remove(userName);
-                    OnUserLoginout.Invoke(userName);
+                    OnUserLoginout.Invoke(userName, data);
                 }
             }
         }
 
-        public void UserLogin(string userName, AsyncUserToken loginContext)
+        public void UserLogin(string userName, AsyncUserContext loginContext)
         {
             lock (m_dictionary)
             {
                 if (m_dictionary.ContainsKey(userName))
                 {
+                    OnUserLoginout.Invoke(userName,m_dictionary[userName].UserData);
                     //m_dictionary[userName].Server.CloseClientSocket(m_dictionary[userName]);
-                    m_dictionary[userName] = new AsyncUserContext(loginContext);
+                    m_dictionary[userName] = loginContext;
                 }
                 else
-                    m_dictionary.Add(userName, new AsyncUserContext(loginContext));
+                    m_dictionary.Add(userName, loginContext);
             }
 
             OnUserLogin?.Invoke(userName);

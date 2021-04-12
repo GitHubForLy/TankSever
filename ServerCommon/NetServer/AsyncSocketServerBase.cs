@@ -375,8 +375,7 @@ namespace ServerCommon.NetServer
                 }
 
                 UserCenter.Instance.UserLogout(userToken.User.UserName);
-                //if(userToken.User.IsLogined)
-                //    userToken.User.LoginOut();
+
                 userToken.ConnectSocket.Close();
                 userToken.ConnectSocket = null;
                 userToken.SendEvent.Set();

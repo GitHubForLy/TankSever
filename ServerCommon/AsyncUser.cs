@@ -21,7 +21,7 @@ namespace ServerCommon
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined => UserCenter.Instance.HasUser(UserName);
+        public bool IsLogined => UserCenter.Instance.CheckUser(_userToken);
 
 
 
@@ -38,8 +38,19 @@ namespace ServerCommon
         public void Login(string UserName)
         {
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, _userToken);
+            UserCenter.Instance.UserLogin(UserName, new AsyncUserContext(_userToken));
         }
+
+        /// <summary>
+        /// 用户登录
+        /// </summary>
+        /// <param name="UserName"></param>
+        public void Login(string UserName,object userdata)
+        {
+            this.UserName = UserName;
+            UserCenter.Instance.UserLogin(UserName, new AsyncUserContext(_userToken) {  UserData=userdata});
+        }
+
 
         /// <summary>
         /// 登出
