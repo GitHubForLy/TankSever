@@ -135,5 +135,11 @@ namespace NetCore.Server
             var packdata = DataPackage.PackData(data);
             base.Broadcast(packdata);
         }
+
+        public override void Broadcast(byte[] data, AsyncUserToken[] userTokens, bool IsNeedLogin)
+        {
+            var packdata = DataPackage.PackData(data);
+            base.Broadcast(packdata, userTokens, IsNeedLogin);
+        }
     }
 }

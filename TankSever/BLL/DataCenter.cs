@@ -12,6 +12,7 @@ namespace TankSever.BLL
     {
         private static DataCenter instance;
         private static readonly object lockobj = new object();
+
         private Dictionary<string,UserInfo> Players = new Dictionary<string, UserInfo>();
 
         /// <summary>
@@ -36,17 +37,17 @@ namespace TankSever.BLL
 
         private DataCenter()
         {
-            UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
+            //UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account,object userdata)
-        {
-            lock(Players)
-            {
-                if (Players.ContainsKey(account))
-                    Players.Remove(account);
-            }
-        }
+        //private void Instance_OnUserLoginout(string account,object userdata)
+        //{
+        //    lock(Players)
+        //    {
+        //        if (Players.ContainsKey(account))
+        //            Players.Remove(account);
+        //    }
+        //}
 
         public void UpdateTrnasforms(string user,Transform transform)
         {

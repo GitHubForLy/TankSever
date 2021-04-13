@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 
 namespace ServerCommon
 {
+    /// <summary>
+    /// 表示一个异步网络用户
+    /// </summary>
     public class AsyncUser
     {
-        private AsyncUserToken _userToken;
+        internal AsyncUserToken UserToken;
         private bool _isClosed = false;
 
         /// <summary>
@@ -21,13 +24,19 @@ namespace ServerCommon
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined => UserCenter.Instance.CheckUser(_userToken);
+        public bool IsLogined => UserCenter.Instance.CheckUser(UserToken);
 
+        //用户数据
+        public object UseData { get; private set;}
 
+        /// <summary>
+        /// 登录时间戳
+        /// </summary>
+        public string LoginTimestamp { get; private set; }
 
         public AsyncUser(AsyncUserToken Token)
         {
-            _userToken = Token;
+            UserToken = Token;
         }
 
 
@@ -38,7 +47,8 @@ namespace ServerCommon
         public void Login(string UserName)
         {
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, new AsyncUserContext(_userToken));
+            UserCenter.Instance.UserLogin(UserName, this);
+            LoginTimestamp = GetTimestamp();
         }
 
         /// <summary>
@@ -47,10 +57,11 @@ namespace ServerCommon
         /// <param name="UserName"></param>
         public void Login(string UserName,object userdata)
         {
+            UseData = userdata;
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, new AsyncUserContext(_userToken) {  UserData=userdata});
+            UserCenter.Instance.UserLogin(UserName,this);
+            LoginTimestamp = GetTimestamp();
         }
-
 
         /// <summary>
         /// 登出
@@ -62,11 +73,25 @@ namespace ServerCommon
             Close();
         }
 
+        /// <summary>
+        /// 向当前用户发送数据
+        /// </summary>
+        public void SendMessage(byte[] data)
+        {
+            UserToken.Server.Broadcast(data, new AsyncUserToken[] { UserToken }, false);
+        }
+
+        private string GetTimestamp()
+        {
+            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds).ToString();
+        }
+
         private void Close()
         {
             if (!_isClosed)
             {
-                _userToken.Server.CloseClientSocket(_userToken);
+                UserToken.Server.CloseClientSocket(UserToken);
                 _isClosed = true;
             }
         }

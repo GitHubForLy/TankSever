@@ -425,19 +425,25 @@ namespace ServerCommon.NetServer
         {
             AsyncUserToken[] tokens = null;
             ConnectionList.CopyList(ref tokens);
+            Broadcast(data, tokens, isNeedLogin);
+        }
 
-            for (int i = tokens.Length - 1; i >= 0; i--)
+
+        public virtual void Broadcast(byte[] Data,AsyncUserToken[] userTokens,bool IsNeedLogin)
+        {
+            for (int i = userTokens.Length - 1; i >= 0; i--)
             {
-                lock(tokens[i])
+                lock (userTokens[i])
                 {
                     //目前取消登录后 不会断开连接 所以要靠这里进行心跳判断
-                    if (!tokens[i].IsActive || (isNeedLogin && !tokens[i].IsLogined))
+                    if (!userTokens[i].IsActive || (IsNeedLogin && !userTokens[i].IsLogined))
                         continue;
-                    tokens[i].ConnectSocket.BeginSend(data, 0, data.Length, SocketFlags.None,
-                        SendCompletd, (tokens[i],tokens[i].ConnectSocket));
-                }    
+                    userTokens[i].ConnectSocket.BeginSend(Data, 0, Data.Length, SocketFlags.None,
+                        SendCompletd, (userTokens[i], userTokens[i].ConnectSocket));
+                }
             }
         }
+
 
         private void SendCompletd(IAsyncResult result)
         {

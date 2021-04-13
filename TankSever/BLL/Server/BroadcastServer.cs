@@ -20,9 +20,9 @@ namespace TankSever.BLL.Server
             UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account,object userdata)
+        private void Instance_OnUserLoginout(string account,AsyncUser user)
         {
-            BroadcastMessage(BroadcastActions.Loginout, (account,(string)userdata));
+            BroadcastMessage(BroadcastActions.Loginout, (account, user.LoginTimestamp));
         }
 
         public override void Run()
