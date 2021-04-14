@@ -17,7 +17,7 @@ namespace TankSever.BLL.Server
         public BroadcastServer(INotifier notifier):base(notifier)
         {
             RunInterval = 100;
-            UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
+            DataCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
         }
 
         private void Instance_OnUserLoginout(string account,AsyncUser user)

@@ -9,37 +9,37 @@ namespace TankSever.BLL
     class Room
     {
         public const int MaxUserCount = 10;
-        private Dictionary<string, UserInfo> users = new Dictionary<string, UserInfo>();
+        private Dictionary<string, User> users = new Dictionary<string, User>();
 
-        public Room(UserInfo Owner)
+        public Room(User Owner)
         {
-            users.Add(Owner.Account,Owner);
+            users.Add(Owner.UserName,Owner);
         }
 
-        public bool EnterRoom(UserInfo user)
+        public bool EnterRoom(User user)
         {
             lock(users)
             {
-                if (users.ContainsKey(user.Account))
+                if (users.ContainsKey(user.UserName))
                     return false;
                 if (users.Count >= MaxUserCount)
                     return false;
                 if (user.UserState !=UserStates.None)
                     return false;
-                users.Add(user.Account, user);
+                users.Add(user.UserName, user);
                 return true;
             }
         }
 
-        public bool LeaveRoom(UserInfo user)
+        public bool LeaveRoom(User user)
         {
             lock(users)
             {
-                if (!users.ContainsKey(user.Account))
+                if (!users.ContainsKey(user.UserName))
                     return false;
                 if (user.UserState != UserStates.Waiting)
                     return false;
-                return users.Remove(user.Account);
+                return users.Remove(user.UserName);
             }
         }
 

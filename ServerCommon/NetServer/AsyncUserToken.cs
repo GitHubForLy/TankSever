@@ -29,7 +29,7 @@ namespace ServerCommon.NetServer
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined => UserCenter.Instance.CheckUser(this);
+        public bool IsLogined => User.IsLogined;
 
         public Socket ConnectSocket
         {
@@ -79,7 +79,8 @@ namespace ServerCommon.NetServer
             m_disposed = false;
             SendEvent = new AutoResetEvent(true);
             RecvEvent = new AutoResetEvent(true);
-            User = new AsyncUser(this);
+            User = DI.Instance.Resolve<AsyncUser>();
+            User.UserToken = this;
         }
 
         ~AsyncUserToken()

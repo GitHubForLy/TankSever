@@ -13,7 +13,7 @@ namespace ServerCommon
     /// </summary>
     public class AsyncUser
     {
-        internal AsyncUserToken UserToken;
+        internal AsyncUserToken UserToken { get; set; }
         private bool _isClosed = false;
 
         /// <summary>
@@ -24,53 +24,35 @@ namespace ServerCommon
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined => UserCenter.Instance.CheckUser(UserToken);
-
-        //用户数据
-        public object UseData { get; private set;}
+        //public bool IsLogined => UserCenter.Instance.CheckUser(UserToken);
+        public bool IsLogined { get; private set; }
 
         /// <summary>
         /// 登录时间戳
         /// </summary>
         public string LoginTimestamp { get; private set; }
 
-        public AsyncUser(AsyncUserToken Token)
-        {
-            UserToken = Token;
-        }
-
-
         /// <summary>
         /// 用户登录
         /// </summary>
         /// <param name="UserName"></param>
-        public void Login(string UserName)
+        public virtual void Login(string UserName)
         {
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, this);
-            LoginTimestamp = GetTimestamp();
-        }
-
-        /// <summary>
-        /// 用户登录
-        /// </summary>
-        /// <param name="UserName"></param>
-        public void Login(string UserName,object userdata)
-        {
-            UseData = userdata;
-            this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName,this);
+            //UserCenter.Instance.UserLogin(UserName, this);
+            IsLogined = true;
             LoginTimestamp = GetTimestamp();
         }
 
         /// <summary>
         /// 登出
         /// </summary>
-        public void LoginOut()
+        public virtual void LoginOut()
         {
-            UserCenter.Instance.UserLogout(UserName);
-            this.UserName = null;
-            Close();
+            IsLogined = false;
+            //UserCenter.Instance.UserLogout(UserName);
+            UserName = null;
+            //CloseConnect();
         }
 
         /// <summary>
@@ -87,7 +69,7 @@ namespace ServerCommon
             return Convert.ToInt64(ts.TotalSeconds).ToString();
         }
 
-        private void Close()
+        private void CloseConnect()
         {
             if (!_isClosed)
             {

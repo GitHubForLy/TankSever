@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataModel;
+using ServerCommon;
 
 namespace TankSever.BLL
 {
-    public class UserInfo
+    public class User:AsyncUser
     {
-        public string Account;
-
         /// <summary>
         /// 战场信息
         /// </summary>
@@ -20,7 +19,24 @@ namespace TankSever.BLL
         /// 用户全局当前状态
         /// </summary>
         public UserStates UserState;
+
+
+        public override void Login(string UserName)
+        {
+            base.Login(UserName);
+            DataCenter.Instance.AddUser(this);
+        }
+
+        public override void LoginOut()
+        {
+            base.LoginOut();
+            DataCenter.Instance.RemoveUser(UserName);
+        }
+
     }
+
+
+
 
     public enum UserStates
     {
@@ -48,6 +64,6 @@ namespace TankSever.BLL
     public class BattleInfos
     {
         public float Health;
-        public Transform transform;
+        public Transform Trans;
     }
 }
