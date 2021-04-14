@@ -27,10 +27,7 @@ namespace ServerCommon
         //public bool IsLogined => UserCenter.Instance.CheckUser(UserToken);
         public bool IsLogined { get; private set; }
 
-        /// <summary>
-        /// 登录时间戳
-        /// </summary>
-        public string LoginTimestamp { get; private set; }
+
 
         /// <summary>
         /// 用户登录
@@ -41,7 +38,6 @@ namespace ServerCommon
             this.UserName = UserName;
             //UserCenter.Instance.UserLogin(UserName, this);
             IsLogined = true;
-            LoginTimestamp = GetTimestamp();
         }
 
         /// <summary>
@@ -51,7 +47,7 @@ namespace ServerCommon
         {
             IsLogined = false;
             //UserCenter.Instance.UserLogout(UserName);
-            UserName = null;
+            //UserName = null;
             //CloseConnect();
         }
 
@@ -61,12 +57,6 @@ namespace ServerCommon
         public void SendMessage(byte[] data)
         {
             UserToken.Server.Broadcast(data, new AsyncUserToken[] { UserToken }, false);
-        }
-
-        private string GetTimestamp()
-        {
-            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            return Convert.ToInt64(ts.TotalSeconds).ToString();
         }
 
         private void CloseConnect()

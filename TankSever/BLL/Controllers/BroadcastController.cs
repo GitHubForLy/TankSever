@@ -14,7 +14,7 @@ namespace TankSever.BLL.Controllers
         //广播位置信息
         public void UpdateTransform((string account,Transform transform) data)
         {
-            DataCenter.Instance.UpdateTrnasforms(data.account,data.transform);
+            //DataCenter..UpdateTrnasforms(data.account,data.transform);
             BroadcastServer.BroadcastMessage(nameof(UpdateTransform), data);
         }
 

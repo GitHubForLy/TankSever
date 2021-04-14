@@ -91,7 +91,7 @@ namespace TankSever
             tssl_request.Text = $"{krbytes}kb/s";
             tssl_resbytes.Text = $"{ksbytes}kb/s";
             tssl_conncount.Text = Program.NetServer.ConnectedCount.ToString();
-            tssl_usercount.Text = DataCenter.Instance.UserCount.ToString();
+            tssl_usercount.Text = DataCenter.Users.UserCount.ToString();
 
             PrevTotaiReiveBytes = Program.NetServer.TotalReceiveBytes;
             PrevTotaiSendBytes = Program.NetServer.TotalSendBytes;

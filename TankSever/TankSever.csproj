@@ -105,6 +105,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\BattleInfo.cs" />
     <Compile Include="BLL\ControllerConst.cs" />
     <Compile Include="BLL\Controllers\BroadcastController.cs" />
     <Compile Include="BLL\Controllers\EventController.cs" />
@@ -112,8 +113,10 @@
     <Compile Include="BLL\Protocol\ProtocolHandler.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />
     <Compile Include="BLL\Room.cs" />
+    <Compile Include="BLL\RoomManager.cs" />
     <Compile Include="BLL\Server\BroadcastServer.cs" />
     <Compile Include="BLL\User.cs" />
+    <Compile Include="BLL\UserManager.cs" />
     <Compile Include="ListBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>

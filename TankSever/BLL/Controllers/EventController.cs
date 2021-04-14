@@ -43,7 +43,7 @@ namespace TankSever.BLL.Controllers
                 {
                     User.Login(request.UserName);
 
-                    return new StandRespone { IsSuccess = true, Message = "登录成功|" + User.LoginTimestamp };
+                    return new StandRespone { IsSuccess = true, Message = "登录成功|" + (User as User).LoginTimestamp };
                 }
                 else
                 {
@@ -55,11 +55,22 @@ namespace TankSever.BLL.Controllers
         }
 
 
-        public List<(string,Transform)> GetPlayerTransforms()
+        //public List<(string,Transform)> GetPlayerTransforms()
+        //{
+        //    return DataCenter.Instance.GetTransforms();
+        //}
+
+        public StandRespone CreateRoom()
         {
-            return DataCenter.Instance.GetTransforms();
+            var roomid = DataCenter.Rooms.CreateRoom((User)User);
+            return StandRespone.SuccessResult(roomid.ToString());
         }
 
+        public StandRespone LeaveRoom()
+        {
+            var suc = DataCenter.Rooms.LeaveRoom((User)User);
+            return new StandRespone(suc);
+        }
 
         public void Logout()
         {

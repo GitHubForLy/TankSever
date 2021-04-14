@@ -12,6 +12,8 @@ namespace DataModel
         public const string Register = "Register";
         public const string Loginout = "Logout";
         public const string GetPlayerTransforms = "GetPlayerTransforms";
+        public const string CreateRoom = "CreateRoom";
+        public const string LeaveRoom = "LeaveRoom";
     }
 
     public class BroadcastActions

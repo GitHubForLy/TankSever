@@ -8,35 +8,47 @@ using ServerCommon;
 
 namespace TankSever.BLL
 {
-    public class User:AsyncUser
+    public class User : AsyncUser
     {
         /// <summary>
         /// 战场信息
         /// </summary>
-        public BattleInfos BattleInfo;
+        public BattleInfo BattleInfo { get; private set; }
 
         /// <summary>
         /// 用户全局当前状态
         /// </summary>
-        public UserStates UserState;
+        public UserStates UserState = UserStates.None;
 
+        /// <summary>
+        /// 登录时间戳
+        /// </summary>
+        public string LoginTimestamp { get; private set; }
 
         public override void Login(string UserName)
         {
             base.Login(UserName);
-            DataCenter.Instance.AddUser(this);
+
+            BattleInfo = new BattleInfo();
+            DataCenter.Users.AddUser(this);
+            LoginTimestamp = GetTimestamp();
         }
 
         public override void LoginOut()
         {
+            DataCenter.Users.RemoveUser(UserName);
+            BattleInfo = null;
+
             base.LoginOut();
-            DataCenter.Instance.RemoveUser(UserName);
+        }
+
+        private string GetTimestamp()
+        {
+            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds).ToString();
         }
 
     }
-
-
-
 
     public enum UserStates
     {
@@ -58,12 +70,4 @@ namespace TankSever.BLL
         Fight
     }
 
-    /// <summary>
-    /// 对战(开始战斗后)信息
-    /// </summary>
-    public class BattleInfos
-    {
-        public float Health;
-        public Transform Trans;
-    }
 }

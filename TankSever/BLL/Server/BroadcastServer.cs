@@ -17,10 +17,10 @@ namespace TankSever.BLL.Server
         public BroadcastServer(INotifier notifier):base(notifier)
         {
             RunInterval = 100;
-            DataCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
+            DataCenter.Users.OnUserLoginout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account,AsyncUser user)
+        private void Instance_OnUserLoginout(string account,User user)
         {
             BroadcastMessage(BroadcastActions.Loginout, (account, user.LoginTimestamp));
         }
@@ -54,20 +54,20 @@ namespace TankSever.BLL.Server
         }
 
 
-        private void UpdateTransform()
-        {
-            var trans= DataCenter.Instance.GetTransforms();
-            if(trans.Count>0)
-            {
-                Respone respone = new Respone()
-                {
-                    Controller = ControllerConst.Broad,
-                    Action = nameof(UpdateTransform),
-                    Data = trans
-                };
-                var data = _dataFormatter.Serialize(respone);
-                Program.NetServer.Broadcast(data);
-            }
-        }
+        //private void UpdateTransform()
+        //{
+        //    var trans= DataCenter.Instance.GetTransforms();
+        //    if(trans.Count>0)
+        //    {
+        //        Respone respone = new Respone()
+        //        {
+        //            Controller = ControllerConst.Broad,
+        //            Action = nameof(UpdateTransform),
+        //            Data = trans
+        //        };
+        //        var data = _dataFormatter.Serialize(respone);
+        //        Program.NetServer.Broadcast(data);
+        //    }
+        //}
     }
 }
