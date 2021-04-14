@@ -39,7 +39,12 @@ namespace TankSever.BLL.Protocol
                 return false;
 
             if (!Auth(controller,method, out res))
-                return true;
+            {
+                if (method.ReturnType == typeof(void))
+                    return false;
+                else
+                    return true;
+            }
 
             var pars = method.GetParameters();
             if(pars.Length>1)

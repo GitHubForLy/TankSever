@@ -22,7 +22,7 @@ namespace TankSever.BLL.Server
 
         private void Instance_OnUserLoginout(string account,object userdata)
         {
-            BroadcastMessage(BroadcastActions.Loginout, (account,(string)userdata));
+            BroadcastMessage(BroadcastActions.Loginout, (account,(string)userdata),false);
         }
 
         public override void Run()
@@ -38,7 +38,7 @@ namespace TankSever.BLL.Server
        
         }
 
-        public static void BroadcastMessage(string action,object data)
+        public static void BroadcastMessage(string action,object data,bool isneedLogin=true)
         {
             Task.Run(() =>
             {
@@ -49,7 +49,7 @@ namespace TankSever.BLL.Server
                     Data = data
                 };
                 var bytes= _dataFormatter.Serialize(respone);
-                Program.NetServer.Broadcast(bytes);
+                Program.NetServer.Broadcast(bytes, isneedLogin);
             });
         }
 

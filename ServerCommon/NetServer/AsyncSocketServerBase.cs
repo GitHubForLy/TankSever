@@ -433,6 +433,8 @@ namespace ServerCommon.NetServer
                     //目前取消登录后 不会断开连接 所以要靠这里进行心跳判断
                     if (!tokens[i].IsActive || (isNeedLogin && !tokens[i].IsLogined))
                         continue;
+                    if(!isNeedLogin)
+                    Notify(NotifyType.Message, tokens[i].User.UserName,this);
                     tokens[i].ConnectSocket.BeginSend(data, 0, data.Length, SocketFlags.None,
                         SendCompletd, (tokens[i],tokens[i].ConnectSocket));
                 }    
