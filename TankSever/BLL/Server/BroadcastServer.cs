@@ -17,12 +17,12 @@ namespace TankSever.BLL.Server
         public BroadcastServer(INotifier notifier):base(notifier)
         {
             RunInterval = 100;
-            UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
+            DataCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account,object userdata)
+        private void Instance_OnUserLoginout(string account,AsyncUser user)
         {
-            BroadcastMessage(BroadcastActions.Loginout, (account,(string)userdata),false);
+            BroadcastMessage(BroadcastActions.Loginout, (account, user.LoginTimestamp));
         }
 
         public override void Run()
@@ -38,7 +38,7 @@ namespace TankSever.BLL.Server
        
         }
 
-        public static void BroadcastMessage(string action,object data,bool isneedLogin=true)
+        public static void BroadcastMessage(string action,object data)
         {
             Task.Run(() =>
             {
@@ -49,7 +49,7 @@ namespace TankSever.BLL.Server
                     Data = data
                 };
                 var bytes= _dataFormatter.Serialize(respone);
-                Program.NetServer.Broadcast(bytes, isneedLogin);
+                Program.NetServer.Broadcast(bytes);
             });
         }
 

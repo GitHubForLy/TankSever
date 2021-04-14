@@ -7,10 +7,10 @@ using ServerCommon.NetServer;
 
 namespace ServerCommon
 {
-    public class AsyncUserContext
-    {
-        public AsyncUserContext(AsyncUserToken token) => UserToken = token;
-        public AsyncUserToken UserToken { get; }
-        public object UserData { get; set; }
-    }
+    //public class AsyncUserContext
+    //{
+    //    public AsyncUserContext(AsyncUserToken token) => UserToken = token;
+    //    public AsyncUserToken UserToken { get; }
+    //    public object UserData { get; set; }
+    //}
 }

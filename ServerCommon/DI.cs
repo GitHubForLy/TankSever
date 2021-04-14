@@ -46,6 +46,16 @@ namespace ServerCommon
             return IocContainer.Resolve<T>();
         }
 
+        public T Resolve<T>( params (string name, object value)[] paramterOverrides)
+        {
+            ParameterOverride[] overrides = new ParameterOverride[paramterOverrides.Length];
+            for (int i = 0; i < overrides.Length; i++)
+            {
+                overrides[i] = new ParameterOverride(paramterOverrides[i].name, paramterOverrides[i].value);
+            }
+            return IocContainer.Resolve<T>(overrides);
+        }
+
         public T Resolve<T>(string name,params (string name,object value)[] paramterOverrides)
         {
             ParameterOverride[] overrides = new ParameterOverride[paramterOverrides.Length];

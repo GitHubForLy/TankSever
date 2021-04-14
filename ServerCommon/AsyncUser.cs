@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 
 namespace ServerCommon
 {
+    /// <summary>
+    /// 表示一个异步网络用户
+    /// </summary>
     public class AsyncUser
     {
-        private AsyncUserToken _userToken;
+        internal AsyncUserToken UserToken { get; set; }
         private bool _isClosed = false;
 
         /// <summary>
@@ -21,52 +24,56 @@ namespace ServerCommon
         /// <summary>
         /// 是否登录
         /// </summary>
-        public bool IsLogined => UserCenter.Instance.CheckUser(_userToken);
+        //public bool IsLogined => UserCenter.Instance.CheckUser(UserToken);
+        public bool IsLogined { get; private set; }
 
-
-
-        public AsyncUser(AsyncUserToken Token)
-        {
-            _userToken = Token;
-        }
-
+        /// <summary>
+        /// 登录时间戳
+        /// </summary>
+        public string LoginTimestamp { get; private set; }
 
         /// <summary>
         /// 用户登录
         /// </summary>
         /// <param name="UserName"></param>
-        public void Login(string UserName)
+        public virtual void Login(string UserName)
         {
             this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, new AsyncUserContext(_userToken));
+            //UserCenter.Instance.UserLogin(UserName, this);
+            IsLogined = true;
+            LoginTimestamp = GetTimestamp();
         }
-
-        /// <summary>
-        /// 用户登录
-        /// </summary>
-        /// <param name="UserName"></param>
-        public void Login(string UserName,object userdata)
-        {
-            this.UserName = UserName;
-            UserCenter.Instance.UserLogin(UserName, new AsyncUserContext(_userToken) {  UserData=userdata});
-        }
-
 
         /// <summary>
         /// 登出
         /// </summary>
-        public void LoginOut()
+        public virtual void LoginOut()
         {
-            UserCenter.Instance.UserLogout(UserName);
-            this.UserName = null;
-            Close();
+            IsLogined = false;
+            //UserCenter.Instance.UserLogout(UserName);
+            UserName = null;
+            //CloseConnect();
         }
 
-        private void Close()
+        /// <summary>
+        /// 向当前用户发送数据
+        /// </summary>
+        public void SendMessage(byte[] data)
+        {
+            UserToken.Server.Broadcast(data, new AsyncUserToken[] { UserToken }, false);
+        }
+
+        private string GetTimestamp()
+        {
+            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds).ToString();
+        }
+
+        private void CloseConnect()
         {
             if (!_isClosed)
             {
-                _userToken.Server.CloseClientSocket(_userToken);
+                UserToken.Server.CloseClientSocket(UserToken);
                 _isClosed = true;
             }
         }

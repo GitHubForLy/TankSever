@@ -12,7 +12,23 @@ namespace TankSever.BLL
     {
         private static DataCenter instance;
         private static readonly object lockobj = new object();
-        private Dictionary<string,UserInfo> Players = new Dictionary<string, UserInfo>();
+
+        private Dictionary<string,User> Users = new Dictionary<string, User>();
+        private List<Room> roomList = new List<Room>();
+
+        /// <summary>
+        /// 用户当前数量
+        /// </summary>
+        public int UserCount => Users.Count;
+        /// <summary>
+        /// 房间数量
+        /// </summary>
+        public int RoomCount => roomList.Count;
+
+        /// <summary>
+        /// 用户登出事件 
+        /// </summary>
+        public event Action<string, AsyncUser> OnUserLoginout;
 
         /// <summary>
         /// 唯一实例
@@ -36,38 +52,50 @@ namespace TankSever.BLL
 
         private DataCenter()
         {
-            UserCenter.Instance.OnUserLoginout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account,object userdata)
+
+        public void AddUser(User user)
         {
-            lock(Players)
+            lock(Users)
             {
-                if (Players.ContainsKey(account))
-                    Players.Remove(account);
+                if (Users.ContainsKey(user.UserName))
+                    Users[user.UserName] = user;
+                else
+                    Users.Add(user.UserName, user);
+            }
+        }
+
+        public bool RemoveUser(string userName)
+        {
+            lock(Users)
+            {
+                if (Users.ContainsKey(userName))
+                {
+                    OnUserLoginout?.Invoke(userName, Users[userName]);
+                    return Users.Remove(userName);
+                }
+                return false;
             }
         }
 
         public void UpdateTrnasforms(string user,Transform transform)
-        {
-            
-            lock(Players)
+        {           
+            lock(Users)
             {
-                if (Players.ContainsKey(user))
-                    Players[user].transform = transform;
-                else
-                    Players.Add(user, new UserInfo { transform=transform});
+                if (Users.ContainsKey(user))
+                    Users[user].BattleInfo.Trans = transform;
             }
         }
 
         public List<(string account, Transform trans)> GetTransforms()
         {
             List<(string,Transform)> res = new List<(string, Transform)>();
-            lock(Players)
+            lock(Users)
             {
-                foreach (var tran in Players)
+                foreach (var tran in Users)
                 {
-                    res.Add((tran.Key, tran.Value.transform));
+                    res.Add((tran.Key, tran.Value.BattleInfo.Trans));
                 }
             }
             return res;

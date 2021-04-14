@@ -111,8 +111,9 @@
     <Compile Include="BLL\DataCenter.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandler.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />
+    <Compile Include="BLL\Room.cs" />
     <Compile Include="BLL\Server\BroadcastServer.cs" />
-    <Compile Include="BLL\UserInfo.cs" />
+    <Compile Include="BLL\User.cs" />
     <Compile Include="ListBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>

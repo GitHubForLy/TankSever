@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ServerCommon;
 using System.Net;
 using System.Threading;
+using TankSever.BLL;
 
 namespace TankSever
 {
@@ -90,7 +91,7 @@ namespace TankSever
             tssl_request.Text = $"{krbytes}kb/s";
             tssl_resbytes.Text = $"{ksbytes}kb/s";
             tssl_conncount.Text = Program.NetServer.ConnectedCount.ToString();
-            tssl_usercount.Text = UserCenter.Instance.Count.ToString();
+            tssl_usercount.Text = DataCenter.Instance.UserCount.ToString();
 
             PrevTotaiReiveBytes = Program.NetServer.TotalReceiveBytes;
             PrevTotaiSendBytes = Program.NetServer.TotalSendBytes;
