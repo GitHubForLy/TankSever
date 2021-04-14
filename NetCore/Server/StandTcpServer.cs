@@ -132,8 +132,7 @@ namespace NetCore.Server
         /// <param name="data"></param>
         public override void Broadcast(byte[] data,bool isNeedLogin=true)
         {
-            var packdata = DataPackage.PackData(data);
-            base.Broadcast(packdata,isNeedLogin);
+            base.Broadcast(data, isNeedLogin);
         }
 
         public override void Broadcast(byte[] data, AsyncUserToken[] userTokens, bool IsNeedLogin)

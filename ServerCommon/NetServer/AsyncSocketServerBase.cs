@@ -356,8 +356,6 @@ namespace ServerCommon.NetServer
         /// </summary>
         public virtual void CloseClientSocket(AsyncUserToken userToken)
         {
-            System.Diagnostics.Debug.WriteLine("closeClientsocket");
-
             lock (userToken)
             {
                 if (!userToken.IsActive) return;
