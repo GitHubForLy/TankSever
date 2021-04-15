@@ -9,6 +9,7 @@ using ServerCommon;
 using ServerCommon.DB;
 using ServerCommon.NetServer;
 using TankSever.BLL.Server;
+using TankSever.BLL;
 
 
 namespace TankSever
@@ -59,6 +60,7 @@ namespace TankSever
             NetServer.SocketTimeOutMS = 10 * 1000;
 
             BroadServer = new BroadcastServer(MainForm as MainForm);
+            DataCenter.Init();
         }
     }
 }

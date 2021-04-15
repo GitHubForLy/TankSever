@@ -112,10 +112,10 @@ namespace DBCore
         /// </summary>
         /// <param name="userAccount"></param>
         /// <param name="password"></param>
-        public StandRespone GetPassword(string userAccount)
+        public StandRespone<(string salt,string pwd)> GetPassword(string userAccount)
         {
             if (!userAccount.IsDBSafe())
-                return StandRespone.UnSafeResult();
+                return StandRespone<(string,string)>.UnSafeResult();
 
             var executer = DBExecuterFactory.CreateDBExecuter();
             try
@@ -125,14 +125,15 @@ namespace DBCore
                     $"where b.account='{userAccount}'";
                 var data=executer.ExecuteToTable(cmd);
                 if (data.Rows.Count > 0)
-                    return new StandRespone(true, "查询成功") { Data = data };
+                    //return new StandRespone(true, "查询成功") { Data = data };
+                    return new StandRespone<(string, string)>(true, "查询成功", (data.Rows[0]["salt"].ToString(), data.Rows[0]["password"].ToString()));
                 else
-                    return new StandRespone(false, "该账号不存在");
+                    return new StandRespone<(string,string)>(false, "该账号不存在");
             }
             catch(Exception e)
             {
                 executer.Close();
-                return StandRespone.FailResult("发生异常:" + e.Message);
+                return StandRespone<(string, string)>.FailResult("发生异常:" + e.Message);
             }
             finally
             {

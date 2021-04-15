@@ -33,9 +33,21 @@ namespace TankSever.BLL
         //}
 
 
-        public static UserManager Users { get; } = new UserManager();
+        public static UserManager Users { get; private set; } = new UserManager();
 
-        public static RoomManager Rooms { get; } = new RoomManager();
+        public static RoomManager Rooms { get; private set; } = new RoomManager();
+
+        public static SemaphoreQueue<(string action, object data)> BroadcastQueue { get; private set; } 
+
+        /// <summary>
+        /// 初始化数据
+        /// </summary>
+        public static void Init()
+        {
+            Users= new UserManager();
+            Rooms = new RoomManager();
+            BroadcastQueue = new SemaphoreQueue<(string action, object data)>(1000);
+        }
 
 
         //public List<(string account, Transform trans)> GetTransforms()

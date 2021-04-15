@@ -13,7 +13,9 @@ namespace DataModel
         public const string Loginout = "Logout";
         public const string GetPlayerTransforms = "GetPlayerTransforms";
         public const string CreateRoom = "CreateRoom";
+        public const string JoinRoom = "JoinRoom";
         public const string LeaveRoom = "LeaveRoom";
+        public const string GetRoomList = "RoomList";
     }
 
     public class BroadcastActions
@@ -23,5 +25,10 @@ namespace DataModel
         public const string UpdateTransform = "UpdateTransform";
         public const string Login = "Login";
         public const string Loginout = "Loginout";
+
+        public const string RoomChange = "RoomChange";
+        public const string CreateRoom = "CreateRoom";
+        public const string JoinRoom = "JoinRoom";
+        public const string LeaveRoom = "LeaveRoom";
     }
 }

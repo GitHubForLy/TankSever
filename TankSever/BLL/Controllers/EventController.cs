@@ -33,8 +33,8 @@ namespace TankSever.BLL.Controllers
             var res = DBServer.Instance.GetPassword(request.UserName);
             if (res.IsSuccess)
             {
-                var oldPass = res.Data.Rows[0]["password"].ToString();
-                var salt = Convert.FromBase64String(res.Data.Rows[0]["salt"].ToString());
+                var oldPass = res.Data.pwd;
+                var salt = Convert.FromBase64String(res.Data.salt);
                 var saltpass = Encoding.UTF8.GetBytes(request.Password).Concat(salt).ToArray();
                 MD5Cng md5 = new MD5Cng();
                 var crpPass = Convert.ToBase64String(md5.ComputeHash(saltpass));
@@ -60,16 +60,50 @@ namespace TankSever.BLL.Controllers
         //    return DataCenter.Instance.GetTransforms();
         //}
 
-        public StandRespone CreateRoom()
+
+        public List<RoomInfo> RoomList()
         {
-            var roomid = DataCenter.Rooms.CreateRoom((User)User);
-            return StandRespone.SuccessResult(roomid.ToString());
+            return DataCenter.Rooms.GetRoomList();
         }
 
-        public StandRespone LeaveRoom()
+
+        public StandRespone CreateRoom(string Name)
         {
-            var suc = DataCenter.Rooms.LeaveRoom((User)User);
+            var roomid = DataCenter.Rooms.CreateRoom(Name, (User)User,out int team,out int index);
+            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.RoomChange,
+                new RoomChange() 
+                {
+                    RoomId=roomid,
+                    Account=User.UserName,
+                    Opeartion=RoomChange.RoomOpeartion.Create,
+                    Team=team,
+                    Index=index
+                }));
+
+            return new StandRespone<(int, int)>(true, "创建成功", (team, index));
+        }
+
+        public StandRespone LeaveRoom(int roomid)
+        {
+            var suc = DataCenter.Rooms.LeaveRoom(roomid, (User)User);
+            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.RoomChange, 
+                new RoomChange() { RoomId = roomid, Account = User.UserName, Opeartion = RoomChange.RoomOpeartion.Leave }));
             return new StandRespone(suc);
+        }
+
+        public StandRespone<(int team, int index)> JoinRoom(int roomid)
+        {
+            var suc = DataCenter.Rooms.JoinRoom(roomid,(User)User,out int team, out int index);
+            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.RoomChange, 
+                new RoomChange()
+                { 
+                    RoomId = roomid,
+                    Account = User.UserName, 
+                    Opeartion = RoomChange.RoomOpeartion.Join, 
+                    Team=team ,
+                    Index=index
+                }));
+            return new StandRespone<(int,int)>(suc,"加入成功",(team,index));
         }
 
         public void Logout()

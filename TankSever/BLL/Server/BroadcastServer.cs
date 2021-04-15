@@ -16,7 +16,7 @@ namespace TankSever.BLL.Server
 
         public BroadcastServer(INotifier notifier):base(notifier)
         {
-            RunInterval = 100;
+            RunInterval = 200;
             DataCenter.Users.OnUserLoginout += Instance_OnUserLoginout;
         }
 
@@ -29,7 +29,16 @@ namespace TankSever.BLL.Server
         {
             try
             {
-               // UpdateTransform();
+                bool has;
+                do
+                {
+                    has = DataCenter.BroadcastQueue.Dequeue(RunInterval, out (string action, object data) msg);
+                    if(has)
+                    {
+                        BroadcastMessage(msg.action, msg.data);
+                    }
+                }
+                while (IsStop);
             }
             catch(Exception e)
             {
@@ -38,11 +47,11 @@ namespace TankSever.BLL.Server
        
         }
 
-        public static void BroadcastMessage(string action,object data)
+        public  void BroadcastMessage<T>(string action,T data)
         {
             Task.Run(() =>
             {
-                Respone respone = new Respone()
+                Respone<T> respone = new Respone<T>()
                 {
                     Controller = ControllerConst.Broad,
                     Action = action,

@@ -16,6 +16,7 @@ namespace TankSever.BLL.Protocol
         private IDynamicType _dynamicData;
         private Request _req;
 
+
         public override IController CreateController(IDynamicType data)
         {
             _req = data.GetValue<Request>();
@@ -67,13 +68,21 @@ namespace TankSever.BLL.Protocol
             if (method.ReturnType == typeof(void))
                 return false;
 
-            Respone respone = new Respone()
+
+            //var resType = typeof(Respone<>).MakeGenericType(res.GetType());
+            //var resp = resType.GetConstructor(Type.EmptyTypes).Invoke(null);
+            //resType.GetField("RequestId").SetValue(resp, _req.RequestId);
+            //resType.GetField("Controller").SetValue(resp, _req.Controller);
+            //resType.GetField("Action").SetValue(resp, _req.Action);
+            //resType.GetField("Data").SetValue(resp, res);
+            var respone = new Respone<object>
             {
-                RequestId=_req.RequestId,
+                RequestId = _req.RequestId,
                 Controller = _req.Controller,
                 Action = _req.Action,
                 Data = res
             };
+
             res = respone;
             return true;
         }

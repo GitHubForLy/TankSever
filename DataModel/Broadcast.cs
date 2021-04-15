@@ -8,29 +8,44 @@ namespace DataModel
 {
     public class Vector3
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
+        public float X;
+        public float Y;
+        public float Z;
     }
 
 
     public class Transform
     {
-        public Vector3 Position { get; set; }
-        public Vector3 Rotation { get; set; }
+        public Vector3 Position;
+        public Vector3 Rotation;
     }
 
     public class LoginInfo
     {
-        public string Account { get; set; }
-        public int WaypointIndex { get; set; }
+        public string Account;
+        public int WaypointIndex;
     }
 
     public class SyncMethod
     {
-        public string ClassFullName { get; set; }
-        public string MethodName { get; set; }
-        public object[] Parameters { get; set; }
+        public string ClassFullName;
+        public string MethodName;
+        public object[] Parameters;
+    }
+
+    public class RoomChange
+    { 
+        public enum RoomOpeartion
+        {
+            Create,
+            Join,
+            Leave
+        }
+        public int RoomId;
+        public RoomOpeartion Opeartion;
+        public string Account;
+        public int Team;
+        public int Index;
     }
 
 }
