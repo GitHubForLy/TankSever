@@ -15,18 +15,14 @@ namespace TankSever.BLL
         /// </summary>
         public int UserCount => Users.Count;
 
-        /// <summary>
-        /// 用户登出事件 
-        /// </summary>
-        public event Action<string, User> OnUserLoginout;
-
-
         public void AddUser(User user)
         {
             lock (Users)
             {
                 if (Users.ContainsKey(user.UserName))
+                {
                     Users[user.UserName] = user;
+                }
                 else
                     Users.Add(user.UserName, user);
             }
@@ -43,7 +39,6 @@ namespace TankSever.BLL
             {
                 if (Users.ContainsKey(userName))
                 {
-                    OnUserLoginout?.Invoke(userName, Users[userName]);
                     return Users.Remove(userName);
                 }
                 return false;

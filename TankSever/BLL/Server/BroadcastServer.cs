@@ -17,12 +17,18 @@ namespace TankSever.BLL.Server
         public BroadcastServer(INotifier notifier):base(notifier)
         {
             RunInterval = 200;
-            DataCenter.Users.OnUserLoginout += Instance_OnUserLoginout;
+            User.OnUserLogout += Instance_OnUserLoginout;
         }
 
-        private void Instance_OnUserLoginout(string account,User user)
+        private void Instance_OnUserLoginout(User user)
         {
-            BroadcastMessage(BroadcastActions.Loginout, (account, user.LoginTimestamp));
+            BroadcastMessage(BroadcastActions.Loginout, (user.UserName,user.LoginTimestamp));
+            if (user.UserState != UserStates.None)
+            {
+                DataCenter.Rooms.LeaveRoom(user);
+                BroadcastMessage(BroadcastActions.LeaveRoom, user.Room);
+                BroadcastMessage(BroadcastActions.RoomChange, user.RoomDetail);
+            }
         }
 
         public override void Run()

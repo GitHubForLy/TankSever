@@ -7,11 +7,15 @@ using System.Reflection;
 
 namespace DataModel
 {
-    public class Respone<T>
+    public class Respone
     {
         public int RequestId { get; set; }
         public string Controller { get; set; }
         public string Action { get; set; }
+
+    }
+    public class Respone<T>:Respone
+    {
         public T Data {get;set;}
 
         public static object Create(Type DataType,int RequestId,string Controller,string Action,object Data)
@@ -27,12 +31,30 @@ namespace DataModel
 
     }
 
+    public enum RoomState
+    {
+        Waiting,
+        Fight
+    }
+
     public class RoomInfo
     {
         public string Name;
         public int RoomId;
-        public int State;
-        public int Count;
-        public int MaxCount;
+        public RoomState State;
+        public virtual int UserCount { get; set; }
+        public virtual int MaxCount { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            RoomInfo rom = obj as RoomInfo;
+            if (rom == null)
+                return false;
+            return this.RoomId == rom.RoomId;
+        }
+        public override int GetHashCode()
+        {
+            return RoomId;
+        }
     }
 }

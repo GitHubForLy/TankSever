@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataModel;
 
 namespace TankSever.BLL
 {
-    public enum RoomState
-    {
-        Waiting,
-        Fight
-    }
-    class Room
+    class Room:RoomInfo
     {
         private int TeamMaxCount;   //每个队伍最大数量
         private Dictionary<int, Dictionary<int, User>> teams = new Dictionary<int, Dictionary<int, User>>(); //  (队伍 <=> (位置<=>玩家))
@@ -20,17 +16,15 @@ namespace TankSever.BLL
         /// <summary>
         /// 房间名称
         /// </summary>
-        public string Name { get; }
-        public RoomState State { get; private set; }
         /// <summary>
         /// 房间最大用户量
         /// </summary>
-        public int MaxCount => TeamMaxCount * teams.Count;
+        public override int MaxCount => TeamMaxCount * teams.Count;
 
         /// <summary>
         /// 当前用户数
         /// </summary>
-        public int UserCount
+        public override int UserCount
         {
             get
             {
@@ -50,8 +44,9 @@ namespace TankSever.BLL
         /// </summary>
         public bool IsFull => UserCount >= MaxCount;
 
-        public Room(string Name,int teamCount=2,int TeamMaxCount = 5)
+        public Room(int roomid,string Name,int teamCount=2,int TeamMaxCount = 5)
         {
+            this.RoomId = roomid;
             this.Name = Name;
             State = RoomState.Waiting;
             this.TeamMaxCount = TeamMaxCount;
@@ -85,7 +80,7 @@ namespace TankSever.BLL
         {
             lock(teams)
             {
-                if (user.UserState != UserStates.Waiting)
+                if (user.UserState != UserStates.Waiting && user!=Owner)
                     return false;
 
                 foreach (var team in teams)

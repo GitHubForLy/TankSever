@@ -19,26 +19,47 @@ namespace TankSever.BLL
 
         public int CreateRoom(string Name,User user, out int team,out int index)
         {
-            var room = new Room(Name);
             lock(roomList)
             {
                 int id = FindMinEnableRoomId();
+                var room = new Room(id,Name);
                 roomList.Add(id,room);
                 room.EnterRoom(user, out team,out index);
+
+                #region 设置用户信息
+                user.RoomDetail.Index = index;
+                user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Create;
+                user.RoomDetail.Team = team;
+                user.RoomDetail.RoomId = id;
+                user.Room = room;
+                user.UserState = UserStates.Ready;
+                #endregion
+
                 return id;
             }
         }
 
-        public bool LeaveRoom(int RoomId,User user)
+        public bool LeaveRoom(User user)
         {
             lock (roomList)
             {
-                if (roomList.ContainsKey(RoomId))
-                {
-                    roomList[RoomId].LeaveRoom(user);
-                    if(roomList.Count<=0)
+                if (user.UserState == UserStates.None)
+                    return false;
 
-                    return roomList.Remove(RoomId);
+                var id = user.Room.RoomId;
+                if (roomList.ContainsKey(id))
+                {
+                    if ((user.Room as Room).LeaveRoom(user))
+                    {
+                        if (user.Room.UserCount <= 0)
+                              roomList.Remove(id);
+
+                        user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Leave;
+                        user.UserState = UserStates.None;
+                        return true;
+                    }
+                    else
+                        return false;
                 }
             }     
             return false;
@@ -50,7 +71,17 @@ namespace TankSever.BLL
             {
                 if(roomList.ContainsKey(RoomId))
                 {
-                    return roomList[RoomId].EnterRoom(user,out team,out index);
+                    if (roomList[RoomId].EnterRoom(user, out team, out index))
+                    {
+                        user.Room = roomList[RoomId];
+                        user.UserState = UserStates.Waiting;
+                        user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Join;
+                        user.RoomDetail.Index = index;
+                        user.RoomDetail.Team = team;
+                        user.RoomDetail.RoomId = RoomId;
+                        return true;
+                    }
+                    return false;
                 }
                 index= team = -1;
                 return false;
@@ -76,28 +107,26 @@ namespace TankSever.BLL
         }
 
 
-        public List<RoomInfo> GetRoomList()
+        public RoomInfo[] GetRoomList()
         {
-            var res = new List<RoomInfo>();
-            lock(roomList)
+            lock (roomList)
             {
-                foreach (var rom in roomList)
-                {
-                    res.Add(new RoomInfo()
-                    {
-                        State = rom.Value.State == RoomState.Waiting ? 0 : 1,
-                        RoomId = rom.Key,
-                        Name = rom.Value.Name,
-                        Count = rom.Value.UserCount,
-                        MaxCount = rom.Value.MaxCount,
-                    });
-                }
+                return roomList.Values.ToArray();
             }
-            return res;
         }
 
-
-
+        public RoomInfo this [int roomid]
+        {
+            get
+            {
+                lock (roomList)
+                {
+                    if (!roomList.ContainsKey(roomid))
+                        return null;
+                    return roomList[roomid];
+                }
+            }
+        } 
 
     }
 }

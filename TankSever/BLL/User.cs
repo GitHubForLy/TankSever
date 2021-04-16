@@ -21,6 +21,18 @@ namespace TankSever.BLL
         public UserStates UserState = UserStates.None;
 
         /// <summary>
+        /// 所在的房间信息
+        /// </summary>
+        public RoomUser RoomDetail { get; set; } = new RoomUser();
+
+        /// <summary>
+        /// 所在的房间
+        /// </summary>
+        public RoomInfo Room { get; set; }
+
+        public static event Action<User> OnUserLogout;
+
+        /// <summary>
         /// 登录时间戳
         /// </summary>
         public string LoginTimestamp { get; private set; }
@@ -28,14 +40,19 @@ namespace TankSever.BLL
         public override void Login(string UserName)
         {
             base.Login(UserName);
-
             BattleInfo = new BattleInfo();
+            RoomDetail.Account = UserName;
+
+            if(DataCenter.Users.HasUser(UserName))
+                OnUserLogout?.Invoke(this);
+
             DataCenter.Users.AddUser(this);
             LoginTimestamp = GetTimestamp();
         }
 
         public override void LoginOut()
         {
+            OnUserLogout?.Invoke(this);
             DataCenter.Users.RemoveUser(UserName);
             BattleInfo = null;
 
