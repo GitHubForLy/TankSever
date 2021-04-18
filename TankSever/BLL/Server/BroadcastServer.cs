@@ -23,7 +23,7 @@ namespace TankSever.BLL.Server
         private void Instance_OnUserLoginout(User user)
         {
             BroadcastMessage(BroadcastActions.Loginout, (user.UserName,user.LoginTimestamp));
-            if (user.UserState != UserStates.None)
+            if (user.RoomDetail.State != RoomUserStates.None)
             {
                 DataCenter.Rooms.LeaveRoom(user);
                 BroadcastMessage(BroadcastActions.LeaveRoom, user.Room);
@@ -35,13 +35,26 @@ namespace TankSever.BLL.Server
         {
             try
             {
-                bool has;
                 do
                 {
-                    has = DataCenter.BroadcastQueue.Dequeue(RunInterval, out (string action, object data) msg);
-                    if(has)
+                    int index= WaitHandle.WaitAny(DataCenter.BroadcastWaitHandles,RunInterval);
+                    if(index!=WaitHandle.WaitTimeout)
                     {
-                        BroadcastMessage(msg.action, msg.data);
+                        if(index==0)
+                        {
+                            var data = DataCenter.BroadcastGlobalQueue.DequeueNoWait();
+                            BroadcastGlobal(data);
+                        }
+                        else if (index == 1)
+                        {
+                            var data = DataCenter.BroadcastRoomQueue.DequeueNoWait();
+                            BroadcastRoom(data);
+                        }
+                        else if (index == 2)
+                        {
+                            var data = DataCenter.BroadcastTeamQueue.DequeueNoWait();
+                            BroadcastTeam(data);
+                        }
                     }
                 }
                 while (IsStop);
@@ -53,19 +66,50 @@ namespace TankSever.BLL.Server
        
         }
 
-        public  void BroadcastMessage<T>(string action,T data)
+        private void BroadcastGlobal((string action, object data) data)
         {
-            Task.Run(() =>
+            BroadcastMessage(data.action, data.data);
+        }
+
+        private void BroadcastRoom((int roomid,string action, object data) data)
+        {
+            var room = DataCenter.Rooms[data.roomid];
+            if(room != null)
             {
-                Respone<T> respone = new Respone<T>()
-                {
-                    Controller = ControllerConst.Broad,
-                    Action = action,
-                    Data = data
-                };
-                var bytes= _dataFormatter.Serialize(respone);
-                Program.NetServer.Broadcast(bytes);
-            });
+                var users = room.GetUsers();
+                BroadcastMessage(data.action, users, data.data);
+            }
+        }
+        private void BroadcastTeam((int roomid,int teamid,string action, object data) data)
+        {
+            var users = DataCenter.Rooms[data.roomid].GetUsers().Where(m=>m.RoomDetail.Team==data.teamid).ToArray();
+            BroadcastMessage(data.action,users, data.data);
+        }
+
+        /// <summary>
+        /// 广播消息
+        /// </summary>
+        private  void BroadcastMessage<T>(string action,T data)
+        {
+            BroadcastMessage<T>(action, null, data);
+        }
+
+        /// <summary>
+        /// 广播给指定的用户数组消息
+        /// </summary>
+        private void BroadcastMessage<T>(string action,AsyncUser[] users, T data)
+        {
+            //Task.Run(() =>
+            //{
+            Respone<T> respone = new Respone<T>()
+            {
+                Controller = ControllerConst.Broad,
+                Action = action,
+                Data = data
+            };
+            var bytes = _dataFormatter.Serialize(respone);
+            Program.NetServer.Broadcast(bytes, users);
+            //});
         }
 
 

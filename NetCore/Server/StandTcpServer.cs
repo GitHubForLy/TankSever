@@ -132,13 +132,13 @@ namespace NetCore.Server
         /// <param name="data"></param>
         public override void Broadcast(byte[] data,bool isNeedLogin=true)
         {
-            base.Broadcast(data, isNeedLogin);
+            Broadcast(data,null, isNeedLogin);
         }
 
-        public override void Broadcast(byte[] data, AsyncUserToken[] userTokens, bool IsNeedLogin)
+        public override void Broadcast(byte[] data, AsyncUser[] users, bool IsNeedLogin)
         {
             var packdata = DataPackage.PackData(data);
-            base.Broadcast(packdata, userTokens, IsNeedLogin);
+            base.Broadcast(packdata, users, IsNeedLogin);
         }
     }
 }

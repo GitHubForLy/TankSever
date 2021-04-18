@@ -7,19 +7,18 @@ using DataModel;
 
 namespace TankSever.BLL
 {
-    class Room:RoomInfo
+    public class Room:RoomInfo
     {
-        private int TeamMaxCount;   //每个队伍最大数量
-        private Dictionary<int, Dictionary<int, User>> teams = new Dictionary<int, Dictionary<int, User>>(); //  (队伍 <=> (位置<=>玩家))
+        private int teamUsesrCount;   //每个队伍最大数量
+        //private Dictionary<int, Dictionary<int, User>> teams = new Dictionary<int, Dictionary<int, User>>(); //  (队伍 <=> (位置<=>玩家))
+        SortedDictionary<int,User> users = new SortedDictionary<int, User>();
         private User Owner;
+        private int teamCount;
 
-        /// <summary>
-        /// 房间名称
-        /// </summary>
         /// <summary>
         /// 房间最大用户量
         /// </summary>
-        public override int MaxCount => TeamMaxCount * teams.Count;
+        public override int MaxCount => teamUsesrCount * teamCount;
 
         /// <summary>
         /// 当前用户数
@@ -28,14 +27,9 @@ namespace TankSever.BLL
         {
             get
             {
-                lock(teams)
+                lock(users)
                 {
-                    int count = 0;
-                    foreach (var team in teams.Values)
-                    {
-                        count += team.Count;
-                    }
-                    return count;
+                    return users.Count;
                 }
             }    
         }
@@ -48,52 +42,66 @@ namespace TankSever.BLL
         {
             this.RoomId = roomid;
             this.Name = Name;
+            this.teamCount = teamCount;
+            this.teamUsesrCount = TeamMaxCount;
+
             State = RoomState.Waiting;
-            this.TeamMaxCount = TeamMaxCount;
-            for (int i=0;i<teamCount;i++)
-            {
-                teams.Add(i, new Dictionary<int, User>());
-            }
         }
 
         public bool EnterRoom(User user,out int team,out int index)
         {
             team = -1;
             index = -1;
-            lock (teams)
+            lock (users)
             {
                 if (IsFull)
                     return false;
 
-                if (user.UserState != UserStates.None)
+                if (user.RoomDetail.State != RoomUserStates.None)
+                    return false;
+
+                if (users.ContainsValue(user))
                     return false;
 
                 FindTeamAndIndex(out team,out  index);
+                users.Add(index,user);
 
-                teams[team].Add(index, user);
                 UpdateOwner();
+
+                // 设置用户信息
+                user.RoomDetail.Team = team;
+                user.RoomDetail.Index = index;
+                user.RoomDetail.LastOpeartion = Owner==user?RoomUser.RoomOpeartion.Create:RoomUser.RoomOpeartion.Join;
+                user.RoomDetail.State = Owner == user ? RoomUserStates.Ready : RoomUserStates.Waiting;
+                user.RoomDetail.IsRoomOwner = Owner == user;
+                user.Room = this;
+
                 return true;
             }
         }
 
         public bool LeaveRoom(User user)
         {
-            lock(teams)
+            lock(users)
             {
-                if (user.UserState != UserStates.Waiting && user!=Owner)
+                if (user.RoomDetail.State != RoomUserStates.Waiting && user!=Owner)
                     return false;
 
-                foreach (var team in teams)
+                foreach (var us in users)
                 {
-                    foreach(var us in team.Value)
+
+                    if(us.Value==user)
                     {
-                        if(us.Value==user)
-                        {
-                            team.Value.Remove(us.Key);
-                            UpdateOwner();
-                            return true;
-                        }                         
-                    }
+                        users.Remove(us.Key);
+
+                        user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Leave;
+                        user.RoomDetail.State = RoomUserStates.None;
+                        user.RoomDetail.IsRoomOwner = false;
+
+                        UpdateOwner();
+                        return true;
+                    }                         
+                    
                 }
                 return false;
             }
@@ -107,24 +115,25 @@ namespace TankSever.BLL
         private bool FindTeamAndIndex(out int team,out int index)
         {
             int n = 99999;
+            int tmp;
             team = -1;
             index = -1;
-            for(int i=0;i<teams.Count;i++)
+            for(int i=0;i<teamCount;i++)
             {
-                if (teams[i].Count < n)
+                tmp = users.Count(u => u.Value.RoomDetail.Team == i);
+                if (tmp < n)
                 {
-                    n = teams[i].Count;
+                    n = tmp;
                     team = i;
                 }
             }
-            for(int i=0;i<TeamMaxCount;i++)
-            {
-                if (!teams[team].ContainsKey(i))               
+            for(int i=team*teamUsesrCount;i< team * teamUsesrCount+teamUsesrCount; i++)
+            {             
+                if (!users.ContainsKey(i))               
                 {
                     index = i;
                     return true;
                 }
-
             }
             return false;
         }
@@ -133,14 +142,78 @@ namespace TankSever.BLL
         {
             if(UserCount==1)
             {
-                foreach(var team in teams)
-                {
-                    if(team.Value.Count>0)
-                    {
-                        Owner = team.Value.First().Value;
-                        return;
-                    }    
-                }
+                Owner = users.First().Value;
+            }
+        }
+
+        /// <summary>
+        /// 获取房间内所有用户
+        /// </summary>
+        public User[] GetUsers()
+        {
+            return users.Values.ToArray();
+        }
+
+        /// <summary>
+        /// 准备
+        /// </summary>
+        public bool RoomReady(RoomUser user)
+        {
+            lock(users)
+            {
+                if (user.State != RoomUserStates.Waiting)
+                    return false;
+                user.State = RoomUserStates.Ready;
+                user.LastOpeartion = RoomUser.RoomOpeartion.Ready;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 取消准备
+        /// </summary>
+        public bool RoomCancelReady(User user)
+        {
+            lock (users)
+            {
+                if (user == Owner)
+                    return false;
+                if (user.RoomDetail.State != RoomUserStates.Ready)
+                    return false;
+                user.RoomDetail.State = RoomUserStates.Waiting;
+                user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.CancelReady;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 是否都准备好了
+        /// </summary>
+        public bool IsFullReady()
+        {
+            return !users.Any(m => m.Value.RoomDetail.State != RoomUserStates.Ready);
+        }
+
+        /// <summary>
+        /// 更改位置
+        /// </summary>
+        public bool ChangeIndex(User roomUser,int index)
+        {
+            lock(users)
+            {
+                if (roomUser.RoomDetail.State != RoomUserStates.Waiting && roomUser != Owner)
+                    return false;
+                if (users.ContainsKey(index))
+                    return false;
+                if (index >= MaxCount)
+                    return false;
+
+                users.Remove(roomUser.RoomDetail.Index);
+                users.Add(index, roomUser);
+                roomUser.RoomDetail.Team = (int)(index / teamUsesrCount);
+                roomUser.RoomDetail.Index = index;
+                roomUser.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.ChangeIndex;
+                return true;
             }
         }
     }

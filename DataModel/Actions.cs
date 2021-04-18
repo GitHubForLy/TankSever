@@ -16,6 +16,10 @@ namespace DataModel
         public const string JoinRoom = "JoinRoom";
         public const string LeaveRoom = "LeaveRoom";
         public const string GetRoomList = "RoomList";
+        public const string GetRoomUsers = "GetRoomUsers";
+        public const string RoomReady = "RoomReady";
+        public const string RoomCancelReady = "RoomCancelReady";
+        public const string RoomChangeIndex = "RoomChangeIndex";
     }
 
     public class BroadcastActions

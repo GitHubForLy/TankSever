@@ -10,7 +10,7 @@ namespace ServerCommon
     public class SemaphoreQueue<T> 
     {
         private Queue<T> m_queue = new Queue<T>();
-        private Semaphore semaphore;
+        public Semaphore Semaphore { get; }
 
         public SemaphoreQueue():this(1000)
         {
@@ -19,7 +19,7 @@ namespace ServerCommon
         public SemaphoreQueue(int maxCount)
         {
             m_queue = new Queue<T>();
-            semaphore =new Semaphore(0, maxCount);
+            Semaphore = new Semaphore(0, maxCount);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace ServerCommon
             lock (m_queue)
             {
                 m_queue.Enqueue(msg);
-                semaphore.Release();
+                Semaphore.Release();
             }
         }
 
@@ -45,7 +45,7 @@ namespace ServerCommon
         {
             lock (m_queue)
             {
-                if (semaphore.WaitOne(maxWaitTime))
+                if (Semaphore.WaitOne(maxWaitTime))
                 {
                     msg = m_queue.Dequeue();
                     return true;
@@ -56,13 +56,23 @@ namespace ServerCommon
         }
 
         /// <summary>
+        /// 取出对象 并且不等待
+        /// </summary>
+        public T DequeueNoWait()
+        {
+            lock (m_queue)
+            {
+                return m_queue.Dequeue();
+            }
+        }
+        /// <summary>
         /// 无限等待 取出一个消息 
         /// </summary>
         public T Dequeue()
         {
             lock (m_queue)
             {
-                semaphore.WaitOne(Timeout.Infinite);
+                Semaphore.WaitOne(Timeout.Infinite);
                 return m_queue.Dequeue();
             }
         }

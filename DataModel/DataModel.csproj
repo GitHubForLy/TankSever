@@ -45,6 +45,8 @@
     <Compile Include="Broadcast.cs" />
     <Compile Include="Actions.cs" />
     <Compile Include="Respone.cs" />
+    <Compile Include="RoomInof.cs" />
+    <Compile Include="RoomUser.cs" />
     <Compile Include="StandRespone.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

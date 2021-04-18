@@ -33,22 +33,4 @@ namespace DataModel
         public object[] Parameters;
     }
 
-    public class RoomUser
-    {
-        public int RoomId;
-        public enum RoomOpeartion
-        {
-            Create,
-            Join,
-            Leave
-        }
-        /// <summary>
-        /// 对所属房间的最后操作
-        /// </summary>
-        public RoomOpeartion LastOpeartion;
-        public string Account;
-        public int Team;
-        public int Index;
-    }
-
 }

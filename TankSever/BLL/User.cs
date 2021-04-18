@@ -16,11 +16,6 @@ namespace TankSever.BLL
         public BattleInfo BattleInfo { get; private set; }
 
         /// <summary>
-        /// 用户全局当前状态
-        /// </summary>
-        public UserStates UserState = UserStates.None;
-
-        /// <summary>
         /// 所在的房间信息
         /// </summary>
         public RoomUser RoomDetail { get; set; } = new RoomUser();
@@ -66,25 +61,5 @@ namespace TankSever.BLL
         }
 
     }
-
-    public enum UserStates
-    {
-        /// <summary>
-        /// 在房间外
-        /// </summary>
-        None,
-        /// <summary>
-        /// 加入房间但还没有准备
-        /// </summary>
-        Waiting,
-        /// <summary>
-        /// 加入房间已准备
-        /// </summary>
-        Ready,
-        /// <summary>
-        /// 已开始加入战斗
-        /// </summary>
-        Fight
-    }
-
+   
 }

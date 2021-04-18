@@ -56,7 +56,7 @@ namespace ServerCommon
         /// </summary>
         public void SendMessage(byte[] data)
         {
-            UserToken.Server.Broadcast(data, new AsyncUserToken[] { UserToken }, false);
+            UserToken.Server.Broadcast(data,new AsyncUser[] { this }, false);
         }
 
         private void CloseConnect()

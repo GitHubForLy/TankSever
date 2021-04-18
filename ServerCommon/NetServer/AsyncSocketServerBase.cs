@@ -359,6 +359,7 @@ namespace ServerCommon.NetServer
             lock (userToken)
             {
                 if (!userToken.IsActive) return;
+                userToken.IsActive = false;
                 //if (null == userToken.ConnectSocket) return;
 
                 string socketInfo = string.Format("本地地址 : {0} 远程地址 : {1}", userToken.ConnectSocket.LocalEndPoint,
@@ -380,7 +381,6 @@ namespace ServerCommon.NetServer
                 userToken.ConnectSocket = null;
                 userToken.SendEvent.Set();
                 userToken.RecvEvent.Set();
-                userToken.IsActive = false;
 
                 m_asyncUserTokenPool.Push(userToken);
                 ConnectionList.Remove(userToken);
@@ -423,14 +423,18 @@ namespace ServerCommon.NetServer
         /// <param name="isNeedLogin">广播给是否需要登录的人</param>
         public virtual void Broadcast(byte[] data,bool isNeedLogin=true)
         {
-            AsyncUserToken[] tokens = null;
-            ConnectionList.CopyList(ref tokens);
-            Broadcast(data, tokens, isNeedLogin);
+            Broadcast(data, null, isNeedLogin);
         }
 
 
-        public virtual void Broadcast(byte[] Data,AsyncUserToken[] userTokens,bool IsNeedLogin)
+        public virtual void Broadcast(byte[] Data,AsyncUser[] Users,bool IsNeedLogin=true)
         {
+            AsyncUserToken[] userTokens = null;
+            if (Users == null)
+                ConnectionList.CopyList(ref userTokens);
+            else
+                userTokens = Users.Select(u => u.UserToken).ToArray();
+
             for (int i = userTokens.Length - 1; i >= 0; i--)
             {
                 lock (userTokens[i])

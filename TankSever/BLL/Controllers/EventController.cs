@@ -54,6 +54,11 @@ namespace TankSever.BLL.Controllers
                 return res;
         }
 
+        public void Logout()
+        {
+            User.LoginOut();
+        }
+
 
         //public List<(string,Transform)> GetPlayerTransforms()
         //{
@@ -71,21 +76,21 @@ namespace TankSever.BLL.Controllers
         {
             var user = User as User;
 
-            if (user.UserState != UserStates.None)
+            if (user.RoomDetail.State != RoomUserStates.None)
                 return StandRespone.FailResult("已经在房中 不能创建房间");
 
-            DataCenter.Rooms.CreateRoom(Name, user, out int team,out int index);
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.RoomChange, user.RoomDetail));
-            return new StandRespone<(int, int)>(true, "创建成功", (team, index));
+            var romid= DataCenter.Rooms.CreateRoom(Name, user, out int team,out int index);
+            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));
+            DataCenter.BroadcastRoomQueue.Enqueue((romid,BroadcastActions.RoomChange, user.RoomDetail));
+            return new StandRespone<int>(true, "创建成功", romid);
         }
 
         public StandRespone LeaveRoom()
         {
             var user = User as User;
             var suc = DataCenter.Rooms.LeaveRoom(user);
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.RoomChange, user.RoomDetail));
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.LeaveRoom, user.Room));
+            DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.LeaveRoom, user.Room));
             return new StandRespone(suc);
         }
 
@@ -93,18 +98,54 @@ namespace TankSever.BLL.Controllers
         {
             var user = User as User;
 
-            if (user.UserState != UserStates.None)
+            if (user.RoomDetail.State != RoomUserStates.None)
                 return StandRespone.FailResult("已经在房中 不能加入房间");
 
             var suc = DataCenter.Rooms.JoinRoom(roomid, user, out int team, out int index);
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.RoomChange,user.RoomDetail));
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.JoinRoom, user.Room));
-            return new StandRespone<(int,int)>(suc,suc?"加入成功":"加入失败",(team,index));
+            DataCenter.BroadcastRoomQueue.Enqueue((roomid,BroadcastActions.RoomChange,user.RoomDetail));
+            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.JoinRoom, user.Room));
+            return new StandRespone<int>(suc,suc?"加入成功":"加入失败", roomid);
         }
 
-        public void Logout()
+        public RoomUser[] GetRoomUsers(int roomid)
         {
-            User.LoginOut();
+            return DataCenter.Rooms[roomid]?.GetUsers().Select(m=>m.RoomDetail).ToArray();
+        }
+
+        public StandRespone RoomReady()
+        {
+            var user = User as User;
+            if ((user.Room as Room).RoomReady(user.RoomDetail))
+            {
+                DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+                return StandRespone.SuccessResult("准备成功");
+            }
+            else
+                return StandRespone.FailResult("准备失败");
+        }
+
+        public StandRespone RoomCancelReady()
+        {
+            var user = User as User;
+            if ((user.Room as Room).RoomCancelReady(user))
+            {
+                DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+                return StandRespone.SuccessResult("取消准备成功");
+            }
+            else
+                return StandRespone.FailResult("取消准备失败");
+        }
+
+        public StandRespone RoomChangeIndex(int index)
+        {
+            var user = User as User;
+            if ((user.Room as Room).ChangeIndex(user,index))
+            {
+                DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+                return StandRespone.SuccessResult("操作成功");
+            }
+            else
+                return StandRespone.FailResult("操作失败");
         }
     }
 }

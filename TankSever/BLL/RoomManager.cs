@@ -25,16 +25,6 @@ namespace TankSever.BLL
                 var room = new Room(id,Name);
                 roomList.Add(id,room);
                 room.EnterRoom(user, out team,out index);
-
-                #region 设置用户信息
-                user.RoomDetail.Index = index;
-                user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Create;
-                user.RoomDetail.Team = team;
-                user.RoomDetail.RoomId = id;
-                user.Room = room;
-                user.UserState = UserStates.Ready;
-                #endregion
-
                 return id;
             }
         }
@@ -43,7 +33,7 @@ namespace TankSever.BLL
         {
             lock (roomList)
             {
-                if (user.UserState == UserStates.None)
+                if (user.RoomDetail.State == RoomUserStates.None)
                     return false;
 
                 var id = user.Room.RoomId;
@@ -53,9 +43,6 @@ namespace TankSever.BLL
                     {
                         if (user.Room.UserCount <= 0)
                               roomList.Remove(id);
-
-                        user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Leave;
-                        user.UserState = UserStates.None;
                         return true;
                     }
                     else
@@ -73,12 +60,6 @@ namespace TankSever.BLL
                 {
                     if (roomList[RoomId].EnterRoom(user, out team, out index))
                     {
-                        user.Room = roomList[RoomId];
-                        user.UserState = UserStates.Waiting;
-                        user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Join;
-                        user.RoomDetail.Index = index;
-                        user.RoomDetail.Team = team;
-                        user.RoomDetail.RoomId = RoomId;
                         return true;
                     }
                     return false;
@@ -115,7 +96,7 @@ namespace TankSever.BLL
             }
         }
 
-        public RoomInfo this [int roomid]
+        public Room this [int roomid]
         {
             get
             {

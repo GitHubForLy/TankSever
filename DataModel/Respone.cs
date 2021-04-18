@@ -31,30 +31,5 @@ namespace DataModel
 
     }
 
-    public enum RoomState
-    {
-        Waiting,
-        Fight
-    }
-
-    public class RoomInfo
-    {
-        public string Name;
-        public int RoomId;
-        public RoomState State;
-        public virtual int UserCount { get; set; }
-        public virtual int MaxCount { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            RoomInfo rom = obj as RoomInfo;
-            if (rom == null)
-                return false;
-            return this.RoomId == rom.RoomId;
-        }
-        public override int GetHashCode()
-        {
-            return RoomId;
-        }
-    }
+   
 }

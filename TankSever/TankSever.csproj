@@ -106,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLL\BattleInfo.cs" />
+    <Compile Include="BLL\BroadcastData.cs" />
     <Compile Include="BLL\ControllerConst.cs" />
     <Compile Include="BLL\Controllers\BroadcastController.cs" />
     <Compile Include="BLL\Controllers\EventController.cs" />

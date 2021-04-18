@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DataModel;
 using ServerCommon;
+using System.Threading;
 
 namespace TankSever.BLL
 {
@@ -37,7 +38,11 @@ namespace TankSever.BLL
 
         public static RoomManager Rooms { get; private set; } = new RoomManager();
 
-        public static SemaphoreQueue<(string action, object data)> BroadcastQueue { get; private set; } 
+        public static SemaphoreQueue<(string action, object data)> BroadcastGlobalQueue { get; private set; }
+        public static SemaphoreQueue<(int roomid,string action, object data)> BroadcastRoomQueue { get; private set; }
+        public static SemaphoreQueue<(int roomid,int teamid,string action, object data)> BroadcastTeamQueue { get; private set; }
+
+        public static WaitHandle[] BroadcastWaitHandles { get; private set; }
 
         /// <summary>
         /// 初始化数据
@@ -46,22 +51,11 @@ namespace TankSever.BLL
         {
             Users= new UserManager();
             Rooms = new RoomManager();
-            BroadcastQueue = new SemaphoreQueue<(string action, object data)>(1000);
+            BroadcastGlobalQueue = new SemaphoreQueue<(string action, object data)>(100);
+            BroadcastRoomQueue = new SemaphoreQueue<(int roomid, string action, object data)>(100);
+            BroadcastTeamQueue = new SemaphoreQueue<(int roomid, int teamid, string action, object data)>(100);
+            BroadcastWaitHandles = new WaitHandle[] { BroadcastGlobalQueue.Semaphore, BroadcastRoomQueue.Semaphore, BroadcastTeamQueue.Semaphore };
         }
-
-
-        //public List<(string account, Transform trans)> GetTransforms()
-        //{
-        //    List<(string, Transform)> res = new List<(string, Transform)>();
-        //    lock (Users)
-        //    {
-        //        foreach (var tran in Users)
-        //        {
-        //            res.Add((tran.Key, tran.Value.BattleInfo.Trans));
-        //        }
-        //    }
-        //    return res;
-        //}
 
     }
 }

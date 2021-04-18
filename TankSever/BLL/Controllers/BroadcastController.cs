@@ -14,25 +14,26 @@ namespace TankSever.BLL.Controllers
         //广播位置信息
         public void UpdateTransform((string account,Transform transform) data)
         {
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.UpdateTransform, data));
+            var user = User as User;
+            DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId, BroadcastActions.UpdateTransform, data));
         }
 
         //广播方法调用
         public void BroadcastMethod((string account,SyncMethod info)data)
         {
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.BroadcastMethod, data));
+            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastMethod, data));
         }
 
         //广播字段复制
         public void BroadcastField(string account)
         {
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.BroadcastField, account));
+            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastField, account));
         }
 
         //广播登录
         public void Login(LoginInfo info)
         {
-            DataCenter.BroadcastQueue.Enqueue((BroadcastActions.Login, info));
+            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.Login, info));
         }
     }
 }
