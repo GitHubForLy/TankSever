@@ -37,6 +37,11 @@ namespace TankSever.BLL
         /// </summary>
         public bool IsFull => UserCount >= MaxCount;
 
+        /// <summary>
+        /// 是否全员准备
+        /// </summary>
+        public bool IsFullReady => users.All(m => m.Value.RoomDetail.State == RoomUserStates.Ready);
+
         public Room(int roomid,string Name,int teamCount=2,int TeamMaxCount = 5)
         {
             this.RoomId = roomid;
@@ -60,6 +65,8 @@ namespace TankSever.BLL
                     return false;
 
                 if (users.ContainsValue(user))
+                    return false;
+                if (State != RoomState.Waiting)
                     return false;
 
                 FindTeamAndIndex(out team,out  index);
@@ -162,6 +169,8 @@ namespace TankSever.BLL
             {
                 if (user.State != RoomUserStates.Waiting)
                     return false;
+                if (State != RoomState.Waiting)
+                    return false;
                 user.State = RoomUserStates.Ready;
                 user.LastOpeartion = RoomUser.RoomOpeartion.Ready;
                 return true;
@@ -179,18 +188,12 @@ namespace TankSever.BLL
                     return false;
                 if (user.RoomDetail.State != RoomUserStates.Ready)
                     return false;
+                if (State != RoomState.Waiting)
+                    return false;
                 user.RoomDetail.State = RoomUserStates.Waiting;
                 user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.CancelReady;
                 return true;
             }
-        }
-
-        /// <summary>
-        /// 是否都准备好了
-        /// </summary>
-        public bool IsFullReady()
-        {
-            return !users.Any(m => m.Value.RoomDetail.State != RoomUserStates.Ready);
         }
 
         /// <summary>
@@ -212,6 +215,17 @@ namespace TankSever.BLL
                 roomUser.RoomDetail.Team = (int)(index / teamUsesrCount);
                 roomUser.RoomDetail.Index = index;
                 roomUser.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.ChangeIndex;
+                return true;
+            }
+        }
+
+        public bool StartFight()
+        {
+            lock(users)
+            {
+                if (!IsFullReady)
+                    return false;
+                State = RoomState.Fight;
                 return true;
             }
         }

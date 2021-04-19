@@ -32,7 +32,8 @@ namespace ServerCommon
             lock (m_queue)
             {
                 m_queue.Enqueue(msg);
-                Semaphore.Release();
+                int aa= Semaphore.Release();
+                System.Diagnostics.Debug.WriteLine("count:" + aa);
             }
         }
 

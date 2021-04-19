@@ -20,6 +20,7 @@ namespace DataModel
         public const string RoomReady = "RoomReady";
         public const string RoomCancelReady = "RoomCancelReady";
         public const string RoomChangeIndex = "RoomChangeIndex";
+        public const string DoStartFight = "DoStartFight";
     }
 
     public class BroadcastActions
@@ -35,5 +36,6 @@ namespace DataModel
         public const string JoinRoom = "JoinRoom";
         public const string LeaveRoom = "LeaveRoom";
         public const string BroadcastRoomMsg = "BroadcastRoomMsg";
+        public const string DoStartFight = "DoStartFight";
     }
 }

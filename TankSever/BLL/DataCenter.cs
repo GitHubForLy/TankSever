@@ -51,8 +51,8 @@ namespace TankSever.BLL
         {
             Users= new UserManager();
             Rooms = new RoomManager();
-            BroadcastGlobalQueue = new SemaphoreQueue<(string action, object data)>(100);
-            BroadcastRoomQueue = new SemaphoreQueue<(int roomid, string action, object data)>(100);
+            BroadcastGlobalQueue = new SemaphoreQueue<(string action, object data)>(1000);
+            BroadcastRoomQueue = new SemaphoreQueue<(int roomid, string action, object data)>(1000);
             BroadcastTeamQueue = new SemaphoreQueue<(int roomid, int teamid, string action, object data)>(100);
             BroadcastWaitHandles = new WaitHandle[] { BroadcastGlobalQueue.Semaphore, BroadcastRoomQueue.Semaphore, BroadcastTeamQueue.Semaphore };
         }

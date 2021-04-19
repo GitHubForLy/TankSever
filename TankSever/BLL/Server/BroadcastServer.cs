@@ -38,12 +38,14 @@ namespace TankSever.BLL.Server
 
         public override void Run()
         {
+            Thread.CurrentThread.Priority = ThreadPriority.Highest;
             try
             {
                 do
                 {
                     int index= WaitHandle.WaitAny(DataCenter.BroadcastWaitHandles,RunInterval);
-                    if(index!=WaitHandle.WaitTimeout)
+                    System.Diagnostics.Debug.WriteLine("index:"+index);
+                    if (index!=WaitHandle.WaitTimeout)
                     {
                         if(index==0)
                         {

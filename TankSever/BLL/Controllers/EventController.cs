@@ -12,6 +12,7 @@ namespace TankSever.BLL.Controllers
 {
     class EventController:Controller 
     {
+        private User _user => User as User;
         //注册
         [AllowAnonymous]
         public StandRespone Register(RegisterRequest request)
@@ -146,6 +147,19 @@ namespace TankSever.BLL.Controllers
             }
             else
                 return StandRespone.FailResult("操作失败");
+        }
+
+        public StandRespone DoStartFight()
+        {
+            if(_user.RoomDetail.State== RoomUserStates.Ready && (_user.Room as Room).IsFullReady)
+            {
+                DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
+                return StandRespone.SuccessResult("操作成功");
+            }
+            else
+            {
+                return StandRespone.FailResult("操作失败");
+            }
         }
     }
 }
