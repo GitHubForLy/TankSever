@@ -44,5 +44,18 @@ namespace TankSever.BLL
                 return false;
             }
         }
+
+        public User this[string userName]
+        {
+            get
+            {
+                lock(Users)
+                {
+                    if (!Users.ContainsKey(userName))
+                        return null;
+                    return Users[userName];
+                }
+            }
+        }
     }
 }

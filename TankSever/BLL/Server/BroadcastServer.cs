@@ -25,10 +25,15 @@ namespace TankSever.BLL.Server
             BroadcastMessage(BroadcastActions.Loginout, (user.UserName,user.LoginTimestamp));
             if (user.RoomDetail.State != RoomUserStates.None)
             {
-                DataCenter.Rooms.LeaveRoom(user);
+                if (!DataCenter.Rooms.LeaveRoom(user))
+                    throw new Exception("用户登出时离开房间失败");
                 BroadcastMessage(BroadcastActions.LeaveRoom, user.Room);
-                BroadcastMessage(BroadcastActions.RoomChange, user.RoomDetail);
+                BroadcastRoom((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+
+                Notify(NotifyType.Message, user.UserName + " 用户登出 自动退出房间", this);
             }
+            else
+                Notify(NotifyType.Message, user.UserName + " 用户登出", this);
         }
 
         public override void Run()

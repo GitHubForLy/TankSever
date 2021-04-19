@@ -43,7 +43,7 @@ namespace TankSever.BLL.Controllers
                 {
                     User.Login(request.UserName);
 
-                    return new StandRespone { IsSuccess = true, Message = "登录成功|" + (User as User).LoginTimestamp };
+                    return new StandRespone<string> { IsSuccess = true, Message = "登录成功",Data= (User as User).LoginTimestamp };
                 }
                 else
                 {

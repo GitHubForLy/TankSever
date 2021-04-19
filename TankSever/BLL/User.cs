@@ -37,9 +37,9 @@ namespace TankSever.BLL
             base.Login(UserName);
             BattleInfo = new BattleInfo();
             RoomDetail.Account = UserName;
-
+     
             if(DataCenter.Users.HasUser(UserName))
-                OnUserLogout?.Invoke(this);
+                OnUserLogout?.Invoke(DataCenter.Users[UserName]);
 
             DataCenter.Users.AddUser(this);
             LoginTimestamp = GetTimestamp();

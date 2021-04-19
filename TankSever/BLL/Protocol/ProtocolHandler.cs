@@ -47,6 +47,8 @@ namespace TankSever.BLL.Protocol
                     return true;
             }
 
+            Notify(NotifyType.Message, "请求:["+ controller.User.UserName+"][" + _req.Controller + "][" + _req.Action + "]");
+
             var pars = method.GetParameters();
             if(pars.Length>1)
             {
@@ -68,13 +70,6 @@ namespace TankSever.BLL.Protocol
             if (method.ReturnType == typeof(void))
                 return false;
 
-
-            //var resType = typeof(Respone<>).MakeGenericType(res.GetType());
-            //var resp = resType.GetConstructor(Type.EmptyTypes).Invoke(null);
-            //resType.GetField("RequestId").SetValue(resp, _req.RequestId);
-            //resType.GetField("Controller").SetValue(resp, _req.Controller);
-            //resType.GetField("Action").SetValue(resp, _req.Action);
-            //resType.GetField("Data").SetValue(resp, res);
             var respone = new Respone<object>
             {
                 RequestId = _req.RequestId,

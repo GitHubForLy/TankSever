@@ -72,5 +72,10 @@ namespace ServerCommon.Protocol
         public virtual void ReleaseController(IController controller)
         {            
         }
+
+        protected void Notify(NotifyType notifyType,string message)
+        {
+            AsyncToken.Server.Notify(notifyType, message, AsyncToken.Server);
+        }
     }
 }

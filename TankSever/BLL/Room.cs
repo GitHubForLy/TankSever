@@ -83,7 +83,7 @@ namespace TankSever.BLL
         {
             lock(users)
             {
-                if (user.RoomDetail.State != RoomUserStates.Waiting && user!=Owner)
+                if (user.RoomDetail.State == RoomUserStates.None)
                     return false;
 
                 foreach (var us in users)
