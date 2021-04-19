@@ -34,5 +34,6 @@ namespace DataModel
         public const string CreateRoom = "CreateRoom";
         public const string JoinRoom = "JoinRoom";
         public const string LeaveRoom = "LeaveRoom";
+        public const string BroadcastRoomMsg = "BroadcastRoomMsg";
     }
 }

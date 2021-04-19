@@ -11,17 +11,29 @@ namespace TankSever.BLL.Controllers
 {
     class BroadcastController : Controller
     {
+        private User _user => User as User;
         //广播位置信息
         public void UpdateTransform((string account,Transform transform) data)
         {
-            var user = User as User;
-            DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId, BroadcastActions.UpdateTransform, data));
+            DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
         }
 
         //广播方法调用
-        public void BroadcastMethod((string account,SyncMethod info)data)
+        public void BroadcastMethod(BroadcastMethod methodinfo)
         {
-            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastMethod, data));
+            switch(methodinfo.Flag)
+            {
+                case BroadcastFlag.Global:
+                    DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastMethod, methodinfo));
+                    break;
+                case BroadcastFlag.Room:
+                    DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastMethod, methodinfo));
+                    break;
+                case BroadcastFlag.Team:
+                    DataCenter.BroadcastTeamQueue.Enqueue((_user.Room.RoomId, _user.RoomDetail.Team, BroadcastActions.BroadcastMethod, methodinfo));
+                    break;
+            }
+
         }
 
         //广播字段复制
@@ -34,6 +46,11 @@ namespace TankSever.BLL.Controllers
         public void Login(LoginInfo info)
         {
             DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.Login, info));
+        }
+
+        public void BroadcastRoomMsg(string message)
+        {
+            DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName,message)));
         }
     }
 }

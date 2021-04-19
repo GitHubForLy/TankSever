@@ -10,8 +10,7 @@ namespace TankSever.BLL
     public class Room:RoomInfo
     {
         private int teamUsesrCount;   //每个队伍最大数量
-        //private Dictionary<int, Dictionary<int, User>> teams = new Dictionary<int, Dictionary<int, User>>(); //  (队伍 <=> (位置<=>玩家))
-        SortedDictionary<int,User> users = new SortedDictionary<int, User>();
+        SortedDictionary<int,User> users = new SortedDictionary<int, User>(); //(位置<=>玩家))
         private User Owner;
         private int teamCount;
 

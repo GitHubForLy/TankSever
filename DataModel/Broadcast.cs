@@ -26,11 +26,4 @@ namespace DataModel
         public int WaypointIndex;
     }
 
-    public class SyncMethod
-    {
-        public string ClassFullName;
-        public string MethodName;
-        public object[] Parameters;
-    }
-
 }
