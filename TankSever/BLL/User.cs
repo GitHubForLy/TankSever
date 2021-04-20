@@ -57,6 +57,7 @@ namespace TankSever.BLL
         private string GetTimestamp()
         {
             TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            var j = ts.TotalSeconds;
             return Convert.ToInt64(ts.TotalSeconds).ToString();
         }
 

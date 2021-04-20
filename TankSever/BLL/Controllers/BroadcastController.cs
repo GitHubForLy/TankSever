@@ -13,7 +13,7 @@ namespace TankSever.BLL.Controllers
     {
         private User _user => User as User;
         //广播位置信息
-        public void UpdateTransform((string account,Transform transform) data)
+        public void UpdateTransform((string account,double sendtime,Transform transform) data)
         {
             _user.BattleInfo.Trans = data.transform;
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
