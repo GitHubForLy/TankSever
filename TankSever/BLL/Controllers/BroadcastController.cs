@@ -15,7 +15,9 @@ namespace TankSever.BLL.Controllers
         //广播位置信息
         public void UpdateTransform((string account,Transform transform) data)
         {
-            DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
+            _user.BattleInfo.Trans = data.transform;
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
+            //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
         }
 
         //广播方法调用
@@ -24,13 +26,16 @@ namespace TankSever.BLL.Controllers
             switch(methodinfo.Flag)
             {
                 case BroadcastFlag.Global:
-                    DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastMethod, methodinfo));
+                    (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.BroadcastMethod, methodinfo));
+                    //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastMethod, methodinfo));
                     break;
                 case BroadcastFlag.Room:
-                    DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastMethod, methodinfo));
+                    (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.BroadcastMethod, methodinfo));
+                    //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastMethod, methodinfo));
                     break;
                 case BroadcastFlag.Team:
-                    DataCenter.BroadcastTeamQueue.Enqueue((_user.Room.RoomId, _user.RoomDetail.Team, BroadcastActions.BroadcastMethod, methodinfo));
+                    (Program.BroadServer as BroadcastServer).BroadcastTeam((_user.Room.RoomId, _user.RoomDetail.Team, BroadcastActions.BroadcastMethod, methodinfo));
+                    //DataCenter.BroadcastTeamQueue.Enqueue((_user.Room.RoomId, _user.RoomDetail.Team, BroadcastActions.BroadcastMethod, methodinfo));
                     break;
             }
 
@@ -39,18 +44,21 @@ namespace TankSever.BLL.Controllers
         //广播字段复制
         public void BroadcastField(string account)
         {
-            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastField, account));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.BroadcastField, account));
+            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.BroadcastField, account));
         }
 
         //广播登录
         public void Login(LoginInfo info)
         {
-            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.Login, info));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.Login, info));
+            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.Login, info));
         }
 
         public void BroadcastRoomMsg(string message)
         {
-            DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName,message)));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName, message)));
+            //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName,message)));
         }
     }
 }

@@ -38,33 +38,33 @@ namespace TankSever.BLL.Server
 
         public override void Run()
         {
-            Thread.CurrentThread.Priority = ThreadPriority.Highest;
+            //Thread.CurrentThread.Priority = ThreadPriority.Highest;
             try
             {
-                do
-                {
-                    int index= WaitHandle.WaitAny(DataCenter.BroadcastWaitHandles,RunInterval);
-                    System.Diagnostics.Debug.WriteLine("index:"+index);
-                    if (index!=WaitHandle.WaitTimeout)
-                    {
-                        if(index==0)
-                        {
-                            var data = DataCenter.BroadcastGlobalQueue.DequeueNoWait();
-                            BroadcastGlobal(data);
-                        }
-                        else if (index == 1)
-                        {
-                            var data = DataCenter.BroadcastRoomQueue.DequeueNoWait();
-                            BroadcastRoom(data);
-                        }
-                        else if (index == 2)
-                        {
-                            var data = DataCenter.BroadcastTeamQueue.DequeueNoWait();
-                            BroadcastTeam(data);
-                        }
-                    }
-                }
-                while (IsStop);
+                //do
+                //{
+                //    int index= WaitHandle.WaitAny(DataCenter.BroadcastWaitHandles,RunInterval);
+                //    System.Diagnostics.Debug.WriteLine("index:"+index);
+                //    if (index!=WaitHandle.WaitTimeout)
+                //    {
+                //        if(index==0)
+                //        {
+                //            var data = DataCenter.BroadcastGlobalQueue.DequeueNoWait();
+                //            BroadcastGlobal(data);
+                //        }
+                //        else if (index == 1)
+                //        {
+                //            var data = DataCenter.BroadcastRoomQueue.DequeueNoWait();
+                //            BroadcastRoom(data);
+                //        }
+                //        else if (index == 2)
+                //        {
+                //            var data = DataCenter.BroadcastTeamQueue.DequeueNoWait();
+                //            BroadcastTeam(data);
+                //        }
+                //    }
+                //}
+                //while (IsStop);
             }
             catch(Exception e)
             {
@@ -73,12 +73,12 @@ namespace TankSever.BLL.Server
        
         }
 
-        private void BroadcastGlobal((string action, object data) data)
+        public void BroadcastGlobal((string action, object data) data)
         {
             BroadcastMessage(data.action, data.data);
         }
 
-        private void BroadcastRoom((int roomid,string action, object data) data)
+        public void BroadcastRoom((int roomid,string action, object data) data)
         {
             var room = DataCenter.Rooms[data.roomid];
             if(room != null)
@@ -87,7 +87,7 @@ namespace TankSever.BLL.Server
                 BroadcastMessage(data.action, users, data.data);
             }
         }
-        private void BroadcastTeam((int roomid,int teamid,string action, object data) data)
+        public void BroadcastTeam((int roomid,int teamid,string action, object data) data)
         {
             var users = DataCenter.Rooms[data.roomid].GetUsers().Where(m=>m.RoomDetail.Team==data.teamid).ToArray();
             BroadcastMessage(data.action,users, data.data);
@@ -96,19 +96,19 @@ namespace TankSever.BLL.Server
         /// <summary>
         /// 广播消息
         /// </summary>
-        private  void BroadcastMessage<T>(string action,T data)
+        public void BroadcastMessage<T>(string action,T data)
         {
-            BroadcastMessage<T>(action, null, data);
+            BroadcastMessage(action, null, data);
         }
 
         /// <summary>
         /// 广播给指定的用户数组消息
         /// </summary>
-        private void BroadcastMessage<T>(string action,AsyncUser[] users, T data)
+        public void BroadcastMessage<T>(string action,AsyncUser[] users, T data)
         {
-            //Task.Run(() =>
-            //{
-            Respone<T> respone = new Respone<T>()
+            Task.Run(() =>
+            {
+                Respone<T> respone = new Respone<T>()
             {
                 Controller = ControllerConst.Broad,
                 Action = action,
@@ -116,24 +116,9 @@ namespace TankSever.BLL.Server
             };
             var bytes = _dataFormatter.Serialize(respone);
             Program.NetServer.Broadcast(bytes, users);
-            //});
+            });
         }
 
 
-        //private void UpdateTransform()
-        //{
-        //    var trans= DataCenter.Instance.GetTransforms();
-        //    if(trans.Count>0)
-        //    {
-        //        Respone respone = new Respone()
-        //        {
-        //            Controller = ControllerConst.Broad,
-        //            Action = nameof(UpdateTransform),
-        //            Data = trans
-        //        };
-        //        var data = _dataFormatter.Serialize(respone);
-        //        Program.NetServer.Broadcast(data);
-        //    }
-        //}
     }
 }

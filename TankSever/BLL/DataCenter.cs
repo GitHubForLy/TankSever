@@ -38,11 +38,11 @@ namespace TankSever.BLL
 
         public static RoomManager Rooms { get; private set; } = new RoomManager();
 
-        public static SemaphoreQueue<(string action, object data)> BroadcastGlobalQueue { get; private set; }
-        public static SemaphoreQueue<(int roomid,string action, object data)> BroadcastRoomQueue { get; private set; }
-        public static SemaphoreQueue<(int roomid,int teamid,string action, object data)> BroadcastTeamQueue { get; private set; }
+        //public static SemaphoreQueue<(string action, object data)> BroadcastGlobalQueue { get; private set; }
+        //public static SemaphoreQueue<(int roomid,string action, object data)> BroadcastRoomQueue { get; private set; }
+        //public static SemaphoreQueue<(int roomid,int teamid,string action, object data)> BroadcastTeamQueue { get; private set; }
 
-        public static WaitHandle[] BroadcastWaitHandles { get; private set; }
+        //public static WaitHandle[] BroadcastWaitHandles { get; private set; }
 
         /// <summary>
         /// 初始化数据
@@ -51,10 +51,10 @@ namespace TankSever.BLL
         {
             Users= new UserManager();
             Rooms = new RoomManager();
-            BroadcastGlobalQueue = new SemaphoreQueue<(string action, object data)>(1000);
-            BroadcastRoomQueue = new SemaphoreQueue<(int roomid, string action, object data)>(1000);
-            BroadcastTeamQueue = new SemaphoreQueue<(int roomid, int teamid, string action, object data)>(100);
-            BroadcastWaitHandles = new WaitHandle[] { BroadcastGlobalQueue.Semaphore, BroadcastRoomQueue.Semaphore, BroadcastTeamQueue.Semaphore };
+            //BroadcastGlobalQueue = new SemaphoreQueue<(string action, object data)>(1000);
+            //BroadcastRoomQueue = new SemaphoreQueue<(int roomid, string action, object data)>(1000);
+            //BroadcastTeamQueue = new SemaphoreQueue<(int roomid, int teamid, string action, object data)>(100);
+            //BroadcastWaitHandles = new WaitHandle[] { BroadcastGlobalQueue.Semaphore, BroadcastRoomQueue.Semaphore, BroadcastTeamQueue.Semaphore };
         }
 
     }

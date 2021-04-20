@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DBCore;
 using ServerCommon.Protocol;
 using DataModel;
+using TankSever.BLL.Server;
 
 namespace TankSever.BLL.Controllers
 {
@@ -81,8 +82,10 @@ namespace TankSever.BLL.Controllers
                 return StandRespone.FailResult("已经在房中 不能创建房间");
 
             var romid= DataCenter.Rooms.CreateRoom(Name, user, out int team,out int index);
-            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));
-            DataCenter.BroadcastRoomQueue.Enqueue((romid,BroadcastActions.RoomChange, user.RoomDetail));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.CreateRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((romid, BroadcastActions.RoomChange, user.RoomDetail));
+            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));
+            //DataCenter.BroadcastRoomQueue.Enqueue((romid,BroadcastActions.RoomChange, user.RoomDetail));
             return new StandRespone<int>(true, "创建成功", romid);
         }
 
@@ -90,8 +93,10 @@ namespace TankSever.BLL.Controllers
         {
             var user = User as User;
             var suc = DataCenter.Rooms.LeaveRoom(user);
-            DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
-            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.LeaveRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.LeaveRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
+            //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.LeaveRoom, user.Room));
             return new StandRespone(suc);
         }
 
@@ -103,8 +108,10 @@ namespace TankSever.BLL.Controllers
                 return StandRespone.FailResult("已经在房中 不能加入房间");
 
             var suc = DataCenter.Rooms.JoinRoom(roomid, user, out int team, out int index);
-            DataCenter.BroadcastRoomQueue.Enqueue((roomid,BroadcastActions.RoomChange,user.RoomDetail));
-            DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.JoinRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.JoinRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
+            //DataCenter.BroadcastRoomQueue.Enqueue((roomid,BroadcastActions.RoomChange,user.RoomDetail));
+            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.JoinRoom, user.Room));
             return new StandRespone<int>(suc,suc?"加入成功":"加入失败", roomid);
         }
 
@@ -118,7 +125,8 @@ namespace TankSever.BLL.Controllers
             var user = User as User;
             if ((user.Room as Room).RoomReady(user.RoomDetail))
             {
-                DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
+                //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
                 return StandRespone.SuccessResult("准备成功");
             }
             else
@@ -130,7 +138,8 @@ namespace TankSever.BLL.Controllers
             var user = User as User;
             if ((user.Room as Room).RoomCancelReady(user))
             {
-                DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
+                //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
                 return StandRespone.SuccessResult("取消准备成功");
             }
             else
@@ -142,7 +151,8 @@ namespace TankSever.BLL.Controllers
             var user = User as User;
             if ((user.Room as Room).ChangeIndex(user,index))
             {
-                DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
+                //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
                 return StandRespone.SuccessResult("操作成功");
             }
             else
@@ -151,9 +161,11 @@ namespace TankSever.BLL.Controllers
 
         public StandRespone DoStartFight()
         {
-            if(_user.RoomDetail.State== RoomUserStates.Ready && (_user.Room as Room).IsFullReady)
+            var room = _user.Room as Room;
+            if (_user.RoomDetail.State== RoomUserStates.Ready && _user.RoomDetail.IsRoomOwner && room.StartFight())
             {
-                DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
+                //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
                 return StandRespone.SuccessResult("操作成功");
             }
             else
