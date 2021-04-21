@@ -13,12 +13,32 @@ namespace TankSever.BLL.Controllers
     {
         private User _user => User as User;
         //广播位置信息
-        public void UpdateTransform((string account,double sendtime,Transform transform) data)
+        public void UpdateTransform((string account,double sendtime,Transform transform,Vector3 velocity) data)
         {
             _user.BattleInfo.Trans = data.transform;
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
+            _user.BattleInfo.velocity = data.velocity;
+            _user.BattleInfo.transTime = data.sendtime;
+            //(Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
             //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
         }
+
+        public void UpdateTurretDirection(Vector3 TargetDirection)
+        {
+            _user.BattleInfo.Taregtion = TargetDirection;
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTurretDirection,(_user.UserName,TargetDirection)));
+        }
+
+        public void Fire()
+        {
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserName));
+        }
+
+
+
+
+
+
+
 
         //广播方法调用
         public void BroadcastMethod(BroadcastMethod methodinfo)

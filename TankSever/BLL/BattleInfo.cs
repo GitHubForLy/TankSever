@@ -11,6 +11,8 @@ namespace TankSever.BLL
     {
         public float Health;
         public Transform Trans;
-
+        public double transTime;
+        public Vector3 velocity;
+        public Vector3 Taregtion;
     }
 }

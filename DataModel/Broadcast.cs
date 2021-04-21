@@ -26,4 +26,6 @@ namespace DataModel
         public int WaypointIndex;
     }
 
+
+
 }
