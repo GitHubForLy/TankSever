@@ -174,6 +174,7 @@ namespace TankSever.BLL.Controllers
             }
         }
 
+        [AllowAnonymous]
         public double CheckTime()
         {
             return Sys.GetTime();
