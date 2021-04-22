@@ -18,7 +18,7 @@ namespace TankSever.BLL.Controllers
             _user.BattleInfo.Trans = data.transform;
             _user.BattleInfo.velocity = data.velocity;
             _user.BattleInfo.transTime = data.sendtime;
-            //(Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
             //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.UpdateTransform, data));
         }
 
@@ -33,7 +33,10 @@ namespace TankSever.BLL.Controllers
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserName));
         }
 
-
+        public void TakeDamage(float damage)
+        {
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.TakeDamage, (_user.UserName,damage)));
+        }
 
 
 

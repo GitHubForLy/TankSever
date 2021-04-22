@@ -41,19 +41,19 @@ namespace TankSever.BLL.Server
             //Thread.CurrentThread.Priority = ThreadPriority.Highest;
             try
             {
-                foreach(var rom in DataCenter.Rooms.GetRoomList())
-                {
-                    if (rom.State != RoomState.Fight)
-                        continue;
-                    foreach(var user in (rom as Room).GetUsers())
-                    {
-                        if(user.BattleInfo.Trans!=null && user.BattleInfo.velocity!=null)
-                        {
-                            BroadcastRoom((rom.RoomId, BroadcastActions.UpdateTransform,
-                                 (user.UserName, user.BattleInfo.transTime, user.BattleInfo.Trans, user.BattleInfo.velocity)));
-                        }
-                    }
-                }
+                //foreach(var rom in DataCenter.Rooms.GetRoomList())
+                //{
+                //    if (rom.State != RoomState.Fight)
+                //        continue;
+                //    foreach(var user in (rom as Room).GetUsers())
+                //    {
+                //        if(user.BattleInfo.Trans!=null && user.BattleInfo.velocity!=null)
+                //        {
+                //            BroadcastRoom((rom.RoomId, BroadcastActions.UpdateTransform,
+                //                 (user.UserName, user.BattleInfo.transTime, user.BattleInfo.Trans, user.BattleInfo.velocity)));
+                //        }
+                //    }
+                //}
 
                 //do
                 //{
