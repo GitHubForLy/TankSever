@@ -21,6 +21,7 @@ namespace DataModel
         public const string RoomCancelReady = "RoomCancelReady";
         public const string RoomChangeIndex = "RoomChangeIndex";
         public const string DoStartFight = "DoStartFight";
+        public const string CheckTime = "CheckTime";
     }
 
     public class BroadcastActions

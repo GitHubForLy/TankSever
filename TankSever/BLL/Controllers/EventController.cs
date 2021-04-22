@@ -173,5 +173,10 @@ namespace TankSever.BLL.Controllers
                 return StandRespone.FailResult("操作失败");
             }
         }
+
+        public double CheckTime()
+        {
+            return Sys.GetTime();
+        }
     }
 }

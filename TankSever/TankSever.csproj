@@ -115,6 +115,7 @@
     <Compile Include="BLL\Room.cs" />
     <Compile Include="BLL\RoomManager.cs" />
     <Compile Include="BLL\Server\BroadcastServer.cs" />
+    <Compile Include="BLL\Sys.cs" />
     <Compile Include="BLL\User.cs" />
     <Compile Include="BLL\UserManager.cs" />
     <Compile Include="ListBoxEx.cs">
