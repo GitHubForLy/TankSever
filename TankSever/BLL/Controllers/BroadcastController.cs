@@ -28,13 +28,16 @@ namespace TankSever.BLL.Controllers
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTurretDirection,(_user.UserName,TargetDirection)));
         }
 
+        static int id = 0;
         public void Fire()
         {
+            id++;
+            System.Diagnostics.Debug.WriteLine("id:" + id);
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserName));
         }
 
         public void TakeDamage(float damage)
-        {
+        {         
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.TakeDamage, (_user.UserName,damage)));
         }
 

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncUserContext.cs" />
+    <Compile Include="NetServer\UdpServerBase.cs" />
     <Compile Include="SemaphoreQueue.cs" />
     <Compile Include="DI.cs" />
     <Compile Include="IDynamicType.cs" />
