@@ -32,7 +32,7 @@ namespace TankSever.BLL.Controllers
         public void Fire()
         {
             id++;
-            System.Diagnostics.Debug.WriteLine("id:" + id);
+            System.Diagnostics.Debug.WriteLine("idc:" + id);
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserName));
         }
 
@@ -42,7 +42,10 @@ namespace TankSever.BLL.Controllers
         }
 
 
-
+        public void Die(string killAccount)
+        {
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Die, (_user.UserName, killAccount)));
+        }
 
 
 

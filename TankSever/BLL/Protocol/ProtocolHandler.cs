@@ -16,10 +16,17 @@ namespace TankSever.BLL.Protocol
         private IDynamicType _dynamicData;
         private Request _req;
 
-
+        static int id = 0;
         public override IController CreateController(IDynamicType data)
         {
             _req = data.GetValue<Request>();
+
+            if(_req.Action=="Fire")
+            {
+                id++;
+                System.Diagnostics.Debug.WriteLine("reqID:+" + id);
+            }
+
             _dynamicData= data.GetChid(nameof(_req.Data));
             switch (_req.Controller)
             {

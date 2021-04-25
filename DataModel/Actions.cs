@@ -42,5 +42,6 @@ namespace DataModel
         public const string UpdateTurretDirection = "UpdateTurretDirection";
         public const string Fire = "Fire";
         public const string TakeDamage = "TakeDamage";
+        public const string Die = "Die";
     }
 }

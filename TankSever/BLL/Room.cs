@@ -72,7 +72,8 @@ namespace TankSever.BLL
                 FindTeamAndIndex(out team,out  index);
                 users.Add(index,user);
 
-                UpdateOwner();
+                if(users.Count==1)
+                    UpdateOwner();
 
                 // 设置用户信息
                 user.RoomDetail.Team = team;
@@ -146,9 +147,11 @@ namespace TankSever.BLL
 
         private void UpdateOwner()
         {
-            if(UserCount==1)
+            if(UserCount>=1)
             {
                 Owner = users.First().Value;
+                Owner.RoomDetail.IsRoomOwner = true;
+                Owner.RoomDetail.State = RoomUserStates.Ready;
             }
         }
 
@@ -226,6 +229,7 @@ namespace TankSever.BLL
                 if (!IsFullReady)
                     return false;
                 State = RoomState.Fight;
+
                 return true;
             }
         }

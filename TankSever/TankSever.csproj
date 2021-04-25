@@ -109,6 +109,7 @@
     <Compile Include="BLL\ControllerConst.cs" />
     <Compile Include="BLL\Controllers\BroadcastController.cs" />
     <Compile Include="BLL\Controllers\EventController.cs" />
+    <Compile Include="BLL\Controllers\EventController_Battleground.cs" />
     <Compile Include="BLL\DataCenter.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandler.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />

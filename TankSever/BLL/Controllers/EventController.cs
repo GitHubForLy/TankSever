@@ -11,7 +11,7 @@ using TankSever.BLL.Server;
 
 namespace TankSever.BLL.Controllers
 {
-    class EventController:Controller 
+    partial class EventController:Controller 
     {
         private User _user => User as User;
         //注册
@@ -117,7 +117,7 @@ namespace TankSever.BLL.Controllers
 
         public RoomUser[] GetRoomUsers(int roomid)
         {
-            return DataCenter.Rooms[roomid]?.GetUsers().Select(m=>m.RoomDetail).ToArray();
+            return DataCenter.Rooms[roomid]?.GetUsers().Select(m=>m.RoomDetail).ToArray()??new RoomUser[0];
         }
 
         public StandRespone RoomReady()
@@ -159,20 +159,7 @@ namespace TankSever.BLL.Controllers
                 return StandRespone.FailResult("操作失败");
         }
 
-        public StandRespone DoStartFight()
-        {
-            var room = _user.Room as Room;
-            if (_user.RoomDetail.State== RoomUserStates.Ready && _user.RoomDetail.IsRoomOwner && room.StartFight())
-            {
-                (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
-                //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
-                return StandRespone.SuccessResult("操作成功");
-            }
-            else
-            {
-                return StandRespone.FailResult("操作失败");
-            }
-        }
+
 
         [AllowAnonymous]
         public double CheckTime()
