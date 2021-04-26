@@ -30,6 +30,7 @@ namespace TankSever
         {          
             Program.NetServer.Start(new IPEndPoint(IPAddress.Any,int.Parse(txt_port.Text)));
             Program.BroadServer.Start();
+            Program.RoomServer.Start();
             lbx_log.Items.Add("[服务已启动]");
             btn_start.Enabled = false;
             btn_stop.Enabled = true;
@@ -60,6 +61,7 @@ namespace TankSever
         {
             Program.NetServer.Close();
             Program.BroadServer.Stop();
+            Program.RoomServer.Stop();
             lbx_log.Items.Add("[服务已停止]");
             btn_start.Enabled = true;
             btn_stop.Enabled = false;

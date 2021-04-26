@@ -17,12 +17,12 @@ namespace TankSever.BLL
         /// </summary>
         public int RoomCount => roomList.Count;
 
-        public int CreateRoom(string Name,User user, out int team,out int index)
+        public int CreateRoom(User user,RoomSetting setting, out int team,out int index)
         {
             lock(roomList)
             {
                 int id = FindMinEnableRoomId();
-                var room = new Room(id,Name);
+                var room = new Room(id, setting);
                 roomList.Add(id,room);
                 room.EnterRoom(user, out team,out index);
                 return id;

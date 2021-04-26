@@ -26,6 +26,10 @@ namespace TankSever
         /// 主窗口
         /// </summary>
         public static Form MainForm { get; private set; }
+        /// <summary>
+        /// 房间工作服务
+        /// </summary>
+        public static ServerBase RoomServer { get; private set; }
 
 
         /// <summary>
@@ -61,6 +65,8 @@ namespace TankSever
 
             BroadServer = new BroadcastServer(MainForm as MainForm);
             DataCenter.Init();
+
+            RoomServer = new RoomWorker(MainForm as MainForm);
         }
     }
 }

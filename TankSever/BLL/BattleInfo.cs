@@ -14,5 +14,8 @@ namespace TankSever.BLL
         public double transTime;
         public Vector3 velocity;
         public Vector3 Taregtion;
+
+        public int KillCount;
+        public int DeadCount;
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataModel;
+using TankSever.BLL.Server;
 
 namespace TankSever.BLL
 {
@@ -13,6 +14,8 @@ namespace TankSever.BLL
         SortedDictionary<int,User> users = new SortedDictionary<int, User>(); //(位置<=>玩家))
         private User Owner;
         private int teamCount;
+        private DateTime startTime;
+        private Dictionary<int, int> teamKillCount=new Dictionary<int, int>();
 
         /// <summary>
         /// 房间最大用户量
@@ -42,12 +45,15 @@ namespace TankSever.BLL
         /// </summary>
         public bool IsFullReady => users.All(m => m.Value.RoomDetail.State == RoomUserStates.Ready);
 
-        public Room(int roomid,string Name,int teamCount=2,int TeamMaxCount = 5)
+        public Room(int roomid, RoomSetting setting, int teamCount=2,int TeamMaxCount = 5)
         {
             this.RoomId = roomid;
-            this.Name = Name;
             this.teamCount = teamCount;
             this.teamUsesrCount = TeamMaxCount;
+            this.Setting = setting;
+
+            for(int i=0;i<teamCount;i++)
+                teamKillCount.Add(i, 0);
 
             State = RoomState.Waiting;
         }
@@ -229,9 +235,73 @@ namespace TankSever.BLL
                 if (!IsFullReady)
                     return false;
                 State = RoomState.Fight;
+                startTime = DateTime.Now;
 
                 return true;
             }
+        }
+
+        public void KillUser(User killer,User diead)
+        {
+            killer.BattleInfo.KillCount++;
+            diead.BattleInfo.DeadCount++;
+
+            lock(teamKillCount)
+            {
+                teamKillCount[killer.RoomDetail.Team]++;
+            }
+        }
+
+        public bool CheckGameFinished(out int team)
+        {
+            team = -1;
+            lock (teamKillCount)
+            {
+                if (Setting.Mode == FightMode.KillCount)
+                {
+                    foreach (var kv in teamKillCount)
+                    {
+                        if (kv.Value >= Setting.TargetKillCount)
+                        {
+                            team = kv.Key;
+                            return true;
+                        }
+                    }
+                }
+                else if (Setting.Mode == FightMode.Time)
+                {
+                    var time = GetRemainingTime();
+                    if (time <= 0)
+                    {
+                        int count = 0, n = 0;
+                        foreach (var kv in teamKillCount)
+                        {
+                            if (kv.Value > count)
+                            {
+                                n = 1;
+                                team = kv.Key;
+                                count = kv.Value;
+                            }
+                            else if (kv.Value == count)
+                                n++;
+                        }
+                        if (n > 1)              //平局（多个队伍的击杀数都是最高且一样）
+                            team = -1;
+
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public int GetRemainingTime()
+        {
+            if (State != RoomState.Fight)
+                return -1;
+            var remain = (DateTime.Now - startTime).TotalSeconds;
+            return (int)remain;
+            //(Program.BroadServer as BroadcastServer).BroadcastRoom((RoomId, BroadcastActions.RemainingTime, remain));
         }
     }
 }

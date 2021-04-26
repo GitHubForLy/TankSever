@@ -74,14 +74,14 @@ namespace TankSever.BLL.Controllers
         }
 
 
-        public StandRespone CreateRoom(string Name)
+        public StandRespone CreateRoom(RoomSetting setting)
         {
             var user = User as User;
 
             if (user.RoomDetail.State != RoomUserStates.None)
                 return StandRespone.FailResult("已经在房中 不能创建房间");
 
-            var romid= DataCenter.Rooms.CreateRoom(Name, user, out int team,out int index);
+            var romid= DataCenter.Rooms.CreateRoom(user, setting, out int team,out int index);
             (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.CreateRoom, user.Room));
             (Program.BroadServer as BroadcastServer).BroadcastRoom((romid, BroadcastActions.RoomChange, user.RoomDetail));
             //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));

@@ -43,5 +43,7 @@ namespace DataModel
         public const string Fire = "Fire";
         public const string TakeDamage = "TakeDamage";
         public const string Die = "Die";
+        public const string RemainingTime = "RemainingTime";
+        public const string GameFinished = "GameFinished";
     }
 }

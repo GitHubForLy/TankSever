@@ -14,11 +14,12 @@ namespace DataModel
 
     public class RoomInfo
     {
-        public string Name;
         public int RoomId;
         public RoomState State;
         public virtual int UserCount { get; set; }
         public virtual int MaxCount { get; set; }
+
+        public virtual RoomSetting Setting { get; set; }
 
         public override bool Equals(object obj)
         {

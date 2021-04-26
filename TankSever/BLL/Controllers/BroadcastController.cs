@@ -28,11 +28,8 @@ namespace TankSever.BLL.Controllers
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTurretDirection,(_user.UserName,TargetDirection)));
         }
 
-        static int id = 0;
         public void Fire()
         {
-            id++;
-            System.Diagnostics.Debug.WriteLine("idc:" + id);
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserName));
         }
 
@@ -44,6 +41,7 @@ namespace TankSever.BLL.Controllers
 
         public void Die(string killAccount)
         {
+            (_user.Room as Room).KillUser(_user, DataCenter.Users[killAccount]);
             (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Die, (_user.UserName, killAccount)));
         }
 

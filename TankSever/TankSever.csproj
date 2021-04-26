@@ -115,6 +115,7 @@
     <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />
     <Compile Include="BLL\Room.cs" />
     <Compile Include="BLL\RoomManager.cs" />
+    <Compile Include="BLL\RoomWorker.cs" />
     <Compile Include="BLL\Server\BroadcastServer.cs" />
     <Compile Include="BLL\Sys.cs" />
     <Compile Include="BLL\User.cs" />
