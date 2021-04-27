@@ -58,10 +58,24 @@ namespace TankSever.BLL
             State = RoomState.Waiting;
         }
 
-        public bool EnterRoom(User user,out int team,out int index)
+        /// <summary>
+        /// 校验房间密码
+        /// </summary>
+        /// <param name="password"></param>
+        public bool CheckPassword(string password)
         {
-            team = -1;
-            index = -1;
+            if (!Setting.HasPassword)
+                return true;
+            if (string.IsNullOrEmpty(password))
+                return false;
+            return password == Setting.Password;
+        }
+
+
+        public bool EnterRoom(User user)
+        {
+            var team = -1;
+            var index = -1;
             lock (users)
             {
                 if (IsFull)
@@ -252,6 +266,11 @@ namespace TankSever.BLL
             }
         }
 
+        /// <summary>
+        /// 检查游戏是否结束
+        /// </summary>
+        /// <param name="team">胜利队伍 平局返回-1</param>
+        /// <returns></returns>
         public bool CheckGameFinished(out int team)
         {
             team = -1;
@@ -267,6 +286,9 @@ namespace TankSever.BLL
                             return true;
                         }
                     }
+                    var time = GetRemainingTime();
+                    if (time <= 0)
+                        return true;
                 }
                 else if (Setting.Mode == FightMode.Time)
                 {
@@ -292,7 +314,27 @@ namespace TankSever.BLL
                     }
                 }
             }
+
             return false;
+        }
+
+        /// <summary>
+        /// 结束房间游戏 并初始化房间状态和玩家状态
+        /// </summary>
+        public void DoFinished()
+        {
+            State = RoomState.Waiting;
+
+            lock(users)
+            {
+                foreach (var uer in users)
+                    uer.Value.RoomDetail.State = uer.Value == Owner ? RoomUserStates.Ready : RoomUserStates.Waiting;
+            }
+            lock(teamKillCount)
+            {
+                for (int i=0;i<teamCount;i++)
+                    teamKillCount[i] = 0;
+            }
         }
 
         public int GetRemainingTime()
@@ -300,7 +342,7 @@ namespace TankSever.BLL
             if (State != RoomState.Fight)
                 return -1;
             var remain = (DateTime.Now - startTime).TotalSeconds;
-            return (int)remain;
+            return Setting.MaxTime-(int)remain;
             //(Program.BroadServer as BroadcastServer).BroadcastRoom((RoomId, BroadcastActions.RemainingTime, remain));
         }
     }

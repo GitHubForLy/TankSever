@@ -81,12 +81,12 @@ namespace TankSever.BLL.Controllers
             if (user.RoomDetail.State != RoomUserStates.None)
                 return StandRespone.FailResult("已经在房中 不能创建房间");
 
-            var romid= DataCenter.Rooms.CreateRoom(user, setting, out int team,out int index);
+            var room= DataCenter.Rooms.CreateRoom(user, setting);
             (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.CreateRoom, user.Room));
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((romid, BroadcastActions.RoomChange, user.RoomDetail));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
             //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));
             //DataCenter.BroadcastRoomQueue.Enqueue((romid,BroadcastActions.RoomChange, user.RoomDetail));
-            return new StandRespone<int>(true, "创建成功", romid);
+            return new StandRespone<RoomInfo>(true, "创建成功", room);
         }
 
         public StandRespone LeaveRoom()
@@ -100,19 +100,22 @@ namespace TankSever.BLL.Controllers
             return new StandRespone(suc);
         }
 
-        public StandRespone JoinRoom(int roomid)
+        public StandRespone JoinRoom((int roomid,string password)data)
         {
             var user = User as User;
 
             if (user.RoomDetail.State != RoomUserStates.None)
                 return StandRespone.FailResult("已经在房中 不能加入房间");
 
-            var suc = DataCenter.Rooms.JoinRoom(roomid, user, out int team, out int index);
+            if (!(DataCenter.Rooms[data.roomid]?.CheckPassword(data.password) ?? false))
+                return StandRespone.FailResult("房间密码错误");
+
+            var suc = DataCenter.Rooms.JoinRoom(data.roomid, user,out Room room);
             (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.JoinRoom, user.Room));
             (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
             //DataCenter.BroadcastRoomQueue.Enqueue((roomid,BroadcastActions.RoomChange,user.RoomDetail));
             //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.JoinRoom, user.Room));
-            return new StandRespone<int>(suc,suc?"加入成功":"加入失败", roomid);
+            return new StandRespone<RoomInfo>(suc,suc?"加入成功":"加入失败", room);
         }
 
         public RoomUser[] GetRoomUsers(int roomid)

@@ -15,7 +15,7 @@ namespace TankSever.BLL
 
         public RoomWorker(INotifier notifier):base(notifier)
         {
-            this.RunInterval = 1;
+            this.RunInterval = 1000;
         }
 
         public override void Run()
@@ -23,7 +23,7 @@ namespace TankSever.BLL
             Room[] rooms= (Room[])DataCenter.Rooms.GetRoomList();
             foreach(var room in rooms)
             {
-                if(room.State!= DataModel.RoomState.Fight)
+                if(room.State== DataModel.RoomState.Fight)
                 {
                     //广播游戏时间
                     var remain = room.GetRemainingTime();
@@ -32,6 +32,8 @@ namespace TankSever.BLL
                     //判断游戏结束 并广播
                     if(room.CheckGameFinished(out int team))
                     {
+                        room.DoFinished();
+                        (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.RoomWaitting, room));
                         (Program.BroadServer as BroadcastServer).BroadcastRoom((room.RoomId, BroadcastActions.GameFinished, team));
                     }
                 }

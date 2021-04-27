@@ -17,15 +17,15 @@ namespace TankSever.BLL
         /// </summary>
         public int RoomCount => roomList.Count;
 
-        public int CreateRoom(User user,RoomSetting setting, out int team,out int index)
+        public Room CreateRoom(User user,RoomSetting setting)
         {
             lock(roomList)
             {
                 int id = FindMinEnableRoomId();
                 var room = new Room(id, setting);
                 roomList.Add(id,room);
-                room.EnterRoom(user, out team,out index);
-                return id;
+                room.EnterRoom(user);
+                return room;
             }
         }
 
@@ -52,19 +52,20 @@ namespace TankSever.BLL
             return false;
         }
 
-        public bool JoinRoom(int RoomId, User user,out int team,out int index)
+        public bool JoinRoom(int RoomId, User user,out Room room)
         {
-            lock(roomList)
+            room = null;
+            lock (roomList)
             {
                 if(roomList.ContainsKey(RoomId))
                 {
-                    if (roomList[RoomId].EnterRoom(user, out team, out index))
+                    room = roomList[RoomId];
+                    if (roomList[RoomId].EnterRoom(user))
                     {
                         return true;
                     }
                     return false;
                 }
-                index= team = -1;
                 return false;
             }
         }

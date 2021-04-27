@@ -38,6 +38,8 @@ namespace DataModel
         public const string LeaveRoom = "LeaveRoom";
         public const string BroadcastRoomMsg = "BroadcastRoomMsg";
         public const string DoStartFight = "DoStartFight";
+        public const string RoomFight = "RoomFight";
+        public const string RoomWaitting = "RoomWaitting";
 
         public const string UpdateTurretDirection = "UpdateTurretDirection";
         public const string Fire = "Fire";

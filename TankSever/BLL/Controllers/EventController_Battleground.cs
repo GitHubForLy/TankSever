@@ -16,6 +16,7 @@ namespace TankSever.BLL.Controllers
             if (_user.RoomDetail.State == RoomUserStates.Ready && _user.RoomDetail.IsRoomOwner && room.StartFight())
             {
                 (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
+                (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.RoomFight, room));
                 //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.DoStartFight, null));
                 return StandRespone.SuccessResult("操作成功");
             }
