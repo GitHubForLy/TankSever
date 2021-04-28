@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ServerCommon.Protocol;
 using ServerCommon.NetServer;
 using ServerCommon;
-using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace NetCore.Server
 {
@@ -69,6 +69,8 @@ namespace NetCore.Server
             {
                 if (CheckHeart(data))  //心跳包
                     return false;
+
+                //var st=Stopwatch.StartNew();
                 try 
                 {
                     token.ProtocolHandler.DoRequest(data);
@@ -79,11 +81,14 @@ namespace NetCore.Server
                     Notify(NotifyType.Error,"处理数据出错:"+ err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
                     return false;
                 }
+                //var re = st.ElapsedMilliseconds;
 
                 if(token.ProtocolHandler.TryGetRespone(out byte[] res))
                 {
                     var senddata = DataPackage.PackData(res);
                     token.SendEventArgs.SetBuffer(senddata, 0, senddata.Length);
+                    //System.Diagnostics.Debug.WriteLine("re:"+re + "  request data time:" + st.ElapsedMilliseconds);
+                    //token.st = st;
                     SendAsync(token);    //发送数据
                     return true;
                 }

@@ -31,6 +31,8 @@ namespace ServerCommon.NetServer
         /// </summary>
         public bool IsLogined => User.IsLogined;
 
+        public System.Diagnostics.Stopwatch st;
+
         public Socket ConnectSocket
         {
             set

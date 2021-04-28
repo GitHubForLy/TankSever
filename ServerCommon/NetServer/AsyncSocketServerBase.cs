@@ -320,6 +320,7 @@ namespace ServerCommon.NetServer
             lock(userToken)
             {
                 userToken.SendEvent.WaitOne();
+                //System.Diagnostics.Debug.WriteLine("send begin:" + userToken.st.ElapsedMilliseconds);
                 if (!userToken.ConnectSocket.SendAsync(userToken.SendEventArgs))
                     ProcessSend(userToken.SendEventArgs);
             }       
@@ -328,7 +329,8 @@ namespace ServerCommon.NetServer
         private void ProcessSend(SocketAsyncEventArgs e)
         {
             AsyncUserToken userToken = e.UserToken as AsyncUserToken;
-            lock(userToken)
+            //System.Diagnostics.Debug.WriteLine("send end:" + userToken.st.ElapsedMilliseconds + "\n");
+            lock (userToken)
             {
                 if (!userToken.IsActive)
                     return;

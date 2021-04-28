@@ -16,8 +16,8 @@ namespace DataModel
 
     public class Transform
     {
-        public Vector3 Position;
-        public Vector3 Rotation;
+        public Vector3 Position=new Vector3();
+        public Vector3 Rotation=new Vector3();
     }
 
     public class LoginInfo
