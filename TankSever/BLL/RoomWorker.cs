@@ -25,17 +25,18 @@ namespace TankSever.BLL
             {
                 if(room.State== DataModel.RoomState.Fight)
                 {
-                    //广播游戏时间
+
                     var remain = room.GetRemainingTime();
-                    (Program.BroadServer as BroadcastServer).BroadcastRoom((room.RoomId, BroadcastActions.RemainingTime, remain));
 
                     //判断游戏结束 并广播
-                    if(room.CheckGameFinished(out int team))
+                    if (room.CheckGameFinished(out int team))
                     {
                         room.DoFinished();
                         (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.RoomWaitting, room));
                         (Program.BroadServer as BroadcastServer).BroadcastRoom((room.RoomId, BroadcastActions.GameFinished, team));
                     }
+                    //广播游戏时间
+                    (Program.BroadServer as BroadcastServer).BroadcastRoom((room.RoomId, BroadcastActions.RemainingTime, remain));
                 }
             }
         }
