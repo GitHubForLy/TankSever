@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataModel;
+using DBCore;
 using ServerCommon;
 
 namespace TankSever.BLL
@@ -32,14 +33,15 @@ namespace TankSever.BLL
         /// </summary>
         public string LoginTimestamp { get; private set; }
 
-        public override void Login(string UserName)
+        public override void Login(string account)
         {
-            base.Login(UserName);
+            base.Login(account);
             BattleInfo = new BattleInfo();
-            RoomDetail.Account = UserName;
+            RoomDetail.Info = DBServer.Instance.GetUserInfo(account).Data;
+            RoomDetail.Account = account;
      
-            if(DataCenter.Users.HasUser(UserName))
-                OnUserLogout?.Invoke(DataCenter.Users[UserName]);
+            if(DataCenter.Users.HasUser(account))
+                OnUserLogout?.Invoke(DataCenter.Users[account]);
 
             DataCenter.Users.AddUser(this);
             LoginTimestamp = GetTimestamp();
@@ -48,7 +50,7 @@ namespace TankSever.BLL
         public override void LoginOut()
         {
             OnUserLogout?.Invoke(this);
-            DataCenter.Users.RemoveUser(UserName);
+            DataCenter.Users.RemoveUser(UserAccount);
             BattleInfo = null;
 
             base.LoginOut();

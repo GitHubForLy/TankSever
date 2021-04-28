@@ -72,12 +72,15 @@ namespace DBCore
         ///     </code>
         /// </example>
 
-        public StandRespone Regeister(string userAccount,string password,string salt)
+        public StandRespone Regeister(string userName,string userAccount,string password,string salt)
         {
-            if (!userAccount.IsDBSafe() || !password.IsDBSafe())
+            if (!userAccount.IsDBSafe() || !password.IsDBSafe()|| !userName.IsDBSafe())
                 return StandRespone.UnSafeResult();
 
             var executer=DBExecuterFactory.CreateDBExecuter();
+
+            if(!System.Text.RegularExpressions.Regex.IsMatch(userName, @"^[0-9a-zA-Z_]{1,}$"))
+                return StandRespone.FailResult("用户账号只能保护数字字母下划线");
 
             try
             {
@@ -86,8 +89,9 @@ namespace DBCore
                     return new StandRespone(false, "用户已存在!");
                 
                 var trans= executer.Connection.BeginTransaction();
-                var insertUser = $"insert into userinfo (account,create_date,status) " +
-                    $"values('{userAccount}',now(),'{UserStatus.Normal}');"+
+                var insertUser = $"insert into userinfo (account,create_date,status,user_name) " +
+                    $"values('{userAccount}',now(),'{UserStatus.Normal}','{userName}');"+
+
                     $"insert into user_password(user_id,password,salt) " +
                     $"values(@@identity,'{password}','{salt}')";
                 executer.ExecuteNonQuery(insertUser);
@@ -103,6 +107,34 @@ namespace DBCore
             finally
             {
                 executer.Close();
+            }
+        }
+
+        /// <summary>
+        /// 获取用户信息
+        /// </summary>
+        public StandRespone<UserInfo> GetUserInfo(string account)
+        {
+            if (!account.IsDBSafe())
+                return StandRespone<UserInfo>.UnSafeResult();
+
+            using (var executer = DBExecuterFactory.CreateDBExecuter())
+            {
+                var cmd = $"select user_name,account from userinfo " +      
+                    $"where account='{account}'";
+
+                var reader= executer.ExecuteReader(cmd);
+                reader.Read();
+                if(!reader.HasRows)
+                    return StandRespone<UserInfo>.FailResult("没有该账号信息");
+
+                UserInfo userInfo = new UserInfo
+                {
+                    //Account = reader["account"].ToString(),
+                    UserName = reader["user_name"].ToString()
+                };
+
+                return new StandRespone<UserInfo> { IsSuccess = true, Data = userInfo };
             }
         }
 

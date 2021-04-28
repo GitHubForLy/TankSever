@@ -47,7 +47,7 @@ namespace TankSever.BLL.Protocol
                     return true;
             }
 
-            Notify(NotifyType.Message, "请求:["+ controller.User.UserName+"][" + _req.Controller + "][" + _req.Action + "]");
+            Notify(NotifyType.Message, "请求:["+ controller.User.UserAccount + "][" + _req.Controller + "][" + _req.Action + "]");
 
             var pars = method.GetParameters();
             if(pars.Length>1)

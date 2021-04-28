@@ -19,7 +19,7 @@ namespace ServerCommon
         /// <summary>
         /// 用户名
         /// </summary>
-        public string UserName { get; private set; }
+        public string UserAccount { get; private set; }
 
         /// <summary>
         /// 是否登录
@@ -35,7 +35,7 @@ namespace ServerCommon
         /// <param name="UserName"></param>
         public virtual void Login(string UserName)
         {
-            this.UserName = UserName;
+            this.UserAccount = UserName;
             //UserCenter.Instance.UserLogin(UserName, this);
             IsLogined = true;
         }

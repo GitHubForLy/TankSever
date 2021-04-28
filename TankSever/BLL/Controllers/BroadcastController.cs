@@ -26,24 +26,24 @@ namespace TankSever.BLL.Controllers
         public void UpdateTurretDirection(Vector3 TargetDirection)
         {
             _user.BattleInfo.Taregtion = TargetDirection;
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTurretDirection,(_user.UserName,TargetDirection)));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.UpdateTurretDirection,(_user.UserAccount, TargetDirection)));
         }
 
         public void Fire()
         {
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserName));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Fire,_user.UserAccount));
         }
 
         public void TakeDamage(float damage)
         {         
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.TakeDamage, (_user.UserName,damage)));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.TakeDamage, (_user.UserAccount, damage)));
         }
 
 
         public void Die(string killAccount)
         {
             (_user.Room as Room).KillUser(_user, DataCenter.Users[killAccount]);
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Die, (_user.UserName, killAccount)));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.Die, (_user.UserAccount, killAccount)));
         }
 
 
@@ -85,7 +85,7 @@ namespace TankSever.BLL.Controllers
 
         public void BroadcastRoomMsg(string message)
         {
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName, message)));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserAccount, message)));
             //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName,message)));
         }
     }

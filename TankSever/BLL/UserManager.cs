@@ -19,41 +19,41 @@ namespace TankSever.BLL
         {
             lock (Users)
             {
-                if (Users.ContainsKey(user.UserName))
+                if (Users.ContainsKey(user.UserAccount))
                 {
-                    Users[user.UserName] = user;
+                    Users[user.UserAccount] = user;
                 }
                 else
-                    Users.Add(user.UserName, user);
+                    Users.Add(user.UserAccount, user);
             }
         }
 
-        public bool HasUser(string UserName)
+        public bool HasUser(string UserAccount)
         {
-            return Users.ContainsKey(UserName);
+            return Users.ContainsKey(UserAccount);
         }
 
-        public bool RemoveUser(string userName)
+        public bool RemoveUser(string UserAccount)
         {
             lock (Users)
             {
-                if (Users.ContainsKey(userName))
+                if (Users.ContainsKey(UserAccount))
                 {
-                    return Users.Remove(userName);
+                    return Users.Remove(UserAccount);
                 }
                 return false;
             }
         }
 
-        public User this[string userName]
+        public User this[string UserAccount]
         {
             get
             {
                 lock(Users)
                 {
-                    if (!Users.ContainsKey(userName))
+                    if (!Users.ContainsKey(UserAccount))
                         return null;
-                    return Users[userName];
+                    return Users[UserAccount];
                 }
             }
         }

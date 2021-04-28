@@ -37,6 +37,7 @@ namespace DataModel
     {
         //public int RoomId;
         public string Account;
+        public UserInfo Info;
         public enum RoomOpeartion
         {
             Create,

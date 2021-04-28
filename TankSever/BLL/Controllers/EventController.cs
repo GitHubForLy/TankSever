@@ -25,7 +25,7 @@ namespace TankSever.BLL.Controllers
             var saltpass = Encoding.UTF8.GetBytes(request.Password).Concat(salt).ToArray();
             var crpPass = md5.ComputeHash(saltpass);
 
-            return DBServer.Instance.Regeister(request.UserName, Convert.ToBase64String(crpPass), Convert.ToBase64String(salt));
+            return DBServer.Instance.Regeister(request.UserName,request.UserAccount, Convert.ToBase64String(crpPass), Convert.ToBase64String(salt));
         }
 
         //登录
@@ -54,6 +54,13 @@ namespace TankSever.BLL.Controllers
             }
             else
                 return res;
+        }
+
+        //获取用户信息
+        public StandRespone<UserInfo> GetUserInfo()
+        {
+            var res = DBServer.Instance.GetUserInfo(_user.UserAccount);
+            return res;
         }
 
         public void Logout()

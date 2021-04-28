@@ -22,7 +22,7 @@ namespace TankSever.BLL.Server
 
         private void Instance_OnUserLoginout(User user)
         {
-            BroadcastMessage(BroadcastActions.Loginout, (user.UserName,user.LoginTimestamp));
+            BroadcastMessage(BroadcastActions.Loginout, (user.UserAccount, user.LoginTimestamp));
             if (user.RoomDetail.State != RoomUserStates.None)
             {
                 if (!DataCenter.Rooms.LeaveRoom(user))
@@ -30,10 +30,10 @@ namespace TankSever.BLL.Server
                 BroadcastMessage(BroadcastActions.LeaveRoom, user.Room);
                 BroadcastRoom((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
 
-                Notify(NotifyType.Message, user.UserName + " 用户登出 自动退出房间", this);
+                Notify(NotifyType.Message, user.UserAccount + " 用户登出 自动退出房间", this);
             }
             else
-                Notify(NotifyType.Message, user.UserName + " 用户登出", this);
+                Notify(NotifyType.Message, user.UserAccount + " 用户登出", this);
         }
         DateTime time = DateTime.Now;
         public override void Run()
@@ -46,7 +46,7 @@ namespace TankSever.BLL.Server
                     if (rom.State != RoomState.Fight)
                         continue;
 
-                    var set= (rom as Room).GetUsers().Select(m => (m.UserName, m.BattleInfo.transTime, m.BattleInfo.Trans)).ToArray();
+                    var set= (rom as Room).GetUsers().Select(m => (m.UserAccount, m.BattleInfo.transTime, m.BattleInfo.Trans)).ToArray();
 
                     BroadcastRoom((rom.RoomId, BroadcastActions.UpdateTransform,
                         set));
