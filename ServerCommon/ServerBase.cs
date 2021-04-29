@@ -22,7 +22,7 @@ namespace ServerCommon
         }
 
 
-        public void Start()
+        public virtual void Start()
         {
             _thread = new Thread(ThreadStart);
             _thread.IsBackground = true;
@@ -30,7 +30,7 @@ namespace ServerCommon
             _thread.Start();
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             IsStop = true;
         }

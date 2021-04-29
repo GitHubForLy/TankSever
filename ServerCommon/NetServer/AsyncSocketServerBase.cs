@@ -476,5 +476,14 @@ namespace ServerCommon.NetServer
                 }
             }
         }
+
+        public void Send(AsyncUserToken token, byte[] data)
+        {
+            token.ConnectSocket.Send(data);
+        }
+        public void Receive(AsyncUserToken token,ref byte[]  data)
+        {
+            token.ConnectSocket.Receive(data);
+        }
     }
 }

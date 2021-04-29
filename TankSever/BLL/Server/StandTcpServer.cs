@@ -1,14 +1,12 @@
-﻿using System;
+﻿using ServerCommon;
+using ServerCommon.NetServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ServerCommon.Protocol;
-using ServerCommon.NetServer;
-using ServerCommon;
-using System.Diagnostics;
 
-namespace NetCore.Server
+namespace TankSever.BLL.Server
 {
     public delegate void OnRequestEventHandle(string UserCode);
     /// <summary>
@@ -34,7 +32,7 @@ namespace NetCore.Server
         /// </summary>
         protected override AsyncUserToken CreateUserToken()
         {
-            var token =new PackageUserToken(this, ReceiveBufferSize);
+            var token = new PackageUserToken(this, ReceiveBufferSize);
             token.ProtocolHandler = ProtoFactory.CreateProtocolHandler(token);
             return token;
         }
@@ -65,25 +63,25 @@ namespace NetCore.Server
         /// <returns>返回true代表内部已进行接收 否则没有进行接收需要调用方再进行接收</returns>
         private bool DataHandle(PackageUserToken token)
         {
-            if(token.Pakcage.OutgoingPackage(out byte[] data))
+            if (token.Pakcage.OutgoingPackage(out byte[] data))
             {
                 if (CheckHeart(data))  //心跳包
                     return false;
 
                 //var st=Stopwatch.StartNew();
-                try 
+                try
                 {
                     token.ProtocolHandler.DoRequest(data);
                 }
-                catch(Exception err)
+                catch (Exception err)
                 {
                     System.Diagnostics.Debugger.Break();
-                    Notify(NotifyType.Error,"处理数据出错:"+ err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
+                    Notify(NotifyType.Error, "处理数据出错:" + err.Message + ", " + (err.InnerException == null ? "" : err.InnerException.Message), this);
                     return false;
                 }
                 //var re = st.ElapsedMilliseconds;
 
-                if(token.ProtocolHandler.TryGetRespone(out byte[] res))
+                if (token.ProtocolHandler.TryGetRespone(out byte[] res))
                 {
                     var senddata = DataPackage.PackData(res);
                     token.SendEventArgs.SetBuffer(senddata, 0, senddata.Length);
@@ -104,14 +102,14 @@ namespace NetCore.Server
         {
             if (data == null || data.Length != heartbyte.Length)
                 return false;
-            for(int i=0;i<heartbyte.Length;i++)
+            for (int i = 0; i < heartbyte.Length; i++)
             {
                 if (data[i] != heartbyte[i])
                     return false;
             }
             return true;
         }
-        
+
         /// <summary>
         /// 关闭并回收连接对象
         /// </summary>
@@ -135,9 +133,9 @@ namespace NetCore.Server
         /// 广播数据
         /// </summary>
         /// <param name="data"></param>
-        public override void Broadcast(byte[] data,bool isNeedLogin=true)
+        public override void Broadcast(byte[] data, bool isNeedLogin = true)
         {
-            Broadcast(data,null, isNeedLogin);
+            Broadcast(data, null, isNeedLogin);
         }
 
         public override void Broadcast(byte[] data, AsyncUser[] users, bool IsNeedLogin)

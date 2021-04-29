@@ -12,5 +12,7 @@ namespace ServerCommon
     public interface IServer
     {
         string ServerName { get; }
+
+
     }
 }

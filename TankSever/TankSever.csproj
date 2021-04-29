@@ -117,6 +117,7 @@
     <Compile Include="BLL\RoomManager.cs" />
     <Compile Include="BLL\RoomWorker.cs" />
     <Compile Include="BLL\Server\BroadcastServer.cs" />
+    <Compile Include="BLL\Server\StandTcpServer.cs" />
     <Compile Include="BLL\Sys.cs" />
     <Compile Include="BLL\User.cs" />
     <Compile Include="BLL\UserManager.cs" />
@@ -159,6 +160,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AutoUpdate\AutoUpdate.csproj">
+      <Project>{70814cb4-b04d-4685-86e2-f85f4d666dbf}</Project>
+      <Name>AutoUpdate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataModel\DataModel.csproj">
       <Project>{21dd6df1-ea2a-4810-8ddf-d21537cb36f1}</Project>
       <Name>DataModel</Name>
@@ -170,10 +175,6 @@
     <ProjectReference Include="..\JsonFormatter\JsonFormatter.csproj">
       <Project>{f7abae2d-89b0-4987-bf1e-7fb73824bd99}</Project>
       <Name>JsonFormatter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NetCore\NetCore.csproj">
-      <Project>{5c2e9e88-98ec-415f-ad04-d3cbf81d4ab9}</Project>
-      <Name>NetCore</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServerCommon\ServerCommon.csproj">
       <Project>{6bb75930-151f-4cb4-acb9-1a3411dc4d0c}</Project>

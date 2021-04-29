@@ -10,7 +10,7 @@ using ServerCommon.DB;
 using ServerCommon.NetServer;
 using TankSever.BLL.Server;
 using TankSever.BLL;
-
+using AutoUpdate;
 
 namespace TankSever
 {
@@ -30,6 +30,8 @@ namespace TankSever
         /// 房间工作服务
         /// </summary>
         public static ServerBase RoomServer { get; private set; }
+
+        public static ServerBase UpdateServer { get; private set; }
 
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace TankSever
             DataCenter.Init();
 
             RoomServer = new RoomWorker(MainForm as MainForm);
+            UpdateServer = new UpdateServer(new System.Net.IPEndPoint(System.Net.IPAddress.Any,4788),MainForm as MainForm);
         }
     }
 }

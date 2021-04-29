@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetCore.Server
+namespace ServerCommon.NetServer
 {
     /// <summary>
     /// 数据包管理类  （由于tcp的粘包和分包现象,所以要有此类来管理数据包:将输入的数据进行解析  头四个字节为当前包的长度 然后解析包）
@@ -13,7 +13,7 @@ namespace NetCore.Server
     {
         private List<byte> data;
         private int firstPackageLength;//第一个数据包的长度
-        private const int packageHeaderLength= sizeof(int);
+        private const int packageHeaderLength = sizeof(int);
 
 
         public DataPackage()
@@ -52,15 +52,15 @@ namespace NetCore.Server
         /// <summary>
         /// 加入数据段
         /// </summary>
-        public void IncommingData(byte[] buffer,int offset,int length)
+        public void IncommingData(byte[] buffer, int offset, int length)
         {
             if (buffer.Length <= 0)
                 return;
-          
+
             data.AddRange(buffer.Skip(offset).Take(length));
             if (firstPackageLength == 0)
             {
-                if(data.Count< packageHeaderLength)
+                if (data.Count < packageHeaderLength)
                     return;
 
                 firstPackageLength = BitConverter.ToInt32(data.ToArray(), 0);
@@ -91,12 +91,12 @@ namespace NetCore.Server
             byte[] res = new byte[firstPackageLength - packageHeaderLength];
             data.CopyTo(packageHeaderLength, res, 0, firstPackageLength - packageHeaderLength);
             data.RemoveRange(0, firstPackageLength);
-          
+
 
             if (data.Count < packageHeaderLength)
                 firstPackageLength = 0;
             else
-                firstPackageLength= BitConverter.ToInt32(data.ToArray(), 0);
+                firstPackageLength = BitConverter.ToInt32(data.ToArray(), 0);
 
             return res;
         }
@@ -107,7 +107,7 @@ namespace NetCore.Server
         public bool OutgoingPackage(out byte[] package)
         {
             package = OutgoingPackage();
-            return package != null;        
+            return package != null;
         }
 
     }

@@ -8,6 +8,7 @@ using DBCore;
 using ServerCommon.Protocol;
 using DataModel;
 using TankSever.BLL.Server;
+using AutoUpdate;
 
 namespace TankSever.BLL.Controllers
 {
@@ -68,11 +69,19 @@ namespace TankSever.BLL.Controllers
             User.LoginOut();
         }
 
+        public StandRespone CheckVersion(float version)
+        {
+            float highVer= (Program.UpdateServer as UpdateServer).Manager.GetHighVersion();
 
-        //public List<(string,Transform)> GetPlayerTransforms()
-        //{
-        //    return DataCenter.Instance.GetTransforms();
-        //}
+            if(version< highVer)
+            {
+                (Program.UpdateServer as UpdateServer).Manager.GetDiffFiles(version, out _, out _, out long size);
+                return new StandRespone<(float,long)> { IsSuccess = false, Data = (highVer,size) };
+            }
+            return StandRespone.SuccessResult("最新版本");
+        }
+
+
 
 
         public RoomInfo[] RoomList()
