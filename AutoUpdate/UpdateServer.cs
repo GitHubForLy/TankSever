@@ -15,15 +15,17 @@ namespace AutoUpdate
     public class UpdateServer:ServerBase
     {
         public string UpdateDirectory = ".\\Update";
-        public override string ServerName => throw new NotImplementedException();
+        public override string ServerName => "UpdateServer";
 
         public UpdateManager Manager => _manager;
 
         private UpdateManager _manager;
         private TcpListener tcpListener;
+        private DataPackage package;
 
         public UpdateServer(IPEndPoint pt,INotifier notifier) : base(notifier)
         {
+            package = new DataPackage();
             _manager = new UpdateManager();
             _manager.UpdateDirectory = UpdateDirectory;
 
@@ -44,18 +46,40 @@ namespace AutoUpdate
             base.Stop();
         }
 
+        private byte[] ReadBuffer(NetworkStream stream)
+        {
+            byte[] buffer = new byte[1024];
+
+            while(!package.CanOutPackage())
+            {
+                var count=stream.Read(buffer, 0, buffer.Length);
+                package.IncommingData(buffer, 0, count);
+            }
+            return package.OutgoingPackage();
+        }
+
+        private void WriteBuffer(NetworkStream stream,byte[] data)
+        {
+            WriteBuffer(stream, data, 0, data.Length);
+        }
+        private void WriteBuffer(NetworkStream stream, byte[] data,int index,int length)
+        {
+            data = DataPackage.PackData(data.Skip(index).Take(length).ToArray());
+            stream.Write(data, 0, data.Length);
+        }
+
         private void OnAccept(TcpClient client)
         {
             client.ReceiveTimeout = 10*1000;
             var stream= client.GetStream();
 
 
-            byte[] buffer=new byte[20];
-            client.SendBufferSize = 1024;
+            byte[] buffer;
+            client.SendBufferSize = 1024*10;
             byte[] sendBuffer = new byte[client.SendBufferSize];
             int count;
 
-            stream.Read(buffer, 0, buffer.Length);
+            buffer= ReadBuffer(stream);
             var str= Encoding.UTF8.GetString(buffer, 0, buffer.Length);
 
 
@@ -65,7 +89,7 @@ namespace AutoUpdate
                 _manager.GetDiffFiles(version, out (string, string)[] addfiles, out string[] delfiles, out long size);
 
                 var filesAndSize = Encoding.UTF8.GetBytes(addfiles.Length + "|" + size);
-                stream.Write(filesAndSize, 0, filesAndSize.Length);
+                WriteBuffer(stream, filesAndSize);
 
                 foreach (var file in addfiles)
                 {
@@ -73,12 +97,15 @@ namespace AutoUpdate
                     {
                         //发送文件名和大小
                         var data = Encoding.UTF8.GetBytes(file.Item2 + "|" + fs.Length);
-                        stream.Write(data, 0, data.Length);
+                        WriteBuffer(stream,data);
+
+                        System.Diagnostics.Debug.WriteLine("file:" + file.Item1);
 
                         //读取该文件从多少字节开始发送
-                        count= stream.Read(buffer, 0, buffer.Length);
-                        int pos = BitConverter.ToInt32(buffer, 0);
+                        buffer =ReadBuffer(stream);
+                        long pos = BitConverter.ToInt64(buffer, 0);
                         fs.Seek(pos, SeekOrigin.Begin);
+                        System.Diagnostics.Debug.WriteLine("seek:" + pos);
 
                         //发送文件内容
                         while (!IsStop)
@@ -86,14 +113,16 @@ namespace AutoUpdate
                             count = fs.Read(sendBuffer, 0, sendBuffer.Length);
                             if (count <= 0)
                                 break;
-                            stream.Write(sendBuffer, 0, count);
+
+                            WriteBuffer(stream, sendBuffer, 0, count);
                         }
                     }
                 }
 
                 //发送删除文件列表
                 var dels =Encoding.UTF8.GetBytes(string.Join("|", delfiles));
-                stream.Write(dels, 0, dels.Length);
+                WriteBuffer(stream, dels);
+                System.Diagnostics.Debug.WriteLine("完成");
             }
             client.Close();
         }
