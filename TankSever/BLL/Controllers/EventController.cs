@@ -69,6 +69,7 @@ namespace TankSever.BLL.Controllers
             User.LoginOut();
         }
 
+        [AllowAnonymous]
         public StandRespone CheckVersion(float version)
         {
             float highVer= (Program.UpdateServer as UpdateServer).Manager.GetHighVersion();

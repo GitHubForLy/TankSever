@@ -22,7 +22,9 @@ namespace DataModel
         public const string RoomChangeIndex = "RoomChangeIndex";
         public const string DoStartFight = "DoStartFight";
         public const string CheckTime = "CheckTime";
-        public const string GetUserInfo = "GetUserInfo";     
+        public const string GetUserInfo = "GetUserInfo";
+        public const string CheckVersion = "CheckVersion";
+       
     }
 
     public class BroadcastActions

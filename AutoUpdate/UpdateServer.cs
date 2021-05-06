@@ -86,9 +86,17 @@ namespace AutoUpdate
             if (str[0] == 'S')
             {
                 float version =float.Parse(str.Substring(1));
+                float hiversion= _manager.GetHighVersion();
+                if (version >= hiversion)
+                {
+                    client.Close();
+                    return; 
+                }
+
                 _manager.GetDiffFiles(version, out (string, string)[] addfiles, out string[] delfiles, out long size);
 
-                var filesAndSize = Encoding.UTF8.GetBytes(addfiles.Length + "|" + size);
+
+                var filesAndSize = Encoding.UTF8.GetBytes(addfiles.Length + "|" + size+"|"+ hiversion);
                 WriteBuffer(stream, filesAndSize);
 
                 foreach (var file in addfiles)
