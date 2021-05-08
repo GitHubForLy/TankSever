@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncUserContext.cs" />
+    <Compile Include="NetServer\ClientUdp.cs" />
     <Compile Include="NetServer\DataPackage.cs" />
     <Compile Include="NetServer\PackageUserToken.cs" />
     <Compile Include="NetServer\UdpServerBase.cs" />

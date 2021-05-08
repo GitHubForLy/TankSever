@@ -27,8 +27,11 @@ namespace TankSever
         }
 
         private void btn_start_Click(object sender, EventArgs e)
-        {          
-            Program.NetServer.Start(new IPEndPoint(IPAddress.Any,int.Parse(txt_port.Text)));
+        {
+            InitConfig();
+
+
+            Program.NetServer.Start(new IPEndPoint(IPAddress.Any, GlobalConfig.TcpPort));
             Program.BroadServer.Start();
             Program.RoomServer.Start();
             Program.UpdateServer.Start();
@@ -39,6 +42,11 @@ namespace TankSever
             netTimer.Enabled = true;
         }
 
+        private void InitConfig()
+        {
+            GlobalConfig.TcpPort = short.Parse(txt_tcp_port.Text);
+            GlobalConfig.UdpPort = short.Parse(txt_udp_port.Text);
+        }
 
         public void OnNotify(NotifyType type, string logInfo, IServer sender)
         {

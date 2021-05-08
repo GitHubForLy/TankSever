@@ -105,12 +105,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\Battle.cs" />
     <Compile Include="BLL\BattleInfo.cs" />
     <Compile Include="BLL\ControllerConst.cs" />
     <Compile Include="BLL\Controllers\BroadcastController.cs" />
     <Compile Include="BLL\Controllers\EventController.cs" />
     <Compile Include="BLL\Controllers\EventController_Battleground.cs" />
     <Compile Include="BLL\DataCenter.cs" />
+    <Compile Include="BLL\GlobalConfig.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandler.cs" />
     <Compile Include="BLL\Protocol\ProtocolHandlerFactory.cs" />
     <Compile Include="BLL\Room.cs" />

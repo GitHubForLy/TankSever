@@ -16,6 +16,7 @@ namespace TankSever.BLL
         private int teamCount;
         private DateTime startTime;
         private Dictionary<int, int> teamKillCount=new Dictionary<int, int>();
+        private Battle battle;
 
         /// <summary>
         /// 房间最大用户量
@@ -250,6 +251,9 @@ namespace TankSever.BLL
                     return false;
                 State = RoomState.Fight;
                 startTime = DateTime.Now;
+
+                battle = new Battle(this);
+                battle.StartBattle();
 
                 return true;
             }

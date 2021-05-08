@@ -39,16 +39,18 @@ namespace TankSever
             this.tssl_resbytes = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssl_conncount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tssl_usercount = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbx_log = new TankSever.ListBoxEx();
             this.btn_test = new System.Windows.Forms.Button();
             this.btn_stop = new System.Windows.Forms.Button();
             this.btn_start = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
-            this.txt_port = new System.Windows.Forms.TextBox();
+            this.txt_tcp_port = new System.Windows.Forms.TextBox();
             this.netTimer = new System.Windows.Forms.Timer(this.components);
-            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tssl_usercount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txt_udp_port = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -136,6 +138,19 @@ namespace TankSever
             this.tssl_conncount.Size = new System.Drawing.Size(15, 17);
             this.tssl_conncount.Text = "0";
             // 
+            // toolStripStatusLabel4
+            // 
+            this.toolStripStatusLabel4.Margin = new System.Windows.Forms.Padding(20, 3, 0, 2);
+            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(35, 17);
+            this.toolStripStatusLabel4.Text = "用户:";
+            // 
+            // tssl_usercount
+            // 
+            this.tssl_usercount.Name = "tssl_usercount";
+            this.tssl_usercount.Size = new System.Drawing.Size(15, 17);
+            this.tssl_usercount.Text = "0";
+            // 
             // lbx_log
             // 
             this.lbx_log.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
@@ -177,8 +192,10 @@ namespace TankSever
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.txt_udp_port);
+            this.tabPage2.Controls.Add(this.label1);
             this.tabPage2.Controls.Add(this.label2);
-            this.tabPage2.Controls.Add(this.txt_port);
+            this.tabPage2.Controls.Add(this.txt_tcp_port);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -192,35 +209,39 @@ namespace TankSever
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(72, 53);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 12);
+            this.label2.Size = new System.Drawing.Size(83, 12);
             this.label2.TabIndex = 3;
-            this.label2.Text = "监听端口：";
+            this.label2.Text = "tcp监听端口：";
             // 
-            // txt_port
+            // txt_tcp_port
             // 
-            this.txt_port.Location = new System.Drawing.Point(143, 50);
-            this.txt_port.Name = "txt_port";
-            this.txt_port.Size = new System.Drawing.Size(100, 21);
-            this.txt_port.TabIndex = 1;
-            this.txt_port.Text = "4789";
+            this.txt_tcp_port.Location = new System.Drawing.Point(161, 50);
+            this.txt_tcp_port.Name = "txt_tcp_port";
+            this.txt_tcp_port.Size = new System.Drawing.Size(100, 21);
+            this.txt_tcp_port.TabIndex = 1;
+            this.txt_tcp_port.Text = "4789";
             // 
             // netTimer
             // 
             this.netTimer.Interval = 1000;
             this.netTimer.Tick += new System.EventHandler(this.netTimer_Tick);
             // 
-            // toolStripStatusLabel4
+            // label1
             // 
-            this.toolStripStatusLabel4.Margin = new System.Windows.Forms.Padding(20, 3, 0, 2);
-            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(35, 17);
-            this.toolStripStatusLabel4.Text = "用户:";
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(72, 86);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 12);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "udp监听端口：";
             // 
-            // tssl_usercount
+            // txt_udp_port
             // 
-            this.tssl_usercount.Name = "tssl_usercount";
-            this.tssl_usercount.Size = new System.Drawing.Size(15, 17);
-            this.tssl_usercount.Text = "0";
+            this.txt_udp_port.Location = new System.Drawing.Point(161, 83);
+            this.txt_udp_port.Name = "txt_udp_port";
+            this.txt_udp_port.Size = new System.Drawing.Size(100, 21);
+            this.txt_udp_port.TabIndex = 5;
+            this.txt_udp_port.Text = "4790";
             // 
             // MainForm
             // 
@@ -250,7 +271,7 @@ namespace TankSever
         private System.Windows.Forms.Button btn_start;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txt_port;
+        private System.Windows.Forms.TextBox txt_tcp_port;
         private System.Windows.Forms.Button btn_test;
         private ListBoxEx lbx_log;
         private System.Windows.Forms.StatusStrip statusStrip1;
@@ -263,6 +284,8 @@ namespace TankSever
         private System.Windows.Forms.ToolStripStatusLabel tssl_resbytes;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel tssl_usercount;
+        private System.Windows.Forms.TextBox txt_udp_port;
+        private System.Windows.Forms.Label label1;
     }
 }
 
