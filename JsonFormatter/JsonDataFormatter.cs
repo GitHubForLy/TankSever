@@ -13,10 +13,10 @@ namespace JsonFormatter
     {
         public Encoding FormatterEncoding { get; set; } = Encoding.UTF8;
 
-        public object Deserialize(byte[] data)
+        public object Deserialize(Type type,byte[] data)
         {
             var jsonstr = FormatterEncoding.GetString(data);
-            return JsonConvert.DeserializeObject(jsonstr);
+            return JsonConvert.DeserializeObject(jsonstr,type);
         }
 
         public T Deserialize<T>(byte[] data)

@@ -9,23 +9,15 @@ namespace ServerCommon.Protocol
 {
     public abstract class ProtocolHandlerBase : IProtocolHandler
     {
-        private IDataFormatter _formatter;
         private bool _hasRespone;
-        private object _respone;
+        private byte[] _respone;
 
         internal AsyncUserToken AsyncToken;
-        public IDataFormatter Formatter => _formatter;
-
-        public ProtocolHandlerBase()
-        {
-            _formatter = DI.Instance.Resolve<IDataFormatter>();
-        }
 
         //执行请求
         public void DoRequest(byte[] req)
         {
-            var reqobj= _formatter.DeserializeDynamic(req);
-            var contro= CreateController(reqobj);
+            var contro= CreateController(req);
             if(contro==null)
             {
                 _hasRespone = false;
@@ -33,7 +25,7 @@ namespace ServerCommon.Protocol
             }
 
             ControllerPropertyInit(contro);
-            _hasRespone= TryExecuteAction(contro,out _respone);
+            _hasRespone= TryExecuteAction(contro, out _respone);
             ReleaseController(contro);
         }
 
@@ -42,10 +34,10 @@ namespace ServerCommon.Protocol
         /// </summary>
         /// <param name="res"></param>
         /// <returns>有相应则返回true否则返回true</returns>
-        public bool TryGetRespone(out byte[] res)
+        public virtual bool TryGetRespone(out byte[] res)
         {
             if (_hasRespone)
-                res = _formatter.Serialize(_respone);
+                res = _respone;
             else
                 res = null;
             return _hasRespone;
@@ -61,9 +53,9 @@ namespace ServerCommon.Protocol
         /// 创建控制器
         /// </summary>
         /// <param name="RequestObj">请求对象</param>
-        public abstract IController CreateController(IDynamicType requestData);
+        public abstract IController CreateController(byte[] requestData);
 
-        public abstract bool TryExecuteAction(IController controller, out object res);
+        public abstract bool TryExecuteAction(IController controller, out byte[] res);
 
         /// <summary>
         /// 释放控制器

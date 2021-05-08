@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DataModel;
+//using DataModel;
 using TankSever.BLL.Server;
+using ProtobufProto.Model;
 
 namespace TankSever.BLL
 {
-    public class Room:RoomInfo
+    public class Room
     {
         private int teamUsesrCount;   //每个队伍最大数量
         SortedDictionary<int,User> users = new SortedDictionary<int, User>(); //(位置<=>玩家))
@@ -17,29 +18,30 @@ namespace TankSever.BLL
         private DateTime startTime;
         private Dictionary<int, int> teamKillCount=new Dictionary<int, int>();
         private Battle battle;
+        public RoomInfo Info { get; }
 
-        /// <summary>
-        /// 房间最大用户量
-        /// </summary>
-        public override int MaxCount => teamUsesrCount * teamCount;
+        ///// <summary>
+        ///// 房间最大用户量
+        ///// </summary>
+        //public override int MaxCount => teamUsesrCount * teamCount;
 
-        /// <summary>
-        /// 当前用户数
-        /// </summary>
-        public override int UserCount
-        {
-            get
-            {
-                lock(users)
-                {
-                    return users.Count;
-                }
-            }    
-        }
+        ///// <summary>
+        ///// 当前用户数
+        ///// </summary>
+        //public override int UserCount
+        //{
+        //    get
+        //    {
+        //        lock(users)
+        //        {
+        //            return users.Count;
+        //        }
+        //    }    
+        //}
         /// <summary>
         /// 是否已经满员
         /// </summary>
-        public bool IsFull => UserCount >= MaxCount;
+        public bool IsFull => Info.UserCount >=Info.MaxCount;
 
         /// <summary>
         /// 是否全员准备
@@ -48,15 +50,17 @@ namespace TankSever.BLL
 
         public Room(int roomid, RoomSetting setting, int teamCount=2,int TeamMaxCount = 5)
         {
-            this.RoomId = roomid;
+            Info = new RoomInfo()
+            {
+                RoomId = roomid,
+                Setting = setting,
+                State=RoomState.RoomWaiting
+            };
             this.teamCount = teamCount;
             this.teamUsesrCount = TeamMaxCount;
-            this.Setting = setting;
 
             for(int i=0;i<teamCount;i++)
                 teamKillCount.Add(i, 0);
-
-            State = RoomState.Waiting;
         }
 
         /// <summary>
@@ -65,11 +69,11 @@ namespace TankSever.BLL
         /// <param name="password"></param>
         public bool CheckPassword(string password)
         {
-            if (!Setting.HasPassword)
+            if (!Info.Setting.HasPassword)
                 return true;
             if (string.IsNullOrEmpty(password))
                 return false;
-            return password == Setting.Password;
+            return password == Info.Setting.Password;
         }
 
 
@@ -87,7 +91,7 @@ namespace TankSever.BLL
 
                 if (users.ContainsValue(user))
                     return false;
-                if (State != RoomState.Waiting)
+                if (Info.State != RoomState.RoomWaiting)
                     return false;
 
                 FindTeamAndIndex(out team,out  index);
@@ -99,7 +103,7 @@ namespace TankSever.BLL
                 // 设置用户信息
                 user.RoomDetail.Team = team;
                 user.RoomDetail.Index = index;
-                user.RoomDetail.LastOpeartion = Owner==user?RoomUser.RoomOpeartion.Create:RoomUser.RoomOpeartion.Join;
+                user.RoomDetail.LastOpeartion = Owner==user? RoomUser.Types.RoomOpeartion.Create:RoomUser.Types.RoomOpeartion.Join;
                 user.RoomDetail.State = Owner == user ? RoomUserStates.Ready : RoomUserStates.Waiting;
                 user.RoomDetail.IsRoomOwner = Owner == user;
                 user.Room = this;
@@ -122,7 +126,7 @@ namespace TankSever.BLL
                     {
                         users.Remove(us.Key);
 
-                        user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.Leave;
+                        user.RoomDetail.LastOpeartion = RoomUser.Types.RoomOpeartion.Leave;
                         user.RoomDetail.State = RoomUserStates.None;
                         user.RoomDetail.IsRoomOwner = false;
 
@@ -168,7 +172,7 @@ namespace TankSever.BLL
 
         private void UpdateOwner()
         {
-            if(UserCount>=1)
+            if(Info.UserCount>=1)
             {
                 Owner = users.First().Value;
                 Owner.RoomDetail.IsRoomOwner = true;
@@ -193,10 +197,10 @@ namespace TankSever.BLL
             {
                 if (user.State != RoomUserStates.Waiting)
                     return false;
-                if (State != RoomState.Waiting)
+                if (Info.State != RoomState.RoomWaiting)
                     return false;
                 user.State = RoomUserStates.Ready;
-                user.LastOpeartion = RoomUser.RoomOpeartion.Ready;
+                user.LastOpeartion = RoomUser.Types.RoomOpeartion.Ready;
                 return true;
             }
         }
@@ -212,10 +216,10 @@ namespace TankSever.BLL
                     return false;
                 if (user.RoomDetail.State != RoomUserStates.Ready)
                     return false;
-                if (State != RoomState.Waiting)
+                if (Info.State != RoomState.RoomWaiting)
                     return false;
                 user.RoomDetail.State = RoomUserStates.Waiting;
-                user.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.CancelReady;
+                user.RoomDetail.LastOpeartion = RoomUser.Types.RoomOpeartion.CancelReady;
                 return true;
             }
         }
@@ -231,14 +235,14 @@ namespace TankSever.BLL
                     return false;
                 if (users.ContainsKey(index))
                     return false;
-                if (index >= MaxCount)
+                if (index >= Info.MaxCount)
                     return false;
 
                 users.Remove(roomUser.RoomDetail.Index);
                 users.Add(index, roomUser);
                 roomUser.RoomDetail.Team = (int)(index / teamUsesrCount);
                 roomUser.RoomDetail.Index = index;
-                roomUser.RoomDetail.LastOpeartion = RoomUser.RoomOpeartion.ChangeIndex;
+                roomUser.RoomDetail.LastOpeartion = RoomUser.Types.RoomOpeartion.ChangeIndex;
                 return true;
             }
         }
@@ -249,7 +253,7 @@ namespace TankSever.BLL
             {
                 if (!IsFullReady)
                     return false;
-                State = RoomState.Fight;
+                Info.State = RoomState.RoomFight;
                 startTime = DateTime.Now;
 
                 battle = new Battle(this);
@@ -280,11 +284,11 @@ namespace TankSever.BLL
             team = -1;
             lock (teamKillCount)
             {
-                if (Setting.Mode == FightMode.KillCount)
+                if (Info.Setting.Mode == FightMode.KillCount)
                 {
                     foreach (var kv in teamKillCount)
                     {
-                        if (kv.Value >= Setting.TargetKillCount)
+                        if (kv.Value >=Info. Setting.TargetKillCount)
                         {
                             team = kv.Key;
                             return true;
@@ -294,7 +298,7 @@ namespace TankSever.BLL
                     if (time <= 0)
                         return true;
                 }
-                else if (Setting.Mode == FightMode.Time)
+                else if (Info.Setting.Mode == FightMode.Time)
                 {
                     var time = GetRemainingTime();
                     if (time <= 0)
@@ -327,7 +331,7 @@ namespace TankSever.BLL
         /// </summary>
         public void DoFinished()
         {
-            State = RoomState.Waiting;
+            Info.State = RoomState.RoomWaiting;
 
             lock(users)
             {
@@ -343,10 +347,10 @@ namespace TankSever.BLL
 
         public int GetRemainingTime()
         {
-            if (State != RoomState.Fight)
+            if (Info.State != RoomState.RoomFight)
                 return -1;
             var remain = (DateTime.Now - startTime).TotalSeconds;
-            return Setting.MaxTime-(int)remain;
+            return Info.Setting.MaxTime-(int)remain;
             //(Program.BroadServer as BroadcastServer).BroadcastRoom((RoomId, BroadcastActions.RemainingTime, remain));
         }
     }

@@ -8,94 +8,98 @@ using DataModel;
 using ServerCommon;
 using TankSever.BLL.Controllers;
 using System.Reflection;
+using ProtobufProto.Model;
 
 namespace TankSever.BLL.Protocol
 {
     public sealed class ProtocolHandler : ProtocolHandlerBase
     {
-        private IDynamicType _dynamicData;
-        private Request _req;
+        //private IDynamicType _dynamicData;
+        //private Request _req;
+        private  byte[] reqData;
+        private TcpFlags action;
+        private IDataFormatter formatter;
 
-        public override IController CreateController(IDynamicType data)
+        public override IController CreateController(byte[] data)
         {
-            _req = data.GetValue<Request>();
-
-            _dynamicData= data.GetChid(nameof(_req.Data));
-            switch (_req.Controller)
-            {
-                case ControllerConst.Event:
-                    return new EventController();
-                case ControllerConst.Broad:
-                    return new BroadcastController();
-            }
-            return null;
+            reqData = ProtobufDataPackage.UnPackageData(data, out action);
+            formatter = DI.Instance.Resolve<IDataFormatter>();
+            //简单一点先直接返回这个控制器   之后复杂一点可以反射遍历所有控制器然后创建
+            return new EventController();
         }
 
-        public override bool TryExecuteAction(IController controller, out object res)
+        public override bool TryExecuteAction(IController controller, out byte[] res)
         {
             res = null;
+            object resobj;
             List<object> pendingPars = new List<object>();
-            var method= controller.GetType().GetMethod(_req.Action);
+
+            var methods = controller.GetType().GetMethods(BindingFlags.Public|BindingFlags.Instance);
+            MethodInfo method=null;
+            foreach (var md in methods)
+            {
+                if (md.IsDefined(typeof(RequestAttribute)))
+                {
+                    var attr= md.GetCustomAttribute<RequestAttribute>();
+                    if(attr.ReqestType==action)
+                    {
+                        method = md;
+                        break;
+                    }
+                }
+            }
+
+
             if(method==null)
                 return false;
 
-            if (!Auth(controller,method, out res))
+            if (!Auth(controller,method))
             {
+                resobj = StandRespone.FailResult("请求未授权");
                 if (method.ReturnType == typeof(void))
                     return false;
                 else
+                {
+                    res = ProtobufDataPackage.PackageData(action, formatter.Serialize(resobj));
                     return true;
+                }
             }
 
-            Notify(NotifyType.Message, "请求:["+ controller.User.UserAccount + "][" + _req.Controller + "][" + _req.Action + "]");
+            Notify(NotifyType.Message, "请求:["+ controller.User.UserAccount + "][" + action.ToString() + "]");
 
             var pars = method.GetParameters();
             if(pars.Length>1)
             {
-                foreach (var par in pars)
-                {
-                    var data = _dynamicData.GetChid(par.Name)?.GetValue(par.ParameterType);
-                    pendingPars.Add(data);
-                }
+                //控制器方法参数个数大于1 暂时不处理
+                Notify(NotifyType.Warning, "请求的方法参数大于1，请求将被忽略,方法名:" + method.Name);
+                return false;
             }
             else if(pars.Length==1)
             {
-                var data = _dynamicData.GetValue(pars[0].ParameterType);
+                var data = formatter.Deserialize(pars[0].ParameterType, reqData);
                 pendingPars.Add(data);
             }
-
     
-            res=method.Invoke(controller, pendingPars.ToArray());
+            resobj=method.Invoke(controller, pendingPars.ToArray());
 
             if (method.ReturnType == typeof(void))
                 return false;
 
-            var respone = new Respone<object>
-            {
-                RequestId = _req.RequestId,
-                Controller = _req.Controller,
-                Action = _req.Action,
-                Data = res
-            };
-
-            res = respone;
+            res=ProtobufDataPackage.PackageData(action, formatter.Serialize(resobj));
             return true;
         }
 
         /// <summary>
         /// 登陆验证    暂时写成这样 之后可以添加 action过滤器来实现
         /// </summary>
-        private bool Auth(IController controller,MethodInfo Action,out object UnAuthRes)
+        private bool Auth(IController controller,MethodInfo Action)
         {
-            UnAuthRes = null;
-
             if (controller.GetType().IsDefined(typeof(AllowAnonymousAttribute))
                 || Action.IsDefined(typeof(AllowAnonymousAttribute)))
                 return true;
 
             if (!controller.User.IsLogined)
             {
-                UnAuthRes = StandRespone.FailResult("请求未授权");
                 return false;
             }
 

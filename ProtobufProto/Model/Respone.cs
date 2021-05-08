@@ -25,17 +25,16 @@ namespace ProtobufProto.Model {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg1SZXNwb25lLnByb3RvEhNQcm90b2J1ZlByb3RvLk1vZGVsGhlnb29nbGUv",
-            "cHJvdG9idWYvQW55LnByb3RvInUKB1Jlc3BvbmUSEgoKQ29udHJvbGxlchgB",
-            "IAEoCRIOCgZBY3Rpb24YAiABKAkSEQoJSXNTdWNjZXNzGAMgASgIEg8KB01l",
-            "c3NhZ2UYBCABKAkSIgoERGF0YRgFIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5B",
-            "bnkiWAoDUm93EiwKBUNlbGxzGAEgAygLMh0uUHJvdG9idWZQcm90by5Nb2Rl",
-            "bC5Sb3cuQ2VsbBojCgRDZWxsEgwKBE5hbWUYASABKAkSDQoFVmFsdWUYAiAB",
-            "KAkiQAoFVGFibGUSDwoHY29sdW1ucxgBIAMoCRImCgRSb3dzGAIgAygLMhgu",
-            "UHJvdG9idWZQcm90by5Nb2RlbC5Sb3diBnByb3RvMw=="));
+            "cHJvdG9idWYvQW55LnByb3RvIlEKB1Jlc3BvbmUSEQoJSXNTdWNjZXNzGAMg",
+            "ASgIEg8KB01lc3NhZ2UYBCABKAkSIgoERGF0YRgFIAEoCzIULmdvb2dsZS5w",
+            "cm90b2J1Zi5BbnkiWAoDUm93EiwKBUNlbGxzGAEgAygLMh0uUHJvdG9idWZQ",
+            "cm90by5Nb2RlbC5Sb3cuQ2VsbBojCgRDZWxsEgwKBE5hbWUYASABKAkSDQoF",
+            "VmFsdWUYAiABKAkiQAoFVGFibGUSDwoHY29sdW1ucxgBIAMoCRImCgRSb3dz",
+            "GAIgAygLMhguUHJvdG9idWZQcm90by5Nb2RlbC5Sb3diBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.AnyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Respone), global::ProtobufProto.Model.Respone.Parser, new[]{ "Controller", "Action", "IsSuccess", "Message", "Data" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Respone), global::ProtobufProto.Model.Respone.Parser, new[]{ "IsSuccess", "Message", "Data" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Row), global::ProtobufProto.Model.Row.Parser, new[]{ "Cells" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Row.Types.Cell), global::ProtobufProto.Model.Row.Types.Cell.Parser, new[]{ "Name", "Value" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::ProtobufProto.Model.Table), global::ProtobufProto.Model.Table.Parser, new[]{ "Columns", "Rows" }, null, null, null, null)
           }));
@@ -76,8 +75,6 @@ namespace ProtobufProto.Model {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Respone(Respone other) : this() {
-      controller_ = other.controller_;
-      action_ = other.action_;
       isSuccess_ = other.isSuccess_;
       message_ = other.message_;
       data_ = other.data_ != null ? other.data_.Clone() : null;
@@ -87,28 +84,6 @@ namespace ProtobufProto.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Respone Clone() {
       return new Respone(this);
-    }
-
-    /// <summary>Field number for the "Controller" field.</summary>
-    public const int ControllerFieldNumber = 1;
-    private string controller_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Controller {
-      get { return controller_; }
-      set {
-        controller_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "Action" field.</summary>
-    public const int ActionFieldNumber = 2;
-    private string action_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string Action {
-      get { return action_; }
-      set {
-        action_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
     }
 
     /// <summary>Field number for the "IsSuccess" field.</summary>
@@ -157,8 +132,6 @@ namespace ProtobufProto.Model {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Controller != other.Controller) return false;
-      if (Action != other.Action) return false;
       if (IsSuccess != other.IsSuccess) return false;
       if (Message != other.Message) return false;
       if (!object.Equals(Data, other.Data)) return false;
@@ -168,8 +141,6 @@ namespace ProtobufProto.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Controller.Length != 0) hash ^= Controller.GetHashCode();
-      if (Action.Length != 0) hash ^= Action.GetHashCode();
       if (IsSuccess != false) hash ^= IsSuccess.GetHashCode();
       if (Message.Length != 0) hash ^= Message.GetHashCode();
       if (data_ != null) hash ^= Data.GetHashCode();
@@ -189,14 +160,6 @@ namespace ProtobufProto.Model {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Controller.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Controller);
-      }
-      if (Action.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Action);
-      }
       if (IsSuccess != false) {
         output.WriteRawTag(24);
         output.WriteBool(IsSuccess);
@@ -218,14 +181,6 @@ namespace ProtobufProto.Model {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Controller.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Controller);
-      }
-      if (Action.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Action);
-      }
       if (IsSuccess != false) {
         output.WriteRawTag(24);
         output.WriteBool(IsSuccess);
@@ -247,12 +202,6 @@ namespace ProtobufProto.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Controller.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Controller);
-      }
-      if (Action.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Action);
-      }
       if (IsSuccess != false) {
         size += 1 + 1;
       }
@@ -272,12 +221,6 @@ namespace ProtobufProto.Model {
     public void MergeFrom(Respone other) {
       if (other == null) {
         return;
-      }
-      if (other.Controller.Length != 0) {
-        Controller = other.Controller;
-      }
-      if (other.Action.Length != 0) {
-        Action = other.Action;
       }
       if (other.IsSuccess != false) {
         IsSuccess = other.IsSuccess;
@@ -305,14 +248,6 @@ namespace ProtobufProto.Model {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
-            Controller = input.ReadString();
-            break;
-          }
-          case 18: {
-            Action = input.ReadString();
-            break;
-          }
           case 24: {
             IsSuccess = input.ReadBool();
             break;
@@ -342,14 +277,6 @@ namespace ProtobufProto.Model {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            Controller = input.ReadString();
-            break;
-          }
-          case 18: {
-            Action = input.ReadString();
-            break;
-          }
           case 24: {
             IsSuccess = input.ReadBool();
             break;

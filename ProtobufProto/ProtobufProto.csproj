@@ -31,12 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Google.Protobuf, Version=3.15.6.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Protobuf.3.15.6\lib\net45\Google.Protobuf.dll</HintPath>
+    <Reference Include="Google.Protobuf, Version=3.16.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.16.0\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=3.0.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.3.0.101\lib\net461\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.Core.3.0.101\lib\net461\protobuf-net.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.7.1\lib\net461\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -62,23 +71,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controller\BoradcastController.cs" />
-    <Compile Include="Data\DataCenter.cs" />
-    <Compile Include="IActionResult.cs" />
-    <Compile Include="Model\Boradcast.cs" />
-    <Compile Include="ProtobufActionExecuter.cs" />
-    <Compile Include="Controller\EventController.cs" />
-    <Compile Include="ProtobufExecuteContext.cs" />
+    <Compile Include="ProtobufFormatter.cs" />
+    <Compile Include="Model\Data.cs" />
+    <Compile Include="Model\Types.cs" />
     <Compile Include="Model\Respone.cs" />
-    <Compile Include="ProtobufHandler.cs" />
-    <Compile Include="Model\Request.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StandController.cs" />
+    <Compile Include="ToolHelp.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Model\Boradcast.proto" />
+    <None Include="Model\Data.proto" />
     <None Include="Model\google\protobuf\any.proto" />
     <None Include="Model\google\protobuf\api.proto" />
     <None Include="Model\google\protobuf\descriptor.proto" />
@@ -90,15 +93,11 @@
     <None Include="Model\google\protobuf\timestamp.proto" />
     <None Include="Model\google\protobuf\type.proto" />
     <None Include="Model\google\protobuf\wrappers.proto" />
-    <None Include="Model\Request.proto" />
+    <None Include="Model\Types.proto" />
     <None Include="Model\Respone.proto" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DBCore\DBCore.csproj">
-      <Project>{ec1fcbad-d7d8-40a0-a633-df805d4a2ff2}</Project>
-      <Name>DBCore</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ServerCommon\ServerCommon.csproj">
       <Project>{6bb75930-151f-4cb4-acb9-1a3411dc4d0c}</Project>
       <Name>ServerCommon</Name>

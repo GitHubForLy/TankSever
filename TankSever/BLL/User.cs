@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DataModel;
+//using DataModel;
 using DBCore;
 using ServerCommon;
+using ProtobufProto.Model;
 
 namespace TankSever.BLL
 {
@@ -24,7 +25,7 @@ namespace TankSever.BLL
         /// <summary>
         /// 所在的房间
         /// </summary>
-        public RoomInfo Room { get; set; }
+        public Room Room { get; set; }
 
         public static event Action<User> OnUserLogout;
 
@@ -37,7 +38,7 @@ namespace TankSever.BLL
         {
             base.Login(account);
             BattleInfo = new BattleInfo();
-            RoomDetail.Info = DBServer.Instance.GetUserInfo(account).Data;
+            RoomDetail.Info = DBServer.Instance.GetUserInfo(account).Data.Unpack<UserInfo>();
             RoomDetail.Account = account;
      
             if(DataCenter.Users.HasUser(account))

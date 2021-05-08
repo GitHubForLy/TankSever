@@ -6,8 +6,6 @@ import "google/protobuf/Any.proto";
 
 //数据响应
 message Respone{  
-    string Controller=1;
-    string Action=2;
     bool   IsSuccess=3;
     string  Message=4;
 

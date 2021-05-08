@@ -10,5 +10,10 @@ namespace TankSever.BLL
     {
         public static int TcpPort;
         public static int UdpPort;
+
+        /// <summary>
+        /// 帧同步延时毫秒
+        /// </summary>
+        public static int FrameDuration = 100;
     }
 }

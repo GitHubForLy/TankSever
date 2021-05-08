@@ -15,14 +15,10 @@ namespace ServerCommon
         /// <summary>
         /// 反序列化
         /// </summary>
-        object Deserialize(byte[] data);
+        object Deserialize(Type type,byte[] data);
         /// <summary>
         /// 反序列化
         /// </summary>
         T Deserialize<T>(byte[] data);
-        /// <summary>
-        /// 反序列化为 动态类型
-        /// </summary>
-        IDynamicType DeserializeDynamic(byte[] data);
     }
 }

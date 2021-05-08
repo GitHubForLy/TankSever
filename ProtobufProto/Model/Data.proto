@@ -1,0 +1,135 @@
+﻿syntax="proto3";
+
+package ProtobufProto.Model;
+
+//三维向量
+message Vector3{
+	float X=1;
+	float Y=2;
+	float Z=3;
+}
+
+//转换信息
+message Transform{
+	Vector3 Position=1;
+	Vector3 Rotation=2;
+}
+
+message PlayerTransform{
+	string Account=1;
+	Transform Trans=2;
+}
+
+message PlayerTransformMap{
+	map<string ,Transform> Transforms=1;
+}
+
+//单字符串消息
+message SingleString{
+	string data=1;
+}
+
+//单int类型消息
+message SingleInt{
+	int32 data=1;
+}
+
+//注册请求
+message RegistrRequest{
+    string Account=1;
+    string Password=2;
+    string UserName=3;
+}
+
+//登录请求
+message LoginRequest{
+    string Account=1;
+    string Password=2;
+}
+
+//用户信息
+message UserInfo
+{
+    string UserName=1;
+}
+
+message VersionInfo{
+	float HighVersion=1;
+	int64 SumSize=2;
+}
+
+enum RoomState{
+	RoomWaiting=0;
+	RoomFight=1;
+}
+
+// 对战模式
+enum FightMode{
+    KillCount=0;
+    Time=1;
+}
+
+message RoomSetting{
+    string RoomName=1;
+    FightMode Mode=2;
+    int32 MaxTime=3;
+    int32 TargetKillCount=4;
+
+    bool HasPassword=5;
+    string Password=6;
+}
+
+ message RoomInfo{
+    int32 RoomId=1;
+    RoomState State=2;
+    int32 UserCount =3;
+    int32 MaxCount =4;
+    RoomSetting Setting =5;
+}
+
+message RoomInfos{
+    repeated RoomInfo Infos=1;
+}
+
+/// <summary>
+/// 房间用户状态
+/// </summary>
+enum RoomUserStates
+{
+    // 在房间外
+    None=0;
+    // 加入房间但还没有准备
+    Waiting=1;
+    // 加入房间已准备
+    Ready=2;
+    // 已开始加入战斗
+    Fight=3;
+}
+
+
+/// 房间用户
+message RoomUser
+{
+    enum RoomOpeartion
+    {
+        Create=0;
+        Join=1;
+        Leave=2;
+        Ready=3;
+        CancelReady=4;
+        ChangeIndex=5;
+    }
+
+    string Account=1;
+    UserInfo Info=2;
+
+    /// 对所属房间的最后操作
+    RoomOpeartion LastOpeartion=3;
+    // 状态
+    RoomUserStates State=4;
+    // 是否房主
+    bool IsRoomOwner=5;
+
+    int32 Team=6;
+    int32 Index=7;
+}

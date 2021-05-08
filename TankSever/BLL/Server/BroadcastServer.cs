@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks; 
 using System.Threading;
 using ServerCommon;
-using DataModel;
+//using DataModel;
+using ProtobufProto.Model;
 
 namespace TankSever.BLL.Server
 {
@@ -22,20 +23,21 @@ namespace TankSever.BLL.Server
 
         private void Instance_OnUserLoginout(User user)
         {
-            BroadcastMessage(BroadcastActions.Loginout, (user.UserAccount, user.LoginTimestamp));
+            BroadcastMessage(TcpFlags.TcpLogout, (user.UserAccount, user.LoginTimestamp));
             if (user.RoomDetail.State != RoomUserStates.None)
             {
                 if (!DataCenter.Rooms.LeaveRoom(user))
                     throw new Exception("用户登出时离开房间失败");
-                BroadcastMessage(BroadcastActions.LeaveRoom, user.Room);
-                BroadcastRoom((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
+
+                BroadcastMessage(TcpFlags.TcpLeaveRoom, user.Room);
+                BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
 
                 Notify(NotifyType.Message, user.UserAccount + " 用户登出 自动退出房间", this);
             }
             else
                 Notify(NotifyType.Message, user.UserAccount + " 用户登出", this);
         }
-        DateTime time = DateTime.Now;
+
         public override void Run()
         {
             Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
@@ -43,15 +45,13 @@ namespace TankSever.BLL.Server
             {
                 foreach (var rom in DataCenter.Rooms.GetRoomList())
                 {
-                    if (rom.State != RoomState.Fight)
+                    if (rom.Info.State != RoomState.RoomFight)
                         continue;
 
-                    var set= (rom as Room).GetUsers().Select(m => (m.UserAccount, m.BattleInfo.transTime, m.BattleInfo.Trans)).ToArray();
+                    var set= rom.GetUsers().Select(m => (m.UserAccount, m.BattleInfo.transTime, m.BattleInfo.Trans)).ToArray();
 
-                    BroadcastRoom((rom.RoomId, BroadcastActions.UpdateTransform,
-                        set));
+                    BroadcastRoom((rom.Info.RoomId, TcpFlags.TcpUpdateTransform,set));
                 }
-                time = DateTime.Now;
 
                 //do
                 //{
@@ -85,12 +85,12 @@ namespace TankSever.BLL.Server
        
         }
 
-        public void BroadcastGlobal((string action, object data) data)
+        public void BroadcastGlobal((TcpFlags action, object data) data)
         {
             BroadcastMessage(data.action, data.data);
         }
 
-        public void BroadcastRoom((int roomid,string action, object data) data)
+        public void BroadcastRoom((int roomid, TcpFlags action, object data) data)
         {
             var room = DataCenter.Rooms[data.roomid];
             if(room != null)
@@ -99,7 +99,7 @@ namespace TankSever.BLL.Server
                 BroadcastMessage(data.action, users, data.data);
             }
         }
-        public void BroadcastTeam((int roomid,int teamid,string action, object data) data)
+        public void BroadcastTeam((int roomid,int teamid,TcpFlags action, object data) data)
         {
             var users = DataCenter.Rooms[data.roomid].GetUsers().Where(m=>m.RoomDetail.Team==data.teamid).ToArray();
             BroadcastMessage(data.action,users, data.data);
@@ -108,7 +108,7 @@ namespace TankSever.BLL.Server
         /// <summary>
         /// 广播消息
         /// </summary>
-        public void BroadcastMessage<T>(string action,T data)
+        public void BroadcastMessage<T>(TcpFlags action,T data)
         {
             BroadcastMessage(action, null, data);
         }
@@ -116,18 +116,13 @@ namespace TankSever.BLL.Server
         /// <summary>
         /// 广播给指定的用户数组消息
         /// </summary>
-        public void BroadcastMessage<T>(string action,AsyncUser[] users, T data)
+        public void BroadcastMessage<T>(TcpFlags action,AsyncUser[] users, T data)
         {
             Task.Run(() =>
             {
-                Respone<T> respone = new Respone<T>()
-            {
-                Controller = ControllerConst.Broad,
-                Action = action,
-                Data = data
-            };
-            var bytes = _dataFormatter.Serialize(respone);
-            Program.NetServer.Broadcast(bytes, users);
+                var bytes=    ProtobufDataPackage.PackageData(action, _dataFormatter.Serialize(data));
+
+                Program.NetServer.Broadcast(bytes, users);
             });
         }
 

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TankSever.BLL.Server;
-using DataModel;
+//using DataModel;
+using ProtobufProto.Model;
 
 namespace TankSever.BLL
 {
@@ -36,12 +37,12 @@ namespace TankSever.BLL
                 if (user.RoomDetail.State == RoomUserStates.None)
                     return false;
 
-                var id = user.Room.RoomId;
+                var id = user.Room.Info.RoomId;
                 if (roomList.ContainsKey(id))
                 {
                     if ((user.Room as Room).LeaveRoom(user))
                     {
-                        if (user.Room.UserCount <= 0)
+                        if (user.Room.Info.UserCount <= 0)
                               roomList.Remove(id);
                         return true;
                     }
@@ -89,7 +90,7 @@ namespace TankSever.BLL
         }
 
 
-        public RoomInfo[] GetRoomList()
+        public Room[] GetRoomList()
         {
             lock (roomList)
             {

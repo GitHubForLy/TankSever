@@ -11,7 +11,8 @@ using System.Data.Common;
 using Unity;
 using ServerCommon.DB;
 using ServerCommon.Protocol;
-using DataModel;
+using ProtobufProto.Model;
+using Google.Protobuf.WellKnownTypes;
 
 namespace DBCore
 {
@@ -72,22 +73,22 @@ namespace DBCore
         ///     </code>
         /// </example>
 
-        public StandRespone Regeister(string userName,string userAccount,string password,string salt)
+        public Respone Regeister(string userName,string userAccount,string password,string salt)
         {
-            if (!userAccount.IsDBSafe() || !password.IsDBSafe()|| !userName.IsDBSafe())
-                return StandRespone.UnSafeResult();
+            if (!userAccount.IsDBSafe() || !password.IsDBSafe() || !userName.IsDBSafe())
+                return new Respone() { IsSuccess = false, Message = "请求无效" };
 
             var executer=DBExecuterFactory.CreateDBExecuter();
 
             if(!System.Text.RegularExpressions.Regex.IsMatch(userName, @"^[0-9a-zA-Z_]{1,}$"))
-                return StandRespone.FailResult("用户账号只能保护数字字母下划线");
+                return new Respone() { IsSuccess = false, Message = "用户账号只能保护数字字母下划线" };
 
             try
             {
                 var queryExitUser = $"select* from userinfo where account = '{userAccount}'";
                 if (executer.ExecuteNonQuery(queryExitUser) > 0)
-                    return new StandRespone(false, "用户已存在!");
-                
+                    return new Respone() { IsSuccess = false, Message = "用户已存在" };
+
                 var trans= executer.Connection.BeginTransaction();
                 var insertUser = $"insert into userinfo (account,create_date,status,user_name) " +
                     $"values('{userAccount}',now(),'{UserStatus.Normal}','{userName}');"+
@@ -97,12 +98,12 @@ namespace DBCore
                 executer.ExecuteNonQuery(insertUser);
                 trans.Commit();
 
-                return StandRespone.SuccessResult("注册成功");
+                return new Respone() { IsSuccess = true, Message = "注册成功" };
             }
             catch(Exception e)
             {
                 executer.Close();
-                return StandRespone.FailResult("发生异常:" + e.Message);
+                return new Respone() { IsSuccess = false, Message = "发生异常" };
             }
             finally
             {
@@ -113,10 +114,10 @@ namespace DBCore
         /// <summary>
         /// 获取用户信息
         /// </summary>
-        public StandRespone<UserInfo> GetUserInfo(string account)
+        public Respone GetUserInfo(string account)
         {
             if (!account.IsDBSafe())
-                return StandRespone<UserInfo>.UnSafeResult();
+                return new Respone() { IsSuccess = false, Message = "请求无效" };
 
             using (var executer = DBExecuterFactory.CreateDBExecuter())
             {
@@ -126,15 +127,13 @@ namespace DBCore
                 var reader= executer.ExecuteReader(cmd);
                 reader.Read();
                 if(!reader.HasRows)
-                    return StandRespone<UserInfo>.FailResult("没有该账号信息");
+                    return new Respone() { IsSuccess = false, Message = "没有该账号信息" };
 
                 UserInfo userInfo = new UserInfo
                 {
-                    //Account = reader["account"].ToString(),
                     UserName = reader["user_name"].ToString()
                 };
-
-                return new StandRespone<UserInfo> { IsSuccess = true, Data = userInfo };
+                return new Respone() { IsSuccess = true, Data=Any.Pack(userInfo) };
             }
         }
 
@@ -144,10 +143,11 @@ namespace DBCore
         /// </summary>
         /// <param name="userAccount"></param>
         /// <param name="password"></param>
-        public StandRespone<(string salt,string pwd)> GetPassword(string userAccount)
+        public Respone GetPassword(string userAccount,out (string salt,string pwd) resdata)
         {
+            resdata = ("", "");
             if (!userAccount.IsDBSafe())
-                return StandRespone<(string,string)>.UnSafeResult();
+                return new Respone() { IsSuccess = false, Message = "请求无效" };
 
             var executer = DBExecuterFactory.CreateDBExecuter();
             try
@@ -157,15 +157,18 @@ namespace DBCore
                     $"where b.account='{userAccount}'";
                 var data=executer.ExecuteToTable(cmd);
                 if (data.Rows.Count > 0)
-                    //return new StandRespone(true, "查询成功") { Data = data };
-                    return new StandRespone<(string, string)>(true, "查询成功", (data.Rows[0]["salt"].ToString(), data.Rows[0]["password"].ToString()));
+                {
+                    resdata.salt = data.Rows[0]["salt"].ToString();
+                    resdata.pwd = data.Rows[0]["password"].ToString();
+                    return new Respone() { IsSuccess = true, Message = "该账号不存在" };
+                }
                 else
-                    return new StandRespone<(string,string)>(false, "该账号不存在");
+                    return new Respone() { IsSuccess = false, Message = "该账号不存在" };
             }
             catch(Exception e)
             {
                 executer.Close();
-                return StandRespone<(string, string)>.FailResult("发生异常:" + e.Message);
+                return new Respone() { IsSuccess = false, Message = "发生异常" };
             }
             finally
             {

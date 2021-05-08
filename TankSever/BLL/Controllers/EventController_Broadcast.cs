@@ -9,9 +9,8 @@ using TankSever.BLL.Server;
 
 namespace TankSever.BLL.Controllers
 {
-    class BroadcastController : Controller
+    partial class EventController : Controller
     {
-        private User _user => User as User;
         //广播位置信息
         public void UpdateTransform((double sendtime,Transform transform) data)
         {

@@ -6,9 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using DBCore;
 using ServerCommon.Protocol;
-using DataModel;
+//using DataModel;
 using TankSever.BLL.Server;
 using AutoUpdate;
+using ProtobufProto;
+using ProtobufProto.Model;
 
 namespace TankSever.BLL.Controllers
 {
@@ -17,7 +19,7 @@ namespace TankSever.BLL.Controllers
         private User _user => User as User;
         //注册
         [AllowAnonymous]
-        public StandRespone Register(RegisterRequest request)
+        public Respone Register(RegistrRequest request)
         {
             //加密密码
             byte[] salt = new byte[20];
@@ -26,31 +28,31 @@ namespace TankSever.BLL.Controllers
             var saltpass = Encoding.UTF8.GetBytes(request.Password).Concat(salt).ToArray();
             var crpPass = md5.ComputeHash(saltpass);
 
-            return DBServer.Instance.Regeister(request.UserName,request.UserAccount, Convert.ToBase64String(crpPass), Convert.ToBase64String(salt));
+            return DBServer.Instance.Regeister(request.UserName,request.Account, Convert.ToBase64String(crpPass), Convert.ToBase64String(salt));
         }
 
         //登录
         [AllowAnonymous]
-        public StandRespone Login(LoginRequest request)
+        public Respone Login(LoginRequest request)
         {
-            var res = DBServer.Instance.GetPassword(request.UserName);
+            var res = DBServer.Instance.GetPassword(request.Account,out (string salt,string pwd)data);
             if (res.IsSuccess)
             {
-                var oldPass = res.Data.pwd;
-                var salt = Convert.FromBase64String(res.Data.salt);
+                var oldPass = data.pwd;
+                var salt = Convert.FromBase64String(data.salt);
                 var saltpass = Encoding.UTF8.GetBytes(request.Password).Concat(salt).ToArray();
                 MD5Cng md5 = new MD5Cng();
                 var crpPass = Convert.ToBase64String(md5.ComputeHash(saltpass));
 
                 if (oldPass == crpPass)
                 {
-                    User.Login(request.UserName);
+                    User.Login(request.Account);
 
-                    return new StandRespone<string> { IsSuccess = true, Message = "登录成功",Data= (User as User).LoginTimestamp };
+                    return ToolHelp.CreateRespone(true, "登录成功", new SingleString() { Data = _user.LoginTimestamp });
                 }
                 else
                 {
-                    return StandRespone.FailResult("登录失败,密码错误");
+                    return ToolHelp.CreateRespone(false, "登录失败,密码错误");
                 }
             }
             else
@@ -58,7 +60,7 @@ namespace TankSever.BLL.Controllers
         }
 
         //获取用户信息
-        public StandRespone<UserInfo> GetUserInfo()
+        public Respone GetUserInfo()
         {
             var res = DBServer.Instance.GetUserInfo(_user.UserAccount);
             return res;
@@ -70,69 +72,68 @@ namespace TankSever.BLL.Controllers
         }
 
         [AllowAnonymous]
-        public StandRespone CheckVersion(float version)
+        public Respone CheckVersion(float version)
         {
             float highVer= (Program.UpdateServer as UpdateServer).Manager.GetHighVersion();
 
             if(version< highVer)
             {
                 (Program.UpdateServer as UpdateServer).Manager.GetDiffFiles(version, out _, out _, out long size);
-                return new StandRespone<(float,long)> { IsSuccess = false, Data = (highVer,size) };
+                return ToolHelp.CreateRespone(false, new VersionInfo { HighVersion = highVer, SumSize = size });
             }
-            return StandRespone.SuccessResult("最新版本");
+            return ToolHelp.CreateRespone(true, "最新版本");
         }
 
 
 
 
-        public RoomInfo[] RoomList()
+        public RoomInfos RoomList()
         {
-            return DataCenter.Rooms.GetRoomList();
+            var infos = new Google.Protobuf.Collections.RepeatedField<RoomInfo>();
+            infos.AddRange(DataCenter.Rooms.GetRoomList().Select(m=>m.Info));
+            var roominfos = new RoomInfos();
+            roominfos.Infos.AddRange(infos);
+            return roominfos;
         }
 
 
-        public StandRespone CreateRoom(RoomSetting setting)
+        public Respone CreateRoom(RoomSetting setting)
         {
             var user = User as User;
 
             if (user.RoomDetail.State != RoomUserStates.None)
-                return StandRespone.FailResult("已经在房中 不能创建房间");
+                return ToolHelp.CreateRespone(false, "已经在房中 不能创建房间");
 
             var room= DataCenter.Rooms.CreateRoom(user, setting);
-            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.CreateRoom, user.Room));
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
-            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.CreateRoom, user.Room));
-            //DataCenter.BroadcastRoomQueue.Enqueue((romid,BroadcastActions.RoomChange, user.RoomDetail));
-            return new StandRespone<RoomInfo>(true, "创建成功", room);
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpCreateRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
+            return ToolHelp.CreateRespone(true, "创建成功",room.Info);
         }
 
-        public StandRespone LeaveRoom()
+        public Respone LeaveRoom()
         {
             var user = User as User;
             var suc = DataCenter.Rooms.LeaveRoom(user);
-            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.LeaveRoom, user.Room));
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
-            //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
-            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.LeaveRoom, user.Room));
-            return new StandRespone(suc);
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpLeaveRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
+            return ToolHelp.CreateRespone(suc);
         }
 
-        public StandRespone JoinRoom((int roomid,string password)data)
+        public Respone JoinRoom((int roomid,string password)data)
         {
             var user = User as User;
 
             if (user.RoomDetail.State != RoomUserStates.None)
-                return StandRespone.FailResult("已经在房中 不能加入房间");
+                return ToolHelp.CreateRespone(false, "已经在房中 不能加入房间");
 
             if (!(DataCenter.Rooms[data.roomid]?.CheckPassword(data.password) ?? false))
-                return StandRespone.FailResult("房间密码错误");
+                return ToolHelp.CreateRespone(false, "房间密码错误");
 
             var suc = DataCenter.Rooms.JoinRoom(data.roomid, user,out Room room);
-            (Program.BroadServer as BroadcastServer).BroadcastGlobal((BroadcastActions.JoinRoom, user.Room));
-            (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
-            //DataCenter.BroadcastRoomQueue.Enqueue((roomid,BroadcastActions.RoomChange,user.RoomDetail));
-            //DataCenter.BroadcastGlobalQueue.Enqueue((BroadcastActions.JoinRoom, user.Room));
-            return new StandRespone<RoomInfo>(suc,suc?"加入成功":"加入失败", room);
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpJoinRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
+
+            return ToolHelp.CreateRespone(suc, suc ? "加入成功" : "加入失败", room.Info);
         }
 
         public RoomUser[] GetRoomUsers(int roomid)
@@ -140,43 +141,40 @@ namespace TankSever.BLL.Controllers
             return DataCenter.Rooms[roomid]?.GetUsers().Select(m=>m.RoomDetail).ToArray()??new RoomUser[0];
         }
 
-        public StandRespone RoomReady()
+        public Respone RoomReady()
         {
             var user = User as User;
             if ((user.Room as Room).RoomReady(user.RoomDetail))
             {
-                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
-                //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
-                return StandRespone.SuccessResult("准备成功");
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));;
+                return ToolHelp.CreateRespone(true, "准备成功");
             }
             else
-                return StandRespone.FailResult("准备失败");
+                return ToolHelp.CreateRespone(false, "准备失败");
         }
 
-        public StandRespone RoomCancelReady()
+        public Respone RoomCancelReady()
         {
             var user = User as User;
             if ((user.Room as Room).RoomCancelReady(user))
             {
-                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
-                //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
-                return StandRespone.SuccessResult("取消准备成功");
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
+                return ToolHelp.CreateRespone(true, "取消准备成功");
             }
             else
-                return StandRespone.FailResult("取消准备失败");
+                return ToolHelp.CreateRespone(false, "取消准备失败");
         }
 
-        public StandRespone RoomChangeIndex(int index)
+        public Respone RoomChangeIndex(int index)
         {
             var user = User as User;
             if ((user.Room as Room).ChangeIndex(user,index))
             {
-                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.RoomId, BroadcastActions.RoomChange, user.RoomDetail));
-                //DataCenter.BroadcastRoomQueue.Enqueue((user.Room.RoomId,BroadcastActions.RoomChange, user.RoomDetail));
-                return StandRespone.SuccessResult("操作成功");
+                (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
+                return ToolHelp.CreateRespone(true, "操作成功");
             }
             else
-                return StandRespone.FailResult("操作失败");
+                return ToolHelp.CreateRespone(false, "操作失败");
         }
 
 
