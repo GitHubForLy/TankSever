@@ -33,7 +33,7 @@ namespace TankSever
 
             Program.NetServer.Start(new IPEndPoint(IPAddress.Any, GlobalConfig.TcpPort));
             Program.BroadServer.Start();
-            Program.RoomServer.Start();
+            //Program.RoomServer.Start();
             Program.UpdateServer.Start();
 
             lbx_log.Items.Add("[服务已启动]");
@@ -71,7 +71,7 @@ namespace TankSever
         {
             Program.NetServer.Close();
             Program.BroadServer.Stop();
-            Program.RoomServer.Stop();
+            //Program.RoomServer.Stop();
             Program.UpdateServer.Stop();
             lbx_log.Items.Add("[服务已停止]");
             btn_start.Enabled = true;

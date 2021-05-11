@@ -140,7 +140,13 @@ namespace AutoUpdate
         {
             while(!IsStop)
             {
-                var client=tcpListener.AcceptTcpClient();
+                TcpClient client=null;
+                try
+                {
+                    client = tcpListener.AcceptTcpClient();
+                }
+                catch (SocketException) { continue; };
+                
                 Task.Run(() =>
                 {
                     var ce = client;

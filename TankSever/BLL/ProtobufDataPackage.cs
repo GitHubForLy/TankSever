@@ -21,6 +21,12 @@ namespace TankSever.BLL
             return data.Skip(2).ToArray();
         }
 
+        /// <summary>
+        /// 使用指定的UdpFlags打包数据
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static byte[] PackageData(UdpFlags type, byte[] data)
         {
             var typebits = BitConverter.GetBytes((short)type);

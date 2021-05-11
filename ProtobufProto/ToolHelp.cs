@@ -22,13 +22,13 @@ namespace ProtobufProto
         {
             return new Respone { IsSuccess = IsSuccess, Message=message };
         }
-        public static Respone CreateRespone(bool IsSuccess, IMessage data)
+        public static Respone<T> CreateRespone<T>(bool IsSuccess, T data)/*where T: ProtoBuf.IExtensible*/
         {
-            return new Respone { IsSuccess = IsSuccess, Data=Any.Pack(data) };
+            return new Respone<T> { IsSuccess = IsSuccess, Data= data };
         }
-        public static Respone CreateRespone(bool IsSuccess, string Message, IMessage data)
+        public static Respone<T> CreateRespone<T>(bool IsSuccess, string Message, T data) /*where T : ProtoBuf.IExtensible*/
         {
-            return new Respone { IsSuccess = IsSuccess, Message=Message,Data = Any.Pack(data) };
+            return new Respone<T> { IsSuccess = IsSuccess, Message=Message,Data = data };
         }
     }
 }

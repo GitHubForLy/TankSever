@@ -8,8 +8,6 @@ import "google/protobuf/Any.proto";
 message Respone{  
     bool   IsSuccess=3;
     string  Message=4;
-
-    google.protobuf.Any Data=5;
 }
 
 /*  只有值的行

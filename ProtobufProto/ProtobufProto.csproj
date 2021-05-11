@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\ResponeEx.cs" />
     <Compile Include="ProtobufFormatter.cs" />
     <Compile Include="Model\Data.cs" />
     <Compile Include="Model\Types.cs" />

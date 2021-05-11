@@ -114,10 +114,10 @@ namespace DBCore
         /// <summary>
         /// 获取用户信息
         /// </summary>
-        public Respone GetUserInfo(string account)
+        public Respone<UserInfo> GetUserInfo(string account)
         {
             if (!account.IsDBSafe())
-                return new Respone() { IsSuccess = false, Message = "请求无效" };
+                return new Respone<UserInfo>() { IsSuccess = false, Message = "请求无效" };
 
             using (var executer = DBExecuterFactory.CreateDBExecuter())
             {
@@ -127,13 +127,13 @@ namespace DBCore
                 var reader= executer.ExecuteReader(cmd);
                 reader.Read();
                 if(!reader.HasRows)
-                    return new Respone() { IsSuccess = false, Message = "没有该账号信息" };
+                    return new Respone<UserInfo>() { IsSuccess = false, Message = "没有该账号信息" };
 
                 UserInfo userInfo = new UserInfo
                 {
                     UserName = reader["user_name"].ToString()
                 };
-                return new Respone() { IsSuccess = true, Data=Any.Pack(userInfo) };
+                return new Respone<UserInfo>() { IsSuccess = true,  Data=userInfo };
             }
         }
 

@@ -7,6 +7,7 @@ using System.Threading;
 using ServerCommon;
 //using DataModel;
 using ProtobufProto.Model;
+using Google.Protobuf;
 
 namespace TankSever.BLL.Server
 {
@@ -23,13 +24,13 @@ namespace TankSever.BLL.Server
 
         private void Instance_OnUserLoginout(User user)
         {
-            BroadcastMessage(TcpFlags.TcpLogout, (user.UserAccount, user.LoginTimestamp));
+            BroadcastMessage(TcpFlags.TcpLogout, new LogoutInfo { UserAccount = user.UserAccount, Timestamp = user.LoginTimestamp });
             if (user.RoomDetail.State != RoomUserStates.None)
             {
                 if (!DataCenter.Rooms.LeaveRoom(user))
                     throw new Exception("用户登出时离开房间失败");
 
-                BroadcastMessage(TcpFlags.TcpLeaveRoom, user.Room);
+                BroadcastMessage(TcpFlags.TcpBdLeaveRoom, user.Room.Info);
                 BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
 
                 Notify(NotifyType.Message, user.UserAccount + " 用户登出 自动退出房间", this);
@@ -48,9 +49,12 @@ namespace TankSever.BLL.Server
                     if (rom.Info.State != RoomState.RoomFight)
                         continue;
 
-                    var set= rom.GetUsers().Select(m => (m.UserAccount, m.BattleInfo.transTime, m.BattleInfo.Trans)).ToArray();
-
-                    BroadcastRoom((rom.Info.RoomId, TcpFlags.TcpUpdateTransform,set));
+                    PlayerTransformMap map = new PlayerTransformMap();
+                    foreach(var user in  rom.GetUsers())
+                    {
+                        map.Transforms.Add(user.UserAccount, user.BattleInfo.Trans);
+                    }
+                    BroadcastRoom((rom.Info.RoomId, TcpFlags.TcpUpdateTransform, map));
                 }
 
                 //do
@@ -85,12 +89,12 @@ namespace TankSever.BLL.Server
        
         }
 
-        public void BroadcastGlobal((TcpFlags action, object data) data)
+        public void BroadcastGlobal((TcpFlags action, ProtoBuf.IExtensible data) data)
         {
             BroadcastMessage(data.action, data.data);
         }
 
-        public void BroadcastRoom((int roomid, TcpFlags action, object data) data)
+        public void BroadcastRoom((int roomid, TcpFlags action, ProtoBuf.IExtensible data) data)
         {
             var room = DataCenter.Rooms[data.roomid];
             if(room != null)
@@ -99,7 +103,7 @@ namespace TankSever.BLL.Server
                 BroadcastMessage(data.action, users, data.data);
             }
         }
-        public void BroadcastTeam((int roomid,int teamid,TcpFlags action, object data) data)
+        public void BroadcastTeam((int roomid,int teamid,TcpFlags action, ProtoBuf.IExtensible data) data)
         {
             var users = DataCenter.Rooms[data.roomid].GetUsers().Where(m=>m.RoomDetail.Team==data.teamid).ToArray();
             BroadcastMessage(data.action,users, data.data);
@@ -108,7 +112,7 @@ namespace TankSever.BLL.Server
         /// <summary>
         /// 广播消息
         /// </summary>
-        public void BroadcastMessage<T>(TcpFlags action,T data)
+        public void BroadcastMessage<T>(TcpFlags action,T data) where T: ProtoBuf.IExtensible
         {
             BroadcastMessage(action, null, data);
         }

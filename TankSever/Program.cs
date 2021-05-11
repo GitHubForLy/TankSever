@@ -29,7 +29,7 @@ namespace TankSever
         /// <summary>
         /// 房间工作服务
         /// </summary>
-        public static ServerBase RoomServer { get; private set; }
+        //public static ServerBase RoomServer { get; private set; }
 
         public static ServerBase UpdateServer { get; private set; }
 
@@ -68,7 +68,7 @@ namespace TankSever
             BroadServer = new BroadcastServer(MainForm as MainForm);
             DataCenter.Init();
 
-            RoomServer = new RoomWorker(MainForm as MainForm);
+            //RoomServer = new RoomWorker(MainForm as MainForm);
             UpdateServer = new UpdateServer(new System.Net.IPEndPoint(System.Net.IPAddress.Any,4788),MainForm as MainForm);
         }
     }

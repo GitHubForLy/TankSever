@@ -38,7 +38,7 @@ namespace TankSever.BLL
         {
             base.Login(account);
             BattleInfo = new BattleInfo();
-            RoomDetail.Info = DBServer.Instance.GetUserInfo(account).Data.Unpack<UserInfo>();
+            RoomDetail.Info = DBServer.Instance.GetUserInfo(account).Data;
             RoomDetail.Account = account;
      
             if(DataCenter.Users.HasUser(account))

@@ -19,7 +19,6 @@ message PlayerTransform{
 	string Account=1;
 	Transform Trans=2;
 }
-
 message PlayerTransformMap{
 	map<string ,Transform> Transforms=1;
 }
@@ -32,6 +31,17 @@ message SingleString{
 //单int类型消息
 message SingleInt{
 	int32 data=1;
+}
+message SingleDouble{
+    double data=1;
+}
+
+message SingleFloat{
+    float data=1;
+}
+
+message SingleBool{
+    bool data=1;
 }
 
 //注册请求
@@ -132,4 +142,45 @@ message RoomUser
 
     int32 Team=6;
     int32 Index=7;
+}
+
+message RoomUsers{
+    repeated RoomUser Users=1;
+}
+
+//玩家操作
+message PlayerOperation{
+    string account=1;
+
+    int32 forwardInput=2;
+    int32 turnInput=3;
+    int32 turretX=4;
+    int32 turretY=5;
+    int32 turretZ=6;
+}
+
+message UpFrame{
+    int32 UpIndex=1;
+    PlayerOperation Oper=2;
+}
+
+//所有玩家的操作
+message PlayerOperations{
+    repeated PlayerOperation Operations=1;
+}
+
+//下发的帧数据
+message DownOperations{
+    int32 FrameIndex=1;
+    PlayerOperations Operations=2;
+}
+
+message LogoutInfo{
+    string UserAccount=1;
+    string Timestamp=2;
+}
+
+message RoomMessage{
+    string UserAccount=1;
+    string Message=2;
 }

@@ -11,6 +11,7 @@ using TankSever.BLL.Server;
 using AutoUpdate;
 using ProtobufProto;
 using ProtobufProto.Model;
+using TankSever.BLL.Protocol;
 
 namespace TankSever.BLL.Controllers
 {
@@ -18,7 +19,7 @@ namespace TankSever.BLL.Controllers
     {
         private User _user => User as User;
         //注册
-        [AllowAnonymous]
+        [AllowAnonymous,Request(TcpFlags.TcpRegester)]
         public Respone Register(RegistrRequest request)
         {
             //加密密码
@@ -32,8 +33,8 @@ namespace TankSever.BLL.Controllers
         }
 
         //登录
-        [AllowAnonymous]
-        public Respone Login(LoginRequest request)
+        [AllowAnonymous, Request(TcpFlags.TcpLogin)]
+        public Respone<SingleString> Login(LoginRequest request)
         {
             var res = DBServer.Instance.GetPassword(request.Account,out (string salt,string pwd)data);
             if (res.IsSuccess)
@@ -48,31 +49,33 @@ namespace TankSever.BLL.Controllers
                 {
                     User.Login(request.Account);
 
-                    return ToolHelp.CreateRespone(true, "登录成功", new SingleString() { Data = _user.LoginTimestamp });
+                    return ToolHelp.CreateRespone(true, "登录成功", new SingleString { Data = _user.LoginTimestamp });
                 }
                 else
                 {
-                    return ToolHelp.CreateRespone(false, "登录失败,密码错误");
+                    return ToolHelp.CreateRespone(false, "登录失败,密码错误",new SingleString() {  Data=""});
                 }
             }
             else
-                return res;
+                return ToolHelp.CreateRespone(false, res.Message, new SingleString() { Data = "" });
         }
 
         //获取用户信息
-        public Respone GetUserInfo()
+        [Request(TcpFlags.TcpGetUserInfo)]
+        public Respone<UserInfo> GetUserInfo()
         {
             var res = DBServer.Instance.GetUserInfo(_user.UserAccount);
             return res;
         }
 
+        [Request(TcpFlags.TcpLogout)]
         public void Logout()
         {
             User.LoginOut();
         }
 
-        [AllowAnonymous]
-        public Respone CheckVersion(float version)
+        [AllowAnonymous,  Request(TcpFlags.TcpCheckVersion)]
+        public Respone<VersionInfo> CheckVersion(float version)
         {
             float highVer= (Program.UpdateServer as UpdateServer).Manager.GetHighVersion();
 
@@ -81,12 +84,10 @@ namespace TankSever.BLL.Controllers
                 (Program.UpdateServer as UpdateServer).Manager.GetDiffFiles(version, out _, out _, out long size);
                 return ToolHelp.CreateRespone(false, new VersionInfo { HighVersion = highVer, SumSize = size });
             }
-            return ToolHelp.CreateRespone(true, "最新版本");
+            return ToolHelp.CreateRespone<VersionInfo>(true, "最新版本",null);
         }
 
-
-
-
+        [Request(TcpFlags.TcpGetRoomList)]
         public RoomInfos RoomList()
         {
             var infos = new Google.Protobuf.Collections.RepeatedField<RoomInfo>();
@@ -96,51 +97,57 @@ namespace TankSever.BLL.Controllers
             return roominfos;
         }
 
-
-        public Respone CreateRoom(RoomSetting setting)
+        [Request(TcpFlags.TcpCreateRoom)]
+        public Respone<RoomInfo> CreateRoom(RoomSetting setting)
         {
             var user = User as User;
 
             if (user.RoomDetail.State != RoomUserStates.None)
-                return ToolHelp.CreateRespone(false, "已经在房中 不能创建房间");
+                return ToolHelp.CreateRespone<RoomInfo>(false, "已经在房中 不能创建房间",null);
 
             var room= DataCenter.Rooms.CreateRoom(user, setting);
-            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpCreateRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpBdCreateRoom, user.Room.Info));
             (Program.BroadServer as BroadcastServer).BroadcastRoom((room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
             return ToolHelp.CreateRespone(true, "创建成功",room.Info);
         }
 
+        [Request(TcpFlags.TcpLeaveRoom)]
         public Respone LeaveRoom()
         {
             var user = User as User;
             var suc = DataCenter.Rooms.LeaveRoom(user);
-            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpLeaveRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpBdLeaveRoom, user.Room.Info));
             (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
             return ToolHelp.CreateRespone(suc);
         }
 
-        public Respone JoinRoom((int roomid,string password)data)
+        [Request(TcpFlags.TcpJoinRoom)]
+        public Respone<RoomInfo> JoinRoom((int roomid,string password)data)
         {
             var user = User as User;
 
             if (user.RoomDetail.State != RoomUserStates.None)
-                return ToolHelp.CreateRespone(false, "已经在房中 不能加入房间");
+                return ToolHelp.CreateRespone<RoomInfo>(false, "已经在房中 不能加入房间",null);
 
             if (!(DataCenter.Rooms[data.roomid]?.CheckPassword(data.password) ?? false))
-                return ToolHelp.CreateRespone(false, "房间密码错误");
+                return ToolHelp.CreateRespone<RoomInfo>(false, "房间密码错误",null);
 
             var suc = DataCenter.Rooms.JoinRoom(data.roomid, user,out Room room);
-            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpJoinRoom, user.Room));
+            (Program.BroadServer as BroadcastServer).BroadcastGlobal((TcpFlags.TcpBdJoinRoom, user.Room.Info));
             (Program.BroadServer as BroadcastServer).BroadcastRoom((user.Room.Info.RoomId, TcpFlags.TcpRoomChange, user.RoomDetail));
 
             return ToolHelp.CreateRespone(suc, suc ? "加入成功" : "加入失败", room.Info);
         }
 
-        public RoomUser[] GetRoomUsers(int roomid)
+        [Request(TcpFlags.TcpGetRoomUsers)]
+        public RoomUsers GetRoomUsers(int roomid)
         {
-            return DataCenter.Rooms[roomid]?.GetUsers().Select(m=>m.RoomDetail).ToArray()??new RoomUser[0];
+            RoomUsers users = new RoomUsers();
+            users.Users.AddRange(DataCenter.Rooms[roomid]?.GetUsers().Select(m => m.RoomDetail).ToArray() ?? new RoomUser[0]);
+            return users;
         }
 
+        [Request(TcpFlags.TcpRoomReady)]
         public Respone RoomReady()
         {
             var user = User as User;
@@ -153,6 +160,7 @@ namespace TankSever.BLL.Controllers
                 return ToolHelp.CreateRespone(false, "准备失败");
         }
 
+        [Request(TcpFlags.TcpRoomCancelReady)]
         public Respone RoomCancelReady()
         {
             var user = User as User;
@@ -165,6 +173,7 @@ namespace TankSever.BLL.Controllers
                 return ToolHelp.CreateRespone(false, "取消准备失败");
         }
 
+        [Request(TcpFlags.TcpRoomChangeIndex)]
         public Respone RoomChangeIndex(int index)
         {
             var user = User as User;
@@ -177,12 +186,17 @@ namespace TankSever.BLL.Controllers
                 return ToolHelp.CreateRespone(false, "操作失败");
         }
 
-
-
-        [AllowAnonymous]
-        public double CheckTime()
+        [Request(TcpFlags.TcpRoomMessage)]
+        public void BroadcastRoomMsg(RoomMessage message)
         {
-            return Sys.GetTime();
+            (Program.BroadServer as BroadcastServer).BroadcastRoom((_user.Room.Info.RoomId, TcpFlags.TcpRoomMessage, message));
+            //DataCenter.BroadcastRoomQueue.Enqueue((_user.Room.RoomId, BroadcastActions.BroadcastRoomMsg, (_user.UserName,message)));
+        }
+
+        [AllowAnonymous,Request(TcpFlags.TcpCheckTime)]
+        public SingleDouble CheckTime()
+        {
+            return new SingleDouble { Data = Sys.GetTime() };
         }
     }
 }

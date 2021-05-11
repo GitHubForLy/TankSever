@@ -32,7 +32,7 @@ namespace ProtobufProto
             using (var stream = new MemoryStream())
             {
                 Serializer.Serialize(stream, ojb);
-                return stream.GetBuffer(); 
+                return stream.ToArray(); 
             }
         }
     }
