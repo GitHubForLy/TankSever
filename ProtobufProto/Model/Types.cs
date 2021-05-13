@@ -79,6 +79,10 @@ namespace ProtobufProto.Model
         UdpGameReady = 2,
         [global::ProtoBuf.ProtoEnum(Name = @"UDP_REQ_FRAME")]
         UdpReqFrame = 3,
+        [global::ProtoBuf.ProtoEnum(Name = @"UDP_BATTLE_START")]
+        UdpBattleStart = 4,
+        [global::ProtoBuf.ProtoEnum(Name = @"UDP_DOWN_LACK_FRAME")]
+        UdpDownLackFrame = 5,
     }
 
 }

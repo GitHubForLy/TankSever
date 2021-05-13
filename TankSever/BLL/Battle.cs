@@ -16,30 +16,34 @@ namespace TankSever.BLL
     {
         private Room _room;
         private Dictionary<User, ClientUdp> clients=new Dictionary<User, ClientUdp>();  //用户和udp
-        private Dictionary<User, bool> clientstates=new Dictionary<User, bool>();       //用户状态 (是否上传第一次操作)
-        private Dictionary<User, int> clientUpId = new Dictionary<User, int>(); //用户上传序号
+        private Dictionary<ClientUdp, int> clientUpId = new Dictionary<ClientUdp, int>(); //用户上传序号
         private Dictionary<int, PlayerOperations> hisFrames=new Dictionary<int, PlayerOperations>();  //历史帧
         private IDataFormatter formatter;
         private int currentFrameIndex = 0;
-        private Dictionary<User,PlayerOperation> currentOperations=new Dictionary<User, PlayerOperation>();
+        private Dictionary<ClientUdp    ,PlayerOperation> currentOperations=new Dictionary<ClientUdp, PlayerOperation>();
+        private bool noOver = true;
+        private User[] users;
 
         public Battle(Room room)
         {
             formatter = DI.Instance.Resolve<IDataFormatter>();
             _room = room;
+            users = room.GetUsers();
+
+            UdpServer.OnReceive += OnUdpServerReceive;
 
             ClientUdp udp;
-            foreach(var user in _room.GetUsers())
-            {
-                udp = ClientUdp.CreateClient(user, (short)GlobalConfig.UdpPort);
-                clients.Add(user, udp);
-                clientstates.Add(user, false);
+            //foreach(var user in _room.GetUsers())
+            //{
+            //    udp = new ClientUdp(user);
+            //    clients.Add(user, udp);
+            //    clientUpId[user] = -1;
 
-                udp.OnReceive += data =>
-                {
-                    OnReceive(user, data);
-                };
-            }
+            //    udp.OnReceive += data =>
+            //    {
+            //        OnReceive(user, data);
+            //    };
+            //}
         }
 
 
@@ -47,24 +51,32 @@ namespace TankSever.BLL
         {
             Task.Factory.StartNew(async () =>
             {
-                while(true)
+                //等待所有玩家准备完成
+                while (noOver)
                 {
-                    //等待所有玩家发来第一次操作
-                    while(true)
-                    {
-                        if (checkAllReady())
-                            break;
-                        await Task.Delay(30);
-                    }
+                    if (checkAllReady())
+                        break;
+                    await Task.Delay(200);
+                }
+                //等待所有玩家发来第一次操作
+                while (noOver)
+                {
+                    SendBattleStart();
+                    if (checkAllFirstOper())
+                        break;
+                    await Task.Delay(200);
+                }
 
-
+                //循环发送帧操作
+                while (noOver)
+                {                             
                     currentFrameIndex++;
 
                     DownOperations frame = new DownOperations();
                     frame.FrameIndex = currentFrameIndex;
                     frame.Operations = new PlayerOperations();
                     frame.Operations.Operations.AddRange(currentOperations.Values);
-                    broadcastFrame(frame);
+                    BroadcastMessage(UdpFlags.UdpDownFrame,frame);
 
 
                     hisFrames[currentFrameIndex] = frame.Operations;
@@ -73,76 +85,131 @@ namespace TankSever.BLL
             });
         }
 
-        //广播帧数据
-        private void broadcastFrame(DownOperations frame)
+        //发送战斗开始
+        private void SendBattleStart()
         {
-            byte[] data;
-            foreach(var client in clients)
+            BroadcastMessage(UdpFlags.UdpBattleStart, null);
+        }
+
+        public void StopFight()
+        {
+            System.Diagnostics.Debug.WriteLine("清理战场");
+            noOver = false;
+            lock(clients)
             {
-                data= formatter.Serialize(frame);
-                data=ProtobufDataPackage.PackageData(UdpFlags.UdpDownFrame, data);
-                client.Value.SendMessage(data);
+                foreach (var ct in clients)
+                {
+                    ct.Value.Close();
+                }
             }
         }
 
+        //广播消息
+        private void BroadcastMessage(UdpFlags flag,object data)
+        {
+            byte[] buffer;
+            buffer = formatter.Serialize(data);
+            buffer = ProtobufDataPackage.PackageData(flag, buffer);
+
+            lock(clients)
+            {
+                foreach (var client in clients)
+                {
+                    client.Value.SendMessage(buffer);
+                }
+            }
+        }
+
+
+        //检查是否都发来了操作信息
         private bool checkAllReady()
         {
-            return clientstates.All(m => m.Value);
+            lock(clients)
+            {
+                return clients.Count >= users.Length;
+            }
+        }
+
+
+        //检查是否都发来了操作信息
+        private bool checkAllFirstOper()
+        {
+            lock(clients)
+            {
+                return currentOperations.Count >= clients.Count;
+            }
         }
 
         //接收到消息
-        private void OnReceive(User user,byte[] data)
+        private void OnUdpServerReceive(ClientUdp user,byte[] data)
         {
             var req= ProtobufDataPackage.UnPackageData(data, out UdpFlags action);
             HandleRequest(user,action, req);
         }
 
         //处理消息
-        private void HandleRequest(User user,UdpFlags action,byte[] data)
+        private void HandleRequest(ClientUdp user,UdpFlags action,byte[] data)
         {
             switch(action)
             {
+                case UdpFlags.UdpGameReady:
+                    OnGameReady(user, formatter.Deserialize<SingleString>(data));
+                    break;
                 case UdpFlags.UdpUpFrame:
                 {
                     var frame = formatter.Deserialize<UpFrame>(data);
                     OnUpFrame(user, frame);
                     break;
                 }
-                case UdpFlags.UdpGameReady:
-                    OnGameReady(user);
-                    break;
                 case UdpFlags.UdpReqFrame:
                 {
-                    var index = formatter.Deserialize<SingleInt>(data);
-                    OnReqFrame(user, index);
+                    var req = formatter.Deserialize<ReqLackFrame>(data);
+                    OnReqFrame(user, req);
                     break;
                 }
 
             }
         }
 
-        //请求补帧
-        private void OnReqFrame(User user, SingleInt index)
+        //用户准备
+        private void OnGameReady(ClientUdp user, SingleString data)
         {
-            if(index.Data<currentFrameIndex)
+            string account = data.Data;
+            lock(clients)
             {
-                DownOperations opers= new DownOperations();
-                opers.FrameIndex = index.Data;
-                opers.Operations= hisFrames[index.Data];
+                if (!clients.ContainsValue(user))
+                {
+                    var au = users.First(m => m.UserAccount == account);
+                    clients.Add(au, user);
+                    clientUpId[user] = -1;
 
-                var data = formatter.Serialize(opers);
-                data=ProtobufDataPackage.PackageData(UdpFlags.UdpDownFrame, data);
-                clients[user].SendMessage(data);
+                    user.UserData = au;
+                }
             }
         }
 
-        private void OnGameReady(User user)
+
+        //请求补帧
+        private void OnReqFrame(ClientUdp user, ReqLackFrame req)
         {
-            clientstates[user] = true;
+            DownLackFrame frames = new DownLackFrame();
+
+            foreach(var i in req.Indexes)
+            {
+                DownOperations opers = new DownOperations();
+                opers.FrameIndex = i;
+                opers.Operations=hisFrames[i];
+                frames.Frames.Add(opers);
+            }
+
+            var data = formatter.Serialize(frames);
+            data = ProtobufDataPackage.PackageData(UdpFlags.UdpDownLackFrame, data);
+            user.SendMessage(data);
         }
 
+
         //上传帧操作
-        private void OnUpFrame(User user,UpFrame upFrame)
+        private void OnUpFrame(ClientUdp user,UpFrame upFrame)
         {
             if(upFrame.UpIndex>clientUpId[user])
             {

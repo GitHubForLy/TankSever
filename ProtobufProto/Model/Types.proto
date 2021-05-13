@@ -73,6 +73,10 @@ enum UdpFlags{
     UDP_GAME_READY=2;
     //请求补帧
     UDP_REQ_FRAME=3;
+    //开始战斗
+    UDP_BATTLE_START=4;
+    //下发补帧
+    UDP_DOWN_LACK_FRAME=5;
 }
 
 

@@ -422,6 +422,30 @@ namespace ProtobufProto.Model
     }
 
     [global::ProtoBuf.ProtoContract()]
+    public partial class ReqLackFrame : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, IsPacked = true)]
+        public int[] Indexes { get; set; }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class DownLackFrame : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1)]
+        public global::System.Collections.Generic.List<DownOperations> Frames { get; } = new global::System.Collections.Generic.List<DownOperations>();
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
     public enum RoomState
     {
         RoomWaiting = 0,

@@ -43,7 +43,11 @@ namespace TankSever.BLL
                     if ((user.Room as Room).LeaveRoom(user))
                     {
                         if (user.Room.Info.UserCount <= 0)
-                              roomList.Remove(id);
+                        {
+                            roomList.Remove(id);
+                            user.Room.StopFight();
+                        }
+
                         return true;
                     }
                     else

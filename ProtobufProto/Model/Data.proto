@@ -184,3 +184,14 @@ message RoomMessage{
     string UserAccount=1;
     string Message=2;
 }
+
+//请求补帧
+message ReqLackFrame{
+    //帧序号
+    repeated int32 Indexes=1;
+}
+
+//下发补帧
+message DownLackFrame{
+    repeated DownOperations Frames=1;
+}

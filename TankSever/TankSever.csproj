@@ -123,6 +123,7 @@
     <Compile Include="BLL\RoomWorker.cs" />
     <Compile Include="BLL\Server\BroadcastServer.cs" />
     <Compile Include="BLL\Server\StandTcpServer.cs" />
+    <Compile Include="BLL\Server\UdpManager.cs" />
     <Compile Include="BLL\Sys.cs" />
     <Compile Include="BLL\User.cs" />
     <Compile Include="BLL\UserManager.cs" />

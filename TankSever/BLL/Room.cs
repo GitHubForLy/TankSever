@@ -48,6 +48,13 @@ namespace TankSever.BLL
         /// </summary>
         public bool IsFullReady => users.All(m => m.Value.RoomDetail.State == RoomUserStates.Ready);
 
+        internal void StopFight()
+        {
+            if (Info.State != RoomState.RoomFight)
+                return;
+            battle.StopFight();
+        }
+
         /// <summary>
         /// 创建房间
         /// </summary>

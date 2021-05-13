@@ -63,6 +63,7 @@
     <Compile Include="NetServer\ClientUdp.cs" />
     <Compile Include="NetServer\DataPackage.cs" />
     <Compile Include="NetServer\PackageUserToken.cs" />
+    <Compile Include="NetServer\UdpServer.cs" />
     <Compile Include="NetServer\UdpServerBase.cs" />
     <Compile Include="SemaphoreQueue.cs" />
     <Compile Include="DI.cs" />

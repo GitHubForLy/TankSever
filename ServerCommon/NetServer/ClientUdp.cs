@@ -8,43 +8,41 @@ using System.Net.Sockets;
 
 namespace ServerCommon.NetServer
 {
+    /// <summary>
+    /// 客户udp
+    /// </summary>
     public class ClientUdp
     {
-        private UdpClient client;
-        private IPEndPoint point;
+        public IPEndPoint Point { get; }
         private bool isreceive = false;
+        private UdpServer server;
 
-        public event Action<byte[]> OnReceive;
+        /// <summary>
+        /// 自定义数据
+        /// </summary>
+        public object UserData { get; set; }
 
-        private ClientUdp(IPAddress clientIp,short recvPort)
+        internal ClientUdp(IPEndPoint pt,UdpServer server)
         {
-            client = new UdpClient(recvPort);
-            point = new IPEndPoint(clientIp, recvPort);
-            client.BeginReceive(OnReceiveMethod, null);
-        }
-
-        private void OnReceiveMethod(IAsyncResult ar)
-        {
-            byte[] data = client.EndReceive(ar, ref point);
-            isreceive = true;
-            OnReceive?.Invoke(data);
-            client.BeginReceive(OnReceiveMethod, null);
-        }
-
-        public static ClientUdp CreateClient(AsyncUser user,short recvPort)
-        {
-            return new ClientUdp((user.UserToken.ConnectSocket.RemoteEndPoint as IPEndPoint).Address, recvPort);
+            this.server = server;
+            Point = pt;
         }
 
         public void SendMessage(byte[] data)
         {
-            if (!isreceive)
-                return;
-            client.Send(data, data.Length, point);
+            SendMessage(data, 0, data.Length);
         }
         public void SendMessage(byte[] data, int index, int length)
         {
-            client.Send(data.Skip(index).ToArray(), length);
+            ////在没有接收到第一次数据之前 是不知道客户端的端口的 所以判断一下
+            //if (!isreceive || Point == null)
+            //    return;
+            server.Send(data.Skip(index).ToArray(), Point);
+        }
+
+        public void Close()
+        {
+            server.CloseClient(this);
         }
     }
 }

@@ -31,6 +31,9 @@ namespace TankSever
         /// </summary>
         //public static ServerBase RoomServer { get; private set; }
 
+        //udp服务
+        public static UdpServer MainUdp { get; private set; }
+
         public static ServerBase UpdateServer { get; private set; }
 
 
@@ -67,6 +70,7 @@ namespace TankSever
 
             BroadServer = new BroadcastServer(MainForm as MainForm);
             DataCenter.Init();
+            MainUdp = new UdpServer(MainForm as MainForm);
 
             //RoomServer = new RoomWorker(MainForm as MainForm);
             UpdateServer = new UpdateServer(new System.Net.IPEndPoint(System.Net.IPAddress.Any,4788),MainForm as MainForm);
